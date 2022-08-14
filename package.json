@@ -1,0 +1,14 @@
+{
+  "name": "solana-curriculum",
+  "version": "1.0.0",
+  "description": "Root package.json",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freeCodeCamp/solana-curriculum.git"
+  },
+  "author": "Shaun Hamilton",
+  "type": "module",
+  "dependencies": {
+    "logover": "^1.3.5"
+  }
+}

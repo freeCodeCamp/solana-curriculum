@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "freeCodeCamp.freecodecamp-courses@1.4.3",
+    "freeCodeCamp.freecodecamp-dark-vscode-theme"
+  ],
+  "forwardPorts": [3000],
+  "workspaceFolder": "/workspace/solana-curriculum",
+  "dockerFile": "../.freeCodeCamp/Dockerfile",
+  "context": ".."
+}

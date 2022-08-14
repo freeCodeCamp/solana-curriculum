@@ -1,0 +1,16 @@
+image:
+  file: .gitpod.Dockerfile
+
+# Commands to start on workspace startup
+tasks:
+  - init: cd .freeCodeCamp && cp sample.env .env && npm ci
+
+ports:
+  - port: 8080
+    onOpen: open-preview
+
+# TODO: See about publishing to Open VSX for smoother process
+vscode:
+  extensions:
+    - https://github.com/freeCodeCamp/courses-vscode-extension/releases/download/v1.4.3/freecodecamp-courses-1.4.3.vsix
+    - https://github.com/freeCodeCamp/freecodecamp-dark-vscode-theme/releases/download/v1.0.0/freecodecamp-dark-vscode-theme-1.0.0.vsix

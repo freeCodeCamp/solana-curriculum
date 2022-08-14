@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    ".devcontainer": true,
+    ".editorconfig": true,
+    ".freeCodeCamp": true,
+    ".gitignore": true,
+    ".gitpod.Dockerfile": true,
+    ".gitpod.yml": true,
+    ".logs": true,
+    ".prettierignore": true,
+    ".prettierrc": true,
+    ".vscode": true,
+    "node_modules": true,
+    "package.json": true,
+    "package-lock.json": true,
+    "LICENSE": true,
+    "README.md": true,
+    "renovate.json": true,
+    "build-x-using-y": true,
+    "learn-how-to-set-up-solana-by-building-hello-world": true
+  }
+}

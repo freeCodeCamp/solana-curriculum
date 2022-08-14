@@ -1,0 +1,6 @@
+target
+node_modules
+.freeCodeCamp/.env
+Cargo.lock
+!.gitkeep
+.freeCodeCamp/dist

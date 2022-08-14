@@ -1,0 +1,20 @@
+[
+  {
+    "id": 0,
+    "title": "Learn How to Set Up Solana by Building Hello World",
+    "dashedName": "learn-how-to-set-up-solana-by-building-hello-world",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to set up Solana by building a simple hello world application.",
+    "isPublic": true,
+    "currentLesson": 1
+  },
+  {
+    "id": 1,
+    "title": "Build X Using Y",
+    "dashedName": "build-x-using-y",
+    "isIntegrated": true,
+    "description": "In this course, you will build x using y.",
+    "isPublic": true,
+    "currentLesson": 1
+  }
+]
