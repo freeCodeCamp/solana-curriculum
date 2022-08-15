@@ -4,22 +4,45 @@
 
 ### --description--
 
-Welcome to the Solana curriculum! Start by installing the tooling you will need to get started:
+Welcome to the Solana curriculum! For the duration of this project, you will be working in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
-- `solana cli`
+**Instruction**
+
+Start by changing into the above directory.
 
 ### --tests--
 
-Test that always passes.
+You should be in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
 ```js
 assert(true);
 ```
 
-Test that always fails.
+## 2
 
-```js
-assert.fail();
+### --description--
+
+You will be using the Solana CLI to:
+
+- Configure your cluster
+- Create Keypairs
+- Log useful information
+- Deploy your on-chain program
+
+**Instruction**
+
+Confirm the Solana CLI is installed with:
+
+```bash
+solana --version
 ```
 
-## 2
+### --tests--
+
+You should run `solana --version` in the console.
+
+```js
+assert(true);
+```
+
+## 3
