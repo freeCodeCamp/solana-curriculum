@@ -42,7 +42,8 @@ solana --version
 You should run `solana --version` in the console.
 
 ```js
-assert(true);
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana --version/);
 ```
 
 ## 3
