@@ -47,3 +47,90 @@ assert.match(lastCommand, /solana --version/);
 ```
 
 ## 3
+
+### --description--
+
+The Solana CLI is feature rich and has many commands.
+
+**Instructions**
+
+View the list of commands with:
+
+```bash
+solana --help
+```
+
+### --tests--
+
+You should see the list of commands.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana --help/);
+```
+
+## 4
+
+### --description--
+
+**Instructions**
+
+See the default Solana configuration by running
+
+```bash
+solana config get
+```
+
+### --tests--
+
+You should see the default configuration.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana config get/);
+```
+
+## 5
+
+### --description--
+
+The Solana network consists of multiple <dfn>clusters</dfn>:
+
+- Devnet
+- Testnet
+- Mainnet (Beta\*)
+
+During the initial stages of development, you are most likely to be working on a local cluster.
+
+**Instruction**
+
+Change your configuration to use `localhost` as the cluster:
+
+```bash
+solana config set --url localhost
+```
+
+**Note:** \*By the time you are going through this curriculum, Mainnet might be out of beta.
+
+### --tests--
+
+You should set the configuration with `solana config set --url localhost`.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana config set --url localhost/);
+```
+
+## 6
+
+### --description--
+
+Some
+
+### --tests--
+
+Test
+
+```js
+
+```
