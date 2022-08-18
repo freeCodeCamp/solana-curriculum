@@ -46,6 +46,7 @@ export async function getProjectConfig(project) {
 
   const defaultConfig = {
     testPollingRate: 100,
+    currentLesson: 1,
     runTestsOnWatch: false,
     lastKnownLessonWithHash: 1,
     seedEveryLesson: false,
@@ -77,6 +78,6 @@ export async function setProjectConfig(project, config = {}) {
   );
   await writeFile(
     join(ROOT, '.freeCodeCamp/config/projects.json'),
-    updatedProjects
+    JSON.stringify(updatedProjects, null, 2)
   );
 }

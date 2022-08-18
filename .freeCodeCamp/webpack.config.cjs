@@ -11,6 +11,10 @@ module.exports = {
     compress: true,
     port: 9000
   },
+  watch: process.env.NODE_ENV === 'development',
+  watchOptions: {
+    ignored: ['**/node_modules', 'config/projects.json']
+  },
   module: {
     rules: [
       {

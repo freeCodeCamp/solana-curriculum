@@ -46,7 +46,7 @@ async function handleGoToPreviousLesson(ws, data) {
   const { CURRENT_PROJECT } = await readEnv();
   const project = await getProjectConfig(CURRENT_PROJECT);
   const prevLesson = project.currentLesson - 1;
-  setProjectConfig(CURRENT_PROJECT, { CURRENT_LESSON: prevLesson });
+  setProjectConfig(CURRENT_PROJECT, { currentLesson: prevLesson });
   runLesson(ws, project);
   updateTests(ws, []);
   updateHints(ws, '');

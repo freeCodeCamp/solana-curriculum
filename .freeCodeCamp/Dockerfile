@@ -36,7 +36,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.10.32/install)"
+RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global

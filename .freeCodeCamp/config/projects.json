@@ -6,7 +6,8 @@
     "isIntegrated": false,
     "description": "In this course, you will learn how to set up Solana by building a simple hello world application.",
     "isPublic": true,
-    "currentLesson": 1
+    "currentLesson": 1,
+    "runTestsOnWatch": true
   },
   {
     "id": 1,

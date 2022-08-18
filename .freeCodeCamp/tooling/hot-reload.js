@@ -15,31 +15,30 @@ function hotReload(ws) {
   let isWait = false;
   let isClearConsole = false;
 
-  watch(ROOT, { ignored: join(ROOT, '.logs/.temp.log') }).on(
-    'all',
-    async (event, name) => {
-      if (name) {
-        if (isWait) return;
-        isWait = setTimeout(() => {
-          isWait = false;
-        }, testPollingRate);
+  watch(ROOT, {
+    ignored: [join(ROOT, '.logs/.temp.log'), join(ROOT, 'config')]
+  }).on('all', async (event, name) => {
+    if (name) {
+      if (isWait) return;
+      isWait = setTimeout(() => {
+        isWait = false;
+      }, testPollingRate);
 
-        const { CURRENT_PROJECT } = await readEnv();
-        if (!CURRENT_PROJECT) {
-          return;
-        }
-        const project = await getProjectConfig(CURRENT_PROJECT);
-        if (isClearConsole) {
-          console.clear();
-        }
-        runLesson(ws, project);
-        // console.log(`Watcher: ${event} - ${name}`);
-        if (runTestsOnWatch) {
-          runTests(ws, project);
-        }
+      const { CURRENT_PROJECT } = await readEnv();
+      if (!CURRENT_PROJECT) {
+        return;
+      }
+      const project = await getProjectConfig(CURRENT_PROJECT);
+      if (isClearConsole) {
+        console.clear();
+      }
+      runLesson(ws, project);
+      // console.log(`Watcher: ${event} - ${name}`);
+      if (runTestsOnWatch) {
+        runTests(ws, project);
       }
     }
-  );
+  });
 }
 
 export default hotReload;

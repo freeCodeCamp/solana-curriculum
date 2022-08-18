@@ -68,8 +68,8 @@ async function getLastCommand(howManyBack = 0) {
     throw new Error(`Could not find ${pathToBashLogs}`);
   }
 
-  const logs = bashLogs.split('\n');
-  const lastLog = logs[logs.length - howManyBack - 2];
+  const logs = bashLogs.split('\n').filter(l => l !== '');
+  const lastLog = logs[logs.length - howManyBack - 1];
 
   return lastLog;
 }

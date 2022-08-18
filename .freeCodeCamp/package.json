@@ -7,8 +7,8 @@
     "develop": "npm run develop:client & npm run develop:server",
     "build:git": "node ./tooling/git/build.js",
     "build:client": "NODE_ENV=production webpack",
-    "develop:client": "webpack --watch --mode development",
-    "develop:server": "nodemon --watch ./dist/ --watch ./tooling/ ./tooling/server.js"
+    "develop:client": "NODE_ENV=development webpack --mode development",
+    "develop:server": "nodemon --watch ./dist/ --watch ./tooling/ --ignore ./config/ ./tooling/server.js"
   },
   "dependencies": {
     "chai": "4.3.6",
