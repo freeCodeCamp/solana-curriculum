@@ -66,7 +66,7 @@ async function handleSelectProject(ws, data) {
   const selectedProject = projects.find(p => p.id === data?.data?.id);
   // TODO: Should this set the currentProject to `null` (empty string)?
   // for the case where the Camper has navigated to the landing page.
-  await setState({ currentProject: selectedProject?.dashedName ?? '' });
+  await setState({ currentProject: selectedProject?.dashedName ?? null });
   if (!selectedProject) {
     warn('Selected project does not exist: ', data);
     return;

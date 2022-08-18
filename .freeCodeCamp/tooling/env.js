@@ -25,7 +25,7 @@ export async function getState() {
 }
 
 export async function setState(obj) {
-  const state = getState();
+  const state = await getState();
   const updatedState = {
     ...state,
     ...obj
@@ -36,6 +36,9 @@ export async function setState(obj) {
   );
 }
 
+/**
+ * @param {string} project Project dashed name
+ */
 export async function getProjectConfig(project) {
   const projects = (
     await import(join(ROOT, '.freeCodeCamp/config/projects.json'), {
