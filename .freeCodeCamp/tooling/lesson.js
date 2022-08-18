@@ -8,18 +8,17 @@ import {
   getLessonSeed,
   isForceFlag
 } from './parser.js';
-import { LOCALE } from './t.js';
 import {
   updateDescription,
   updateProjectHeading,
   updateTests,
   updateProject
 } from './client-socks.js';
-import { ROOT } from './env.js';
+import { ROOT, getState } from './env.js';
 import seedLesson from './seed.js';
 
 async function runLesson(ws, project) {
-  const locale = LOCALE === 'undefined' ? 'english' : LOCALE ?? 'english';
+  const { locale } = await getState();
   const projectFile = join(
     ROOT,
     '.freeCodeCamp/tooling/locales',

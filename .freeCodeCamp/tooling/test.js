@@ -11,8 +11,7 @@ import {
   getAfterAll
 } from './parser.js';
 
-import { LOCALE } from './t.js';
-import { ROOT, setProjectConfig } from './env.js';
+import { getState, ROOT, setProjectConfig } from './env.js';
 import runLesson from './lesson.js';
 import {
   toggleLoaderAnimation,
@@ -28,7 +27,7 @@ logover({
 });
 
 export default async function runTests(ws, project) {
-  const locale = LOCALE === 'undefined' ? 'english' : LOCALE ?? 'english';
+  const { locale } = await getState();
   toggleLoaderAnimation(ws);
   const lessonNumber = project.currentLesson;
   const projectFile = join(
