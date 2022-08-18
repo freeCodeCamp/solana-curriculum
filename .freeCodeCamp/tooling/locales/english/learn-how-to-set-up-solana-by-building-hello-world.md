@@ -6,8 +6,6 @@
 
 Welcome to the Solana curriculum! For the duration of this project, you will be working in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
-**Instruction**
-
 Start by changing into the above directory.
 
 ### --tests--
@@ -28,8 +26,6 @@ You will be using the Solana CLI to:
 - Create Keypairs
 - Log useful information
 - Deploy your on-chain program
-
-**Instruction**
 
 Confirm the Solana CLI is installed with:
 
@@ -52,8 +48,6 @@ assert.match(lastCommand, /solana --version/);
 
 The Solana CLI is feature rich and has many commands.
 
-**Instructions**
-
 View the list of commands with:
 
 ```bash
@@ -72,8 +66,6 @@ assert.match(lastCommand, /solana --help/);
 ## 4
 
 ### --description--
-
-**Instructions**
 
 See the default Solana configuration by running
 
@@ -98,7 +90,7 @@ The Solana network consists of multiple <dfn>clusters</dfn>:
 
 - Devnet
 - Testnet
-- Mainnet (Beta\*)
+- Mainnet
 
 During the initial stages of development, you are most likely to be working on a local cluster.
 
@@ -109,8 +101,6 @@ Change your configuration to use `localhost` as the cluster:
 ```bash
 solana config set --url localhost
 ```
-
-**Note:** \*By the time you are going through this curriculum, Mainnet might be out of beta.
 
 ### --tests--
 
