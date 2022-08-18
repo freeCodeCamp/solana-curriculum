@@ -2,9 +2,9 @@ import express from 'express';
 import runTests from './test.js';
 import {
   getProjectConfig,
-  readEnv,
+  getState,
   setProjectConfig,
-  updateEnv
+  setState
 } from './env.js';
 import logover, { debug, error, warn } from 'logover';
 
@@ -23,8 +23,8 @@ const app = express();
 app.use(express.static('./dist'));
 
 async function handleRunTests(ws, data) {
-  const { CURRENT_PROJECT } = await readEnv();
-  const project = await getProjectConfig(CURRENT_PROJECT);
+  const { currentProject } = await getState();
+  const project = await getProjectConfig(currentProject);
   runTests(ws, project);
 }
 
@@ -32,10 +32,10 @@ function handleResetProject(ws, data) {}
 function handleResetLesson(ws, data) {}
 
 async function handleGoToNextLesson(ws, data) {
-  const { CURRENT_PROJECT } = await readEnv();
-  const project = await getProjectConfig(CURRENT_PROJECT);
+  const { currentProject } = await getState();
+  const project = await getProjectConfig(currentProject);
   const nextLesson = project.currentLesson + 1;
-  setProjectConfig(CURRENT_PROJECT, { currentLesson: nextLesson });
+  setProjectConfig(currentProject, { currentLesson: nextLesson });
   runLesson(ws, project);
   updateHints(ws, '');
   updateTests(ws, []);
@@ -43,10 +43,10 @@ async function handleGoToNextLesson(ws, data) {
 }
 
 async function handleGoToPreviousLesson(ws, data) {
-  const { CURRENT_PROJECT } = await readEnv();
-  const project = await getProjectConfig(CURRENT_PROJECT);
+  const { currentProject } = await getState();
+  const project = await getProjectConfig(currentProject);
   const prevLesson = project.currentLesson - 1;
-  setProjectConfig(CURRENT_PROJECT, { currentLesson: prevLesson });
+  setProjectConfig(currentProject, { currentLesson: prevLesson });
   runLesson(ws, project);
   updateTests(ws, []);
   updateHints(ws, '');
@@ -54,19 +54,19 @@ async function handleGoToPreviousLesson(ws, data) {
 }
 
 async function handleConnect(ws) {
-  const { CURRENT_PROJECT } = await readEnv();
-  if (!CURRENT_PROJECT) {
+  const { currentProject } = await getState();
+  if (!currentProject) {
     return;
   }
-  const project = await getProjectConfig(CURRENT_PROJECT);
+  const project = await getProjectConfig(currentProject);
   runLesson(ws, project);
 }
 
 async function handleSelectProject(ws, data) {
   const selectedProject = projects.find(p => p.id === data?.data?.id);
-  // TODO: Should this set the CURRENT_PROJECT to `null` (empty string)?
+  // TODO: Should this set the currentProject to `null` (empty string)?
   // for the case where the Camper has navigated to the landing page.
-  await updateEnv({ CURRENT_PROJECT: selectedProject?.dashedName ?? '' });
+  await setState({ currentProject: selectedProject?.dashedName ?? '' });
   if (!selectedProject) {
     warn('Selected project does not exist: ', data);
     return;

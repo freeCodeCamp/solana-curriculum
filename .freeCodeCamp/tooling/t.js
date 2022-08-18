@@ -1,9 +1,9 @@
-import { readEnv, ROOT } from './env.js';
+import { getState, ROOT } from './env.js';
 
 export const LOCALE = await readEnv('.meta').LOCALE;
 
 export async function t(key, args = {}, forceLangToUse) {
-  const loc = await readEnv().LOCALE;
+  const { locale: loc } = await getState();
   // Get key from ./locales/{locale}/comments.json
   // Read file and parse JSON
   const locale =

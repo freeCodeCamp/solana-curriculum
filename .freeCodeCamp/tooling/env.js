@@ -6,33 +6,33 @@ const __dirname = dirname(__filename);
 
 export const ROOT = join(__dirname, '../..');
 
-export async function readEnv() {
-  let meta = {
-    CURRENT_PROJECT: 'calculator',
-    LOCALE: 'english'
+export async function getState() {
+  let defaultState = {
+    currentProject: null,
+    locale: 'english'
   };
   try {
-    const META = await readFile(join(ROOT, '.freeCodeCamp/.env'), 'utf8');
-    const metaArr = META.split('\n').filter(Boolean);
-    const new_meta = metaArr.reduce((meta, line) => {
-      const [key, value] = line.split('=');
-      return { ...meta, [key]: value };
-    }, '');
-    meta = { ...meta, ...new_meta };
+    const state = (
+      await import(join(ROOT, '.freeCodeCamp/config/state.json'), {
+        assert: { type: 'json' }
+      })
+    ).default;
+    return { ...defaultState, ...state };
   } catch (err) {
     console.error(err);
   }
   return meta;
 }
 
-export async function updateEnv(obj) {
-  // TODO: Maybe not completely overwrite the file?
-  const env = { ...(await readEnv()), ...obj };
+export async function setState(obj) {
+  const state = getState();
+  const updatedState = {
+    ...state,
+    ...obj
+  };
   await writeFile(
-    join(ROOT, '.freeCodeCamp/.env'),
-    Object.entries(env).reduce((acc, [key, value]) => {
-      return `${acc}\n${key}=${value}`;
-    }, '')
+    join(ROOT, '.freeCodeCamp/config/state.json'),
+    JSON.stringify(updatedState, null, 2)
   );
 }
 
@@ -45,7 +45,7 @@ export async function getProjectConfig(project) {
   const proj = projects.find(p => p.dashedName === project);
 
   const defaultConfig = {
-    testPollingRate: 100,
+    testPollingRate: 333,
     currentLesson: 1,
     runTestsOnWatch: false,
     lastKnownLessonWithHash: 1,

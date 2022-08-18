@@ -15,7 +15,7 @@ import {
   updateTests,
   updateProject
 } from './client-socks.js';
-import { ROOT, readEnv } from './env.js';
+import { ROOT } from './env.js';
 import seedLesson from './seed.js';
 
 async function runLesson(ws, project) {
@@ -32,7 +32,6 @@ async function runLesson(ws, project) {
 
   updateProject(ws, project);
 
-  const { SEED_EVERY_LESSON } = await readEnv();
   if (!project.isIntegrated) {
     const hintsAndTestsArr = getLessonHintsAndTests(lesson);
     updateTests(
@@ -54,8 +53,8 @@ async function runLesson(ws, project) {
   const isForce = isForceFlag(seed);
   // force flag overrides seed flag
   if (
-    (SEED_EVERY_LESSON === 'true' && !isForce) ||
-    (SEED_EVERY_LESSON !== 'true' && isForce)
+    (project.seedEveryLesson && !isForce) ||
+    (!project.seedEveryLesson && isForce)
   ) {
     await seedLesson(ws, project, lessonNumber);
   }

@@ -1,13 +1,13 @@
 // This file handles the watching of the /curriculum folder for changes
 // and executing the command to run the tests for the next (current) lesson
-import { readEnv, getProjectConfig, ROOT } from './env.js';
+import { getState, getProjectConfig, ROOT } from './env.js';
 import runLesson from './lesson.js';
 import runTests from './test.js';
 import { watch } from 'chokidar';
 import { join } from 'path';
-const { CURRENT_PROJECT } = await readEnv();
+const { currentProject } = await getState();
 const { testPollingRate, runTestsOnWatch } = await getProjectConfig(
-  CURRENT_PROJECT
+  currentProject
 );
 
 function hotReload(ws) {
@@ -24,11 +24,11 @@ function hotReload(ws) {
         isWait = false;
       }, testPollingRate);
 
-      const { CURRENT_PROJECT } = await readEnv();
-      if (!CURRENT_PROJECT) {
+      const { currentProject } = await getState();
+      if (!currentProject) {
         return;
       }
-      const project = await getProjectConfig(CURRENT_PROJECT);
+      const project = await getProjectConfig(currentProject);
       if (isClearConsole) {
         console.clear();
       }
