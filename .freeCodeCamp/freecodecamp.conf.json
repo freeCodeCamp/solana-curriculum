@@ -2,7 +2,7 @@
   "path": ".freeCodeCamp",
   "bashrc": {
     "enabled": true,
-    "path": "./.freeCodeCamp/.bashrc"
+    "path": "./tooling/.bashrc"
   },
   "prepare": "\\cp sample.env .env && npm ci && cd .. && npm ci",
   "scripts": {
