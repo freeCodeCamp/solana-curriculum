@@ -1,9 +1,5 @@
 {
   "path": ".freeCodeCamp",
-  "bashrc": {
-    "enabled": true,
-    "path": "./tooling/.bashrc"
-  },
   "prepare": "npm ci && cd .. && npm ci",
   "scripts": {
     "develop-course": "npm run develop",

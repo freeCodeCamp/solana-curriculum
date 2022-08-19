@@ -15,8 +15,12 @@ function hotReload(ws) {
   let isWait = false;
   let isClearConsole = false;
 
+  const pathsToIgnore = [join(ROOT, '.logs/.temp.log'), join(ROOT, 'config')]
+    .join('|')
+    .replaceAll('.', '\\.');
+
   watch(ROOT, {
-    ignored: [join(ROOT, '.logs/.temp.log'), join(ROOT, 'config')]
+    ignored: pathsToIgnore
   }).on('all', async (event, name) => {
     if (name) {
       if (isWait) return;
