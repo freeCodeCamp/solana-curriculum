@@ -2,14 +2,14 @@
   "files.exclude": {
     ".devcontainer": true,
     ".editorconfig": true,
-    ".freeCodeCamp": true,
+    ".freeCodeCamp": false,
     ".gitignore": true,
     ".gitpod.Dockerfile": true,
     ".gitpod.yml": true,
-    ".logs": true,
+    ".logs": false,
     ".prettierignore": true,
     ".prettierrc": true,
-    ".vscode": true,
+    ".vscode": false,
     "node_modules": true,
     "package.json": true,
     "package-lock.json": true,
@@ -18,5 +18,12 @@
     "renovate.json": true,
     "build-x-using-y": true,
     "learn-how-to-set-up-solana-by-building-hello-world": true
+  },
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "bash",
+      "icon": "terminal-bash",
+      "args": ["--init-file", ".freeCodeCamp/bash/sourcerer.sh"]
+    }
   }
 }
