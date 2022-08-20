@@ -17,6 +17,7 @@ if (process.env.GITPOD_WORKSPACE_URL) {
 } else {
   socket = new WebSocket('ws://localhost:8080');
 }
+const DEBOUNCERS = new Set();
 
 const App = () => {
   const [project, setProject] = useState<ProjectI | null>(null);
@@ -61,10 +62,19 @@ const App = () => {
     'update-description': updateDescription,
     'update-project-heading': updateProjectHeading,
     'update-project': setProject,
-    'reset-tests': resetTests
+    'reset-tests': resetTests,
+    REPONSE: debounce
   };
 
+  function debounce({ id }: { id: number }) {
+    const debouncerRemoved = DEBOUNCERS.delete(id);
+    if (!debouncerRemoved) {
+      console.warn('Debouncer does not exist in set: ', id);
+    }
+  }
+
   function sock(type: Events, data = {}) {
+    DEBOUNCERS.add(type);
     socket.send(parse({ event: type, data }));
   }
 

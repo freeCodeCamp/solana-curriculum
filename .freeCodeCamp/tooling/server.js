@@ -25,7 +25,8 @@ app.use(express.static('./dist'));
 async function handleRunTests(ws, data) {
   const { currentProject } = await getState();
   const project = await getProjectConfig(currentProject);
-  runTests(ws, project);
+  await runTests(ws, project);
+  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
 }
 
 function handleResetProject(ws, data) {}
@@ -35,22 +36,24 @@ async function handleGoToNextLesson(ws, data) {
   const { currentProject } = await getState();
   const project = await getProjectConfig(currentProject);
   const nextLesson = project.currentLesson + 1;
-  setProjectConfig(currentProject, { currentLesson: nextLesson });
-  runLesson(ws, project);
+  await setProjectConfig(currentProject, { currentLesson: nextLesson });
+  await runLesson(ws, project);
   updateHints(ws, '');
   updateTests(ws, []);
   updateConsole(ws, '');
+  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
 }
 
 async function handleGoToPreviousLesson(ws, data) {
   const { currentProject } = await getState();
   const project = await getProjectConfig(currentProject);
   const prevLesson = project.currentLesson - 1;
-  setProjectConfig(currentProject, { currentLesson: prevLesson });
-  runLesson(ws, project);
+  await setProjectConfig(currentProject, { currentLesson: prevLesson });
+  await runLesson(ws, project);
   updateTests(ws, []);
   updateHints(ws, '');
   updateConsole(ws, '');
+  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
 }
 
 async function handleConnect(ws) {
@@ -69,11 +72,12 @@ async function handleSelectProject(ws, data) {
   await setState({ currentProject: selectedProject?.dashedName ?? null });
   if (!selectedProject) {
     warn('Selected project does not exist: ', data);
-    return;
+    return ws.send(parse({ data: data.event, type: 'RESPONSE' }));
   }
   await hideAll();
   await showFile(selectedProject.dashedName);
-  runLesson(ws, selectedProject);
+  await runLesson(ws, selectedProject);
+  return ws.send(parse({ data: data.event, type: 'RESPONSE' }));
 }
 
 const server = app.listen(8080, () => {
@@ -112,4 +116,29 @@ function parse(obj) {
 
 function parseBuffer(buf) {
   return JSON.parse(buf.toString());
+}
+
+/**
+ * Files currently under ownership by another thread.
+ */
+const RACING_FILES = new Set();
+const FREEDOM_TIMEOUT = 100;
+
+/**
+ * Adds an operation to the race queue. If a file is already in the queue, the op is delayed until the file is released.
+ * @param {string} filepath Path to file to move
+ * @param {*} cb Callback to call once file is free
+ */
+async function addToRaceQueue(filepath, cb) {
+  const isFileFree = await new Promise(resolve => {
+    setTimeout(() => {
+      if (!RACING_FILES.has(filepath)) {
+        resolve(true);
+      }
+    }, FREEDOM_TIMEOUT);
+  });
+  if (isFileFree) {
+    RACING_FILES.add(filepath);
+    cb();
+  }
 }

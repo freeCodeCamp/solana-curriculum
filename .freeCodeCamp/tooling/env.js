@@ -12,11 +12,9 @@ export async function getState() {
     locale: 'english'
   };
   try {
-    const state = (
-      await import(join(ROOT, '.freeCodeCamp/config/state.json'), {
-        assert: { type: 'json' }
-      })
-    ).default;
+    const state = JSON.parse(
+      await readFile(join(ROOT, '.freeCodeCamp/config/state.json'), 'utf-8')
+    );
     return { ...defaultState, ...state };
   } catch (err) {
     console.error(err);
@@ -30,6 +28,7 @@ export async function setState(obj) {
     ...state,
     ...obj
   };
+
   await writeFile(
     join(ROOT, '.freeCodeCamp/config/state.json'),
     JSON.stringify(updatedState, null, 2)
@@ -40,11 +39,10 @@ export async function setState(obj) {
  * @param {string} project Project dashed name
  */
 export async function getProjectConfig(project) {
-  const projects = (
-    await import(join(ROOT, '.freeCodeCamp/config/projects.json'), {
-      assert: { type: 'json' }
-    })
-  ).default;
+  const projects = JSON.parse(
+    await readFile(join(ROOT, '.freeCodeCamp/config/projects.json'), 'utf-8')
+  );
+
   const proj = projects.find(p => p.dashedName === project);
 
   const defaultConfig = {
@@ -67,18 +65,19 @@ export async function getProjectConfig(project) {
  * @param {object} config Config properties to set
  */
 export async function setProjectConfig(project, config = {}) {
-  const projects = (
-    await import(join(ROOT, '.freeCodeCamp/config/projects.json'), {
-      assert: { type: 'json' }
-    })
-  ).default;
+  const projects = JSON.parse(
+    await readFile(join(ROOT, '.freeCodeCamp/config/projects.json'), 'utf-8')
+  );
+
   const updatedProject = {
     ...projects.find(p => p.dashedName === project),
     ...config
   };
+
   const updatedProjects = projects.map(p =>
     p.dashedName === project ? updatedProject : p
   );
+
   await writeFile(
     join(ROOT, '.freeCodeCamp/config/projects.json'),
     JSON.stringify(updatedProjects, null, 2)
