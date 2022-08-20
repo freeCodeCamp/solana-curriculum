@@ -26,7 +26,7 @@ async function handleRunTests(ws, data) {
   const { currentProject } = await getState();
   const project = await getProjectConfig(currentProject);
   await runTests(ws, project);
-  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
+  ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 
 function handleResetProject(ws, data) {}
@@ -41,7 +41,7 @@ async function handleGoToNextLesson(ws, data) {
   updateHints(ws, '');
   updateTests(ws, []);
   updateConsole(ws, '');
-  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
+  ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 
 async function handleGoToPreviousLesson(ws, data) {
@@ -53,7 +53,7 @@ async function handleGoToPreviousLesson(ws, data) {
   updateTests(ws, []);
   updateHints(ws, '');
   updateConsole(ws, '');
-  ws.send(parse({ data: data.event, type: 'RESPONSE' }));
+  ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 
 async function handleConnect(ws) {
@@ -72,12 +72,12 @@ async function handleSelectProject(ws, data) {
   await setState({ currentProject: selectedProject?.dashedName ?? null });
   if (!selectedProject) {
     warn('Selected project does not exist: ', data);
-    return ws.send(parse({ data: data.event, type: 'RESPONSE' }));
+    return ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
   }
   await hideAll();
   await showFile(selectedProject.dashedName);
   await runLesson(ws, selectedProject);
-  return ws.send(parse({ data: data.event, type: 'RESPONSE' }));
+  return ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 
 const server = app.listen(8080, () => {

@@ -10,6 +10,8 @@ const { testPollingRate, runTestsOnWatch } = await getProjectConfig(
   currentProject
 );
 
+let testsRunning = false;
+
 function hotReload(ws) {
   console.log(`Watching for file changes on ${ROOT}`);
   let isWait = false;
@@ -36,10 +38,13 @@ function hotReload(ws) {
       if (isClearConsole) {
         console.clear();
       }
-      runLesson(ws, project);
+      await runLesson(ws, project);
       // console.log(`Watcher: ${event} - ${name}`);
-      if (runTestsOnWatch) {
-        runTests(ws, project);
+      console.log(testsRunning);
+      if (runTestsOnWatch && !testsRunning) {
+        testsRunning = true;
+        await runTests(ws, project);
+        testsRunning = false;
       }
     }
   });
