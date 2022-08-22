@@ -74,8 +74,10 @@ async function handleSelectProject(ws, data) {
     warn('Selected project does not exist: ', data);
     return ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
   }
-  await hideAll();
-  await showFile(selectedProject.dashedName);
+
+  // TODO: Disabled whilst in development because it is annoying
+  // await hideAll();
+  // await showFile(selectedProject.dashedName);
   await runLesson(ws, selectedProject);
   return ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }

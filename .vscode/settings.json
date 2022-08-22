@@ -4,12 +4,12 @@
     ".editorconfig": true,
     ".freeCodeCamp": false,
     ".gitignore": true,
-    ".gitpod.Dockerfile": true,
-    ".gitpod.yml": true,
+    ".gitpod.Dockerfile": false,
+    ".gitpod.yml": false,
     ".logs": false,
     ".prettierignore": true,
     ".prettierrc": true,
-    ".vscode": false,
+    ".vscode": true,
     "node_modules": true,
     "package.json": true,
     "package-lock.json": true,
@@ -17,7 +17,7 @@
     "README.md": true,
     "renovate.json": true,
     "build-x-using-y": true,
-    "learn-how-to-set-up-solana-by-building-hello-world": true
+    "learn-how-to-set-up-solana-by-building-hello-world": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
