@@ -13,7 +13,9 @@ Start by changing into the above directory.
 You should be in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
 ```js
-assert(true);
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('/').pop();
+assert.include(cwd, 'learn-how-to-set-up-solana-by-building-hello-world');
 ```
 
 ## 2
@@ -70,7 +72,7 @@ assert.match(lastCommand, /solana --help/);
 
 ### --description--
 
-See the default Solana configuration by running
+See the default Solana configuration by running:
 
 ```bash
 solana config get
@@ -78,7 +80,7 @@ solana config get
 
 ### --tests--
 
-You should see the default configuration.
+You should run `solana config get` in the console.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
@@ -96,8 +98,6 @@ The Solana network consists of multiple <dfn>clusters</dfn>:
 - Mainnet
 
 During the initial stages of development, you are most likely to be working on a local cluster.
-
-**Instruction**
 
 Change your configuration to use `localhost` as the cluster:
 
