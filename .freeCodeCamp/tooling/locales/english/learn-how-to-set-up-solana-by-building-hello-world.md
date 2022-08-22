@@ -39,6 +39,9 @@ You should run `solana --version` in the console.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
+
+await new Promise(resolve => setTimeout(resolve, 2500));
+
 assert.match(lastCommand, /solana --version/);
 ```
 

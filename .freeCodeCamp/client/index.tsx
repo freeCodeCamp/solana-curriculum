@@ -113,6 +113,9 @@ const App = () => {
   }
 
   function updateConsole({ cons }: { cons: ConsoleError }) {
+    if (!Object.keys(cons).length) {
+      return setCons([]);
+    }
     // Insert cons in array at index `id`
     setCons(prev => {
       const sorted = [

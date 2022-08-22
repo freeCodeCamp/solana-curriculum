@@ -10,21 +10,24 @@ const { testPollingRate, runTestsOnWatch } = await getProjectConfig(
   currentProject
 );
 
-let testsRunning = false;
-
 function hotReload(ws) {
   console.log(`Watching for file changes on ${ROOT}`);
   let isWait = false;
+  let testsRunning = false;
   let isClearConsole = false;
 
-  const pathsToIgnore = [join(ROOT, '.logs/.temp.log'), join(ROOT, 'config')]
-    .join('|')
-    .replaceAll('.', '\\.');
+  const pathsToIgnore = [
+    '.logs/.temp.log',
+    '.freeCodeCamp/config/',
+    '/node_modules/',
+    '.git'
+  ];
 
   watch(ROOT, {
-    ignored: pathsToIgnore
+    // `ignored` appears to do nothing. Have tried multiple permutations
+    // ignored: pathsToIgnore.join('|') //p => pathsToIgnore.includes(p)
   }).on('all', async (event, name) => {
-    if (name) {
+    if (name && !pathsToIgnore.find(p => name.includes(p))) {
       if (isWait) return;
       isWait = setTimeout(() => {
         isWait = false;
@@ -40,7 +43,6 @@ function hotReload(ws) {
       }
       await runLesson(ws, project);
       // console.log(`Watcher: ${event} - ${name}`);
-      console.log(testsRunning);
       if (runTestsOnWatch && !testsRunning) {
         testsRunning = true;
         await runTests(ws, project);

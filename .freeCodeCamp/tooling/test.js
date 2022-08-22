@@ -27,7 +27,6 @@ logover({
 });
 
 export default async function runTests(ws, project) {
-  debug('TESTS RUNNING...');
   const { locale } = await getState();
   toggleLoaderAnimation(ws);
   const lessonNumber = project.currentLesson;
@@ -144,5 +143,4 @@ export default async function runTests(ws, project) {
     error('Test Error: ');
     debug(e);
   }
-  debug('...TESTS FINISHED');
 }
