@@ -1,6 +1,8 @@
 target
 node_modules
-.freeCodeCamp/.env
 Cargo.lock
 !.gitkeep
 .freeCodeCamp/dist
+
+# Should be included in repo, but does not get updated
+.logs

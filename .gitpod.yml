@@ -3,7 +3,7 @@ image:
 
 # Commands to start on workspace startup
 tasks:
-  - init: cd .freeCodeCamp && cp sample.env .env && npm ci
+  - init: cd .freeCodeCamp && npm ci
 
 ports:
   - port: 8080
