@@ -14,7 +14,7 @@ You should be in the `learn-how-to-set-up-solana-by-building-hello-world/` direc
 
 ```js
 const cwdFile = await __helpers.getCWD();
-const cwd = cwdFile.split('/').pop();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
 assert.include(cwd, 'learn-how-to-set-up-solana-by-building-hello-world');
 ```
 
