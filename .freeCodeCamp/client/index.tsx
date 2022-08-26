@@ -119,9 +119,9 @@ const App = () => {
     // Insert cons in array at index `id`
     setCons(prev => {
       const sorted = [
-        ...prev.slice(0, cons.id),
+        ...prev.slice(0, cons.testId),
         cons,
-        ...prev.slice(cons.id)
+        ...prev.slice(cons.testId)
       ].filter(Boolean);
       return sorted;
     });

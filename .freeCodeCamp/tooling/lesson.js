@@ -14,10 +14,16 @@ import {
   updateTests,
   updateProject
 } from './client-socks.js';
-import { ROOT, getState } from './env.js';
+import { ROOT, getState, getProjectConfig } from './env.js';
 import seedLesson from './seed.js';
 
-async function runLesson(ws, project) {
+/**
+ * Runs the lesson from the `project` config.
+ * @param {WebSocket} ws WebSocket connection to the client
+ * @param {object} projectDashedName Project dashed-name
+ */
+async function runLesson(ws, projectDashedName) {
+  const project = await getProjectConfig(projectDashedName);
   const { locale } = await getState();
   const projectFile = join(
     ROOT,

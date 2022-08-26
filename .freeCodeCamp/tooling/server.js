@@ -24,8 +24,7 @@ app.use(express.static('./dist'));
 
 async function handleRunTests(ws, data) {
   const { currentProject } = await getState();
-  const project = await getProjectConfig(currentProject);
-  await runTests(ws, project);
+  await runTests(ws, currentProject);
   ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 
@@ -37,7 +36,7 @@ async function handleGoToNextLesson(ws, data) {
   const project = await getProjectConfig(currentProject);
   const nextLesson = project.currentLesson + 1;
   await setProjectConfig(currentProject, { currentLesson: nextLesson });
-  await runLesson(ws, project);
+  await runLesson(ws, project.dashedName);
   updateHints(ws, '');
   updateTests(ws, []);
   updateConsole(ws, '');
@@ -49,7 +48,7 @@ async function handleGoToPreviousLesson(ws, data) {
   const project = await getProjectConfig(currentProject);
   const prevLesson = project.currentLesson - 1;
   await setProjectConfig(currentProject, { currentLesson: prevLesson });
-  await runLesson(ws, project);
+  await runLesson(ws, project.dashedName);
   updateTests(ws, []);
   updateHints(ws, '');
   updateConsole(ws, '');
@@ -62,7 +61,7 @@ async function handleConnect(ws) {
     return;
   }
   const project = await getProjectConfig(currentProject);
-  runLesson(ws, project);
+  runLesson(ws, project.dashedName);
 }
 
 async function handleSelectProject(ws, data) {
@@ -78,7 +77,7 @@ async function handleSelectProject(ws, data) {
   // TODO: Disabled whilst in development because it is annoying
   // await hideAll();
   // await showFile(selectedProject.dashedName);
-  await runLesson(ws, selectedProject);
+  await runLesson(ws, selectedProject.dashedName);
   return ws.send(parse({ data: { event: data.event }, event: 'RESPONSE' }));
 }
 

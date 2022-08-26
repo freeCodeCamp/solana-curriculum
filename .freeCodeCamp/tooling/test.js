@@ -11,7 +11,7 @@ import {
   getAfterAll
 } from './parser.js';
 
-import { getState, ROOT, setProjectConfig } from './env.js';
+import { getProjectConfig, getState, ROOT, setProjectConfig } from './env.js';
 import runLesson from './lesson.js';
 import {
   toggleLoaderAnimation,
@@ -26,9 +26,10 @@ logover({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 });
 
-export default async function runTests(ws, project) {
+export default async function runTests(ws, projectDashedName) {
+  const project = await getProjectConfig(projectDashedName);
   const { locale } = await getState();
-  toggleLoaderAnimation(ws);
+  // toggleLoaderAnimation(ws);
   const lessonNumber = project.currentLesson;
   const projectFile = join(
     ROOT,
@@ -52,7 +53,7 @@ export default async function runTests(ws, project) {
         error(e);
       }
     }
-    toggleLoaderAnimation(ws);
+    // toggleLoaderAnimation(ws);
 
     const hintsAndTestsArr = getLessonHintsAndTests(lesson);
     updateTests(
@@ -65,7 +66,7 @@ export default async function runTests(ws, project) {
       }, [])
     );
     updateConsole(ws, '');
-    const testPromises = hintsAndTestsArr.map(async ([hint, test], i) => {
+    const testPromises = hintsAndTestsArr.map(async ([hint, testCode], i) => {
       if (beforeEach) {
         try {
           debug('Starting: --before-each-- hook');
@@ -79,7 +80,7 @@ export default async function runTests(ws, project) {
         }
       }
       try {
-        const _testOutput = await eval(`(async () => {${test}})();`);
+        const _testOutput = await eval(`(async () => {${testCode}})();`);
         updateTest(ws, {
           passed: true,
           testText: hint,
@@ -90,15 +91,17 @@ export default async function runTests(ws, project) {
         if (!(e instanceof AssertionError)) {
           error(e);
         }
-        const consoleError = { id: i, hint, error: e };
 
-        updateConsole(ws, consoleError);
-        updateTest(ws, {
+        const testState = {
           passed: false,
           testText: hint,
           isLoading: false,
           testId: i
-        });
+        };
+        const consoleError = { ...testState, error: e };
+
+        updateConsole(ws, consoleError);
+        updateTest(ws, testState);
         return Promise.reject(`- ${hint}\n`);
       }
       return Promise.resolve();
@@ -112,7 +115,7 @@ export default async function runTests(ws, project) {
           await setProjectConfig(project.dashedName, {
             currentLesson: lessonNumber + 1
           });
-          await runLesson(ws, project);
+          await runLesson(ws, projectDashedName);
           updateHints(ws, '');
         }
       } else {

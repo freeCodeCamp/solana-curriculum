@@ -31,8 +31,6 @@ export interface ProjectI {
   isPublic: boolean;
 }
 
-export interface ConsoleError {
-  id: number;
-  hint: string;
+export type ConsoleError = {
   error: string;
-}
+} & TestType;
