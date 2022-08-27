@@ -118,7 +118,11 @@ assert.match(lastCommand, /solana config set --url localhost/);
 
 ### --description--
 
-Some
+View the your config settings with:
+
+```bash
+solana config get
+```
 
 ### --tests--
 
@@ -127,3 +131,76 @@ Test
 ```js
 
 ```
+
+## 7
+
+### --description--
+
+`solana config` reads and writes to the `.config/solana` directory.
+
+View the config file contents in the terminal with:
+
+```bash
+cat ~/.config/solana/cli/config.yml
+```
+
+### --tests--
+
+## 8
+
+### --description--
+
+- The `json_rpc_url` value is the fullnode endpoint _RPC_ calls will be made.
+- The `websocket_url` value is the fullnode _PubSub_ WebSocket endpoint.
+
+Manually make an RPC call with:
+
+```bash
+curl todo
+```
+
+### --tests--
+
+## 9
+
+### --description--
+
+The `keypair_path` is the path to your Solana keypair used when making transactions.
+
+View your keypair in the terminal with:
+
+```bash
+cat ~/.config/solana/id.json
+```
+
+### --tests--
+
+## 10
+
+### --description--
+
+The `address_labels` value describes ...
+
+### --tests--
+
+## 11
+
+### --description--
+
+The `commitment` value determines the level of scrutnity with which to confirm the information in a response from the network.
+
+Common values are:
+
+- `processed`
+- `confirmed`
+- `finalized`
+
+TODO: Do something?
+
+### --tests--
+
+## 12
+
+### --description--
+
+### --tests--
