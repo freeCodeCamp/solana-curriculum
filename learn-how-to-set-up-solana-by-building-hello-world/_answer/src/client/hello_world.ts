@@ -54,9 +54,9 @@ const PROGRAM_SO_PATH = join(PROGRAM_PATH, 'helloworld.so');
 const PROGRAM_KEYPAIR_PATH = join(PROGRAM_PATH, 'helloworld-keypair.json');
 
 /**
- * The state of a greeting account managed by the hello world program
+ * The state of an account managed by the hello world program
  */
-class GreetingAccount {
+class HelloWorldAccount {
   counter = 0;
   constructor(fields: { counter: number } | undefined = undefined) {
     if (fields) {
@@ -66,18 +66,18 @@ class GreetingAccount {
 }
 
 /**
- * Borsh schema definition for greeting accounts
+ * Borsh schema definition for hello world accounts
  */
-const GreetingSchema = new Map([
-  [GreetingAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
 ]);
 
 /**
- * The expected size of each greeting account.
+ * The expected size of each hello world account.
  */
 const GREETING_SIZE = borsh.serialize(
-  GreetingSchema,
-  new GreetingAccount()
+  HelloWorldSchema,
+  new HelloWorldAccount()
 ).length;
 
 /**
@@ -96,9 +96,10 @@ export async function establishConnection(): Promise<void> {
 export async function establishPayer(): Promise<void> {
   let fees = 0;
   if (!payer) {
-    const { feeCalculator } = await connection.getRecentBlockhash();
+    // TODO: Find out from Solana Team how to do similar without using deprecated methods.
+    const { feeCalculator } = await connection.getLatestBlockhash();
 
-    // Calculate the cost to fund the greeter account
+    // Calculate the cost to fund the hello world account
     fees += await connection.getMinimumBalanceForRentExemption(GREETING_SIZE);
 
     // Calculate the cost of sending transactions
@@ -157,7 +158,7 @@ export async function checkProgram(): Promise<void> {
   }
   console.log(`Using program ${programId.toBase58()}`);
 
-  // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
+  // Derive the address (public key) of a hello world account from the program so that it's easy to find later.
   const GREETING_SEED = 'hello';
   greetedPubkey = await PublicKey.createWithSeed(
     payer.publicKey,
@@ -165,7 +166,7 @@ export async function checkProgram(): Promise<void> {
     programId
   );
 
-  // Check if the greeting account has already been created
+  // Check if the hello world account has already been created
   const greetedAccount = await connection.getAccountInfo(greetedPubkey);
   if (greetedAccount === null) {
     console.log(
@@ -210,21 +211,21 @@ export async function sayHello(): Promise<void> {
 }
 
 /**
- * Report the number of times the greeted account has been said hello to
+ * Report the number of times the hello world account has been said hello to
  */
 export async function reportGreetings(): Promise<void> {
   const accountInfo = await connection.getAccountInfo(greetedPubkey);
   if (accountInfo === null) {
-    throw 'Error: cannot find the greeted account';
+    throw 'Error: cannot find the hello world account';
   }
   const greeting = borsh.deserialize(
-    GreetingSchema,
-    GreetingAccount,
+    HelloWorldSchema,
+    HelloWorldAccount,
     accountInfo.data
   );
   console.log(
     greetedPubkey.toBase58(),
-    'has been greeted',
+    'has been said "hello" to ',
     greeting.counter,
     'time(s)'
   );
