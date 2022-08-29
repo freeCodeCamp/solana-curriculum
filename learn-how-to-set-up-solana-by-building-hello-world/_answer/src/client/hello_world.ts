@@ -14,25 +14,7 @@ import * as borsh from 'borsh';
 
 import { getPayer, getRpcUrl, createKeypairFromFile } from './utils';
 
-/**
- * Connection to the network
- */
-let connection: Connection;
-
-/**
- * Keypair associated to the fees' payer
- */
-let payer: Keypair;
-
-/**
- * Hello world's program id
- */
-let programId: PublicKey;
-
-/**
- * The public key of the account we are saying hello to
- */
-let greetedPubkey: PublicKey;
+const GREETING_SEED = 'hello';
 
 /**
  * Path to program files
@@ -75,7 +57,7 @@ const HelloWorldSchema = new Map([
 /**
  * The expected size of each hello world account.
  */
-const GREETING_SIZE = borsh.serialize(
+const ACCOUNT_SIZE = borsh.serialize(
   HelloWorldSchema,
   new HelloWorldAccount()
 ).length;
@@ -83,66 +65,85 @@ const GREETING_SIZE = borsh.serialize(
 /**
  * Establish a connection to the cluster
  */
-export async function establishConnection(): Promise<void> {
+export async function establishConnection(): Promise<Connection> {
   const rpcUrl = await getRpcUrl();
-  connection = new Connection(rpcUrl, 'confirmed');
+  const connection = new Connection(rpcUrl, 'confirmed');
   const version = await connection.getVersion();
   console.log('Connection to cluster established:', rpcUrl, version);
+  return connection;
 }
 
 /**
  * Establish an account to pay for everything
  */
-export async function establishPayer(): Promise<void> {
+export async function establishPayer(
+  connection: Connection,
+  programId: PublicKey
+): Promise<Keypair> {
   let fees = 0;
-  if (!payer) {
-    // TODO: Find out from Solana Team how to do similar without using deprecated methods.
-    const { feeCalculator } = await connection.getLatestBlockhash();
+  const recentBlockhash = await connection.getLatestBlockhash();
 
-    // Calculate the cost to fund the hello world account
-    fees += await connection.getMinimumBalanceForRentExemption(GREETING_SIZE);
+  // Calculate the cost to fund the hello world account
+  fees += await connection.getMinimumBalanceForRentExemption(ACCOUNT_SIZE);
 
-    // Calculate the cost of sending transactions
-    fees += feeCalculator.lamportsPerSignature * 100; // wag
+  const payer = await getPayer();
 
-    payer = await getPayer();
-  }
+  const transaction = new Transaction(recentBlockhash).add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: programId,
+      lamports: 10
+    })
+  );
+
+  fees += await transaction.getEstimatedFee(connection);
 
   let lamports = await connection.getBalance(payer.publicKey);
   if (lamports < fees) {
-    // If current balance is not enough to pay for fees, request an airdrop
-    const sig = await connection.requestAirdrop(
-      payer.publicKey,
-      fees - lamports
+    return Promise.reject(
+      "Payer doesn't have enough lamports to pay for the account"
     );
-    await connection.confirmTransaction(sig);
-    lamports = await connection.getBalance(payer.publicKey);
   }
 
-  console.log(
-    'Using account',
-    payer.publicKey.toBase58(),
-    'containing',
-    lamports / LAMPORTS_PER_SOL,
-    'SOL to pay for fees'
-  );
+  `Using account ${payer.publicKey.toBase58()} containing ${
+    lamports / LAMPORTS_PER_SOL
+  } SOL to pay for fees.`;
+  return payer;
 }
 
-/**
- * Check if the hello world BPF program has been deployed
- */
-export async function checkProgram(): Promise<void> {
-  // Read program id from keypair file
+export async function getProgramId(): Promise<PublicKey> {
   try {
     const programKeypair = await createKeypairFromFile(PROGRAM_KEYPAIR_PATH);
-    programId = programKeypair.publicKey;
+    return programKeypair.publicKey;
   } catch (err) {
     const errMsg = (err as Error).message;
     throw new Error(
       `Failed to read program keypair at '${PROGRAM_KEYPAIR_PATH}' due to error: ${errMsg}. Program may need to be deployed with \`solana program deploy dist/program/helloworld.so\``
     );
   }
+}
 
+export async function getAccountPubkey(
+  payer: Keypair,
+  programId: PublicKey
+): Promise<PublicKey> {
+  // Derive the address (public key) of a hello world account from the program so that it's easy to find later.
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    GREETING_SEED,
+    programId
+  );
+}
+
+/**
+ * Check if the hello world BPF program has been deployed
+ */
+export async function checkProgram(
+  connection: Connection,
+  payer: Keypair,
+  programId: PublicKey,
+  accountPubkey: PublicKey
+): Promise<void> {
   // Check if the program has been deployed
   const programInfo = await connection.getAccountInfo(programId);
   if (programInfo === null) {
@@ -158,48 +159,52 @@ export async function checkProgram(): Promise<void> {
   }
   console.log(`Using program ${programId.toBase58()}`);
 
-  // Derive the address (public key) of a hello world account from the program so that it's easy to find later.
-  const GREETING_SEED = 'hello';
-  greetedPubkey = await PublicKey.createWithSeed(
-    payer.publicKey,
-    GREETING_SEED,
-    programId
+  // Check if the hello world account has already been created
+  const greetedAccount = await connection.getAccountInfo(accountPubkey);
+  if (greetedAccount === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+export async function createAccount(
+  connection: Connection,
+  payer: Keypair,
+  programId: PublicKey,
+  accountPubkey: PublicKey
+): Promise<void> {
+  console.log(
+    `Creating account ${accountPubkey.toBase58()} to say hello to...`
+  );
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
   );
 
-  // Check if the hello world account has already been created
-  const greetedAccount = await connection.getAccountInfo(greetedPubkey);
-  if (greetedAccount === null) {
-    console.log(
-      'Creating account',
-      greetedPubkey.toBase58(),
-      'to say hello to'
-    );
-    const lamports = await connection.getMinimumBalanceForRentExemption(
-      GREETING_SIZE
-    );
-
-    const transaction = new Transaction().add(
-      SystemProgram.createAccountWithSeed({
-        fromPubkey: payer.publicKey,
-        basePubkey: payer.publicKey,
-        seed: GREETING_SEED,
-        newAccountPubkey: greetedPubkey,
-        lamports,
-        space: GREETING_SIZE,
-        programId
-      })
-    );
-    await sendAndConfirmTransaction(connection, transaction, [payer]);
-  }
+  const transaction = new Transaction().add(
+    SystemProgram.createAccountWithSeed({
+      fromPubkey: payer.publicKey,
+      basePubkey: payer.publicKey,
+      seed: GREETING_SEED,
+      newAccountPubkey: accountPubkey,
+      lamports,
+      space: ACCOUNT_SIZE,
+      programId
+    })
+  );
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
 }
 
 /**
  * Say hello
  */
-export async function sayHello(): Promise<void> {
-  console.log('Saying hello to', greetedPubkey.toBase58());
+export async function sayHello(
+  connection: Connection,
+  payer: Keypair,
+  programId: PublicKey,
+  accountPubkey: PublicKey
+): Promise<void> {
+  console.log(`Saying hello to: ${accountPubkey.toBase58()}`);
   const instruction = new TransactionInstruction({
-    keys: [{ pubkey: greetedPubkey, isSigner: false, isWritable: true }],
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
     programId,
     data: Buffer.alloc(0) // All instructions are hellos
   });
@@ -213,8 +218,11 @@ export async function sayHello(): Promise<void> {
 /**
  * Report the number of times the hello world account has been said hello to
  */
-export async function reportGreetings(): Promise<void> {
-  const accountInfo = await connection.getAccountInfo(greetedPubkey);
+export async function reportGreetings(
+  connection: Connection,
+  accountPubkey: PublicKey
+): Promise<void> {
+  const accountInfo = await connection.getAccountInfo(accountPubkey);
   if (accountInfo === null) {
     throw 'Error: cannot find the hello world account';
   }
@@ -224,9 +232,8 @@ export async function reportGreetings(): Promise<void> {
     accountInfo.data
   );
   console.log(
-    greetedPubkey.toBase58(),
-    'has been said "hello" to ',
-    greeting.counter,
-    'time(s)'
+    `${accountPubkey.toBase58()} has been said "hello" to ${
+      greeting.counter
+    } time(s)`
   );
 }
