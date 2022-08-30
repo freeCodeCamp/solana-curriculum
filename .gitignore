@@ -6,3 +6,4 @@ Cargo.lock
 
 # Should be included in repo, but does not get updated
 .logs
+test-ledger

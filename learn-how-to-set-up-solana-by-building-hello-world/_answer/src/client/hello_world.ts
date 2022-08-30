@@ -76,34 +76,10 @@ export async function establishConnection(): Promise<Connection> {
 /**
  * Establish an account to pay for everything
  */
-export async function establishPayer(
-  connection: Connection,
-  programId: PublicKey
-): Promise<Keypair> {
-  let fees = 0;
-  const recentBlockhash = await connection.getLatestBlockhash();
-
-  // Calculate the cost to fund the hello world account
-  fees += await connection.getMinimumBalanceForRentExemption(ACCOUNT_SIZE);
-
+export async function establishPayer(connection: Connection): Promise<Keypair> {
   const payer = await getPayer();
 
-  const transaction = new Transaction(recentBlockhash).add(
-    SystemProgram.transfer({
-      fromPubkey: payer.publicKey,
-      toPubkey: programId,
-      lamports: 10
-    })
-  );
-
-  fees += await transaction.getEstimatedFee(connection);
-
   let lamports = await connection.getBalance(payer.publicKey);
-  if (lamports < fees) {
-    return Promise.reject(
-      "Payer doesn't have enough lamports to pay for the account"
-    );
-  }
 
   `Using account ${payer.publicKey.toBase58()} containing ${
     lamports / LAMPORTS_PER_SOL

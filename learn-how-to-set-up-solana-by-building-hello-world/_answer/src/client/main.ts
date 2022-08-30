@@ -18,7 +18,7 @@ async function main() {
   const programId = await getProgramId();
 
   // Determine who pays for the fees
-  const payer = await establishPayer(connection, programId);
+  const payer = await establishPayer(connection);
 
   const accountPubkey = await getAccountPubkey(payer, programId);
 
@@ -41,3 +41,6 @@ main().then(
     process.exit(-1);
   }
 );
+
+// RECOVERY SEED: clean obscure rebel pig sponsor over brother trouble raven pulse pole garden
+// pubkey: 2tQr9iXop8K5QCJcsLkPWW3HrTog7kFqEd6rDEix2CqG
