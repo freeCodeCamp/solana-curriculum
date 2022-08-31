@@ -21,7 +21,8 @@ function hotReload(ws) {
     '.freeCodeCamp/config/',
     '/node_modules/',
     '.git',
-    '/target/'
+    '/target/',
+    '/test-ledger/'
   ];
 
   watch(ROOT, {

@@ -42,7 +42,10 @@ You should run the above bash command to install the Solana CLI.
 ```js
 const lastCommand = await __helpers.getLastCommand();
 
-assert.match(lastCommand, /sh -c "$(curl -sSfL https://release.solana.com/v1.11.10/install)"/);
+assert.match(
+  lastCommand,
+  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.11\.10\/install\)"/
+);
 ```
 
 ## 3
@@ -55,13 +58,20 @@ If prompted in the terminal, update your `PATH` environment variable to include 
 
 ### --tests--
 
-TODO: Test for terminal output containing PATH prompt.
+You should copy the given PATH command into your terminal.
 
 ```js
-assert(true);
+const terminalOut = await __helpers.getTerminalOutput();
+const mat = terminalOut.match(/PATH=".*"/);
+if (mat) {
+  const lastCommand = await __helpers.getLastCommand();
+  assert.match(lastCommand, mat);
+}
 ```
 
 ## 4
+
+### --description--
 
 Confirm the Solana CLI is installed with:
 
@@ -79,7 +89,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana --version/);
 ```
 
-## 3
+## 5
 
 ### --description--
 
@@ -100,7 +110,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana --help/);
 ```
 
-## 4
+## 6
 
 ### --description--
 
@@ -119,7 +129,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana config get/);
 ```
 
-## 5
+## 7
 
 ### --description--
 
@@ -146,25 +156,22 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana config set --url localhost/);
 ```
 
-## 6
+## 8
 
 ### --description--
 
-View the your config settings with:
-
-```bash
-solana config get
-```
+View the your changed config settings.
 
 ### --tests--
 
-Test
+You should view the config with `solana config get`.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana config get/);
 ```
 
-## 7
+## 9
 
 ### --description--
 
@@ -178,11 +185,14 @@ cat ~/.config/solana/cli/config.yml
 
 ### --tests--
 
-```js
+You should use `cat` to view the config file contents.
 
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /cat ~\/\.config\/solana\/cli\/config.yml/);
 ```
 
-## 8
+## 10
 
 ### --description--
 
@@ -197,10 +207,11 @@ solana-keygen new
 You should run `solana-keygen new` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana-keygen new/);
 ```
 
-## 9
+## 11
 
 ### --description--
 
@@ -214,17 +225,18 @@ cat ~/.config/solana/id.json
 
 ### --tests--
 
-You should view your keypair in the terminal with the above command.
+You should use `cat` to view your keypair in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /cat ~\/\.config\/solana\/id\.json/);
 ```
 
-## 10
+## 12
 
 ### --description--
 
-View/get your wallet public key is with:
+View/get your wallet public key with:
 
 ```bash
 solana address
@@ -235,10 +247,11 @@ solana address
 You should use `solana address` to view your public key.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /solana address/);
 ```
 
-## 8
+## 13
 
 ### --description--
 
@@ -255,10 +268,11 @@ solana-test-validator
 You should start a test validator with `solana-test-validator`.
 
 ```js
-
+const temp = await __helpers.getTemp();
+assert.match(temp, /solana-test-validator/);
 ```
 
-## 8
+## 14
 
 ### --description--
 
@@ -277,61 +291,93 @@ _Remember to replace `your_address_public_key`_
 
 ### --tests--
 
-You can use `solana address` to get your public key.
-
-```js
-
-```
-
 You should make an RPC call using `curl`.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput('solana address');
+const camperPublicKey = stdout.trim();
+console.log('CAMPER PUBLIC KEY: ', camperPublicKey);
+const toMatch = `curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getBalance", "params": ["${camperPublicKey}", { "commitment": "finalized" }]}' http://localhost:8899`;
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand.replace(/\s/g, ''), toMatch.replace(/\s/g, ''));
 ```
 
-The RPC call should return a successful response.
+The RPC call should return a successful response. _Try again_
 
 ```js
-
+const terminalOut = await __helpers.getTerminalOutput();
+assert.match(terminalOut, /"result":/);
 ```
 
-## 10
+## 15
 
 ### --description--
 
-You can see your balance is `0`. This is sad.
+It is not the best user experience using curl commands to interact with the network.
 
-Request an _airdrop_ of tokens to your account with:
+View your wallet's balance with:
 
 ```bash
-
+solana balance <ACCOUNT_ADDRESS>
 ```
+
+_Remember to replace `<ACCOUNT_ADDRESS>`_
+
+### --tests--
+
+You should use the command `solana balance <ACCOUNT_ADDRESS>`.
+
+```js
+const { stdout } = await __helpers.getCommandOutput('solana address');
+const accountAddress = stdout.trim();
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, `solana balance ${accountAddress}`);
+```
+
+## 16
+
+### --description--
+
+You can see your balance is `0` ☹️.
+
+Request an _airdrop_ of 1 SOL to your account with:
+
+```bash
+solana airdrop 1 <RECIPIENT_ACCOUNT_ADDRESS>
+```
+
+_Remember to replace `<RECIPIENT_ACCOUNT_ADDRESS>` with your public key_
 
 ### --tests--
 
 You should use the above command to request an airdrop.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput('solana address');
+const accountAddress = stdout.trim();
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, `solana airdrop 1 ${accountAddress}`);
 ```
 
-## 11
+Your account should have at least 1 SOL.
+
+```js
+const { stdout: stdout1 } = await __helpers.getCommandOutput('solana address');
+const accountAddress = stdout1.trim();
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${accountAddress}`
+);
+const balance = stdout.trim()?.match(/\d+/)[0];
+assert.isAtLeast(Number(balance), 1);
+```
+
+## 17
 
 ### --description--
 
-The `commitment` value determines the level of scrutnity with which to confirm the information in a response from the network.
-
-Common values are:
-
-- `processed`
-- `confirmed`
-- `finalized`
-
-TODO: Do something?
-
 ### --tests--
 
-## 12
+## 18
 
 ### --description--
 

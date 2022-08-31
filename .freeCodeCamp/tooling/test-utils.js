@@ -81,8 +81,18 @@ async function getLastCommand(howManyBack = 0) {
 async function getCWD() {
   // TODO: Do not return whole file?
   const pathToCWD = join(ROOT, '.logs/.cwd.log');
-  const cwd = await readFile(pathToCWD, 'utf8');
+  const cwd = await readFile(pathToCWD, 'utf-8');
   return cwd;
+}
+
+/**
+ * Get the `.logs/.temp.log` file contents
+ * @returns {string}
+ */
+async function getTemp() {
+  const pathToTemp = join(ROOT, '.logs/.temp.log');
+  const temp = await readFile(pathToTemp, 'utf-8');
+  return temp;
 }
 
 /**
@@ -91,7 +101,7 @@ async function getCWD() {
  * @returns {string}
  */
 async function getFile(path) {
-  const file = await readFile(join(ROOT, path), 'utf8');
+  const file = await readFile(join(ROOT, path), 'utf-8');
   return file;
 }
 
@@ -171,17 +181,18 @@ async function writeJsonFile(path, content) {
 }
 
 const __helpers = {
-  getDirectory,
-  getFile,
   fileExists,
-  getTerminalOutput,
-  getCommandOutput,
-  getLastCommand,
-  getCWD,
   copyDirectory,
   copyProjectFiles,
-  runCommand,
+  getCommandOutput,
+  getCWD,
+  getDirectory,
+  getFile,
   getJsonFile,
+  getLastCommand,
+  getTemp,
+  getTerminalOutput,
+  runCommand,
   writeJsonFile
 };
 
