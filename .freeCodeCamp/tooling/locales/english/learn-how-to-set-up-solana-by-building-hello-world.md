@@ -29,6 +29,40 @@ You will be using the Solana CLI to:
 - Log useful information
 - Deploy your on-chain program
 
+Install the Solana CLI with:
+
+```bash
+sh -c "$(curl -sSfL https://release.solana.com/v1.11.10/install)"
+```
+
+### --tests--
+
+You should run the above bash command to install the Solana CLI.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+
+assert.match(lastCommand, /sh -c "$(curl -sSfL https://release.solana.com/v1.11.10/install)"/);
+```
+
+## 3
+
+### --description--
+
+You will likely need to adjust the environment variable for your `PATH`, in order for you to use the `solana` alias.
+
+If prompted in the terminal, update your `PATH` environment variable to include the Solana programs.
+
+### --tests--
+
+TODO: Test for terminal output containing PATH prompt.
+
+```js
+assert(true);
+```
+
+## 4
+
 Confirm the Solana CLI is installed with:
 
 ```bash
@@ -41,8 +75,6 @@ You should run `solana --version` in the console.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-
-await new Promise(resolve => setTimeout(resolve, 2500));
 
 assert.match(lastCommand, /solana --version/);
 ```
@@ -146,20 +178,27 @@ cat ~/.config/solana/cli/config.yml
 
 ### --tests--
 
+```js
+
+```
+
 ## 8
 
 ### --description--
 
-- The `json_rpc_url` value is the fullnode endpoint _RPC_ calls will be made.
-- The `websocket_url` value is the fullnode _PubSub_ WebSocket endpoint.
-
-Manually make an RPC call with:
+As this is your first time using the Solana CLI, you should generate a new keypair with:
 
 ```bash
-curl todo
+solana-keygen new
 ```
 
 ### --tests--
+
+You should run `solana-keygen new` in the terminal.
+
+```js
+
+```
 
 ## 9
 
@@ -175,13 +214,106 @@ cat ~/.config/solana/id.json
 
 ### --tests--
 
+You should view your keypair in the terminal with the above command.
+
+```js
+
+```
+
 ## 10
 
 ### --description--
 
-The `address_labels` value describes ...
+View/get your wallet public key is with:
+
+```bash
+solana address
+```
 
 ### --tests--
+
+You should use `solana address` to view your public key.
+
+```js
+
+```
+
+## 8
+
+### --description--
+
+You have set your Solana config to use a locally hosted cluster, but do not have one running yet.
+
+Open a new terminal, and start a Solana test validator with:
+
+```bash
+solana-test-validator
+```
+
+### --tests--
+
+You should start a test validator with `solana-test-validator`.
+
+```js
+
+```
+
+## 8
+
+### --description--
+
+<!-- TODO: These terms are new, and difficult to explain in a few words. Remove this lesson? -->
+
+- The `json_rpc_url` value is the fullnode endpoint _RPC_ calls will be made.
+- The `websocket_url` value is the fullnode _PubSub_ WebSocket endpoint.
+
+Manually make an RPC call with:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getBalance", "params": ["your_address_public_key", { "commitment": "finalized" }]}' http://localhost:8899
+```
+
+_Remember to replace `your_address_public_key`_
+
+### --tests--
+
+You can use `solana address` to get your public key.
+
+```js
+
+```
+
+You should make an RPC call using `curl`.
+
+```js
+
+```
+
+The RPC call should return a successful response.
+
+```js
+
+```
+
+## 10
+
+### --description--
+
+You can see your balance is `0`. This is sad.
+
+Request an _airdrop_ of tokens to your account with:
+
+```bash
+
+```
+
+### --tests--
+
+You should use the above command to request an airdrop.
+
+```js
+
+```
 
 ## 11
 
