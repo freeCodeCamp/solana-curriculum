@@ -585,13 +585,19 @@ await __helpers.rustTest(path, filePath, test, cb);
 You should define `process_instruction` to have one parameter named `program_id`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /process_instructions\s*\(\s*program_id\s*/s);
 ```
 
 You should type `program_id` with `&Pubkey`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /program_id\s*:\s*&Pubkey/s);
 ```
 
 ## 24
@@ -628,13 +634,19 @@ await __helpers.rustTest(path, filePath, test, cb);
 You should define `process_instruction` to have a second parameter named `accounts`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /process_instructions\s*\(.*?,\s*accounts/s);
 ```
 
 You should type `accounts` with `&[AccountInfo]`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /accounts\s*:\s*&\[\s*AccountInfo\s*\]/s);
 ```
 
 ## 25
@@ -671,13 +683,19 @@ await __helpers.rustTest(path, filePath, test, cb);
 You should define `process_instruction` to have a third parameter named `instruction_data`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /process_instructions\s*\(.*?,\s*instruction_data/s);
 ```
 
 You should type `instruction_data` with `&[u8]`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /instruction_data\s*:\s*&\[\s*u8\s*\]/s);
 ```
 
 ## 26
@@ -691,7 +709,12 @@ Now that the entrypoint function definition is correct, rebuild your program.
 You should run `cargo build` in the `src/program-rust/` directory.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /cargo build/);
 
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, 'src/program-rust');
 ```
 
 ## 27
@@ -707,7 +730,10 @@ _Note: Make `accounts_iter` mutable_
 You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter()\s*;/s);
 ```
 
 ## 28
@@ -717,7 +743,7 @@ You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/
 Safely access the next element of the `accounts_iter` collection with:
 
 ```rust
-if let Some(account) = accounts_iter.next {
+if let Some(account) = accounts_iter.next() {
 
 }
 ```
@@ -726,16 +752,25 @@ Also, add an `else` clause to the `if let`, and use `msg` to log an appropriate 
 
 ### --tests--
 
-You should have `if let Some(account) = accounts_iter.next {}` in `src/program-rust/src/lib.rs`.
+You should have `if let Some(account) = accounts_iter.next() {}` in `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /if\s+let\s+Some\s*\(\s*account\s*\)\s*=\s*accounts_iter\.next\s*\(\s*\)\s*\{\s*\}/s
+);
 ```
 
 You should add an `else` clause with a call to the `msg` macro.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 ```
 
 ## 29
@@ -751,7 +786,10 @@ Adjust the return type of `process_instruction` to be `ProgramResult`.
 You should add a return type of `ProgramResult` to `process_instruction`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /process_instructions\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
 ```
 
 ## 30
@@ -765,13 +803,22 @@ Be sure to call `Ok(())` when your function succeeds. Otherwise use the `NotEnou
 You should return `Ok(())` in the `if let` block of `process_instruction`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /(?<=\.next\s*\(\s*\)\s*\{).*?Ok\(\s*\(\s*\)\s*\)\s*\}/s);
 ```
 
-You should return `Err(ProgramError::NotEnoughAccountKeys);` in the `else` block of `process_instruction`.
+You should return `Err(ProgramError::NotEnoughAccountKeys)` in the `else` block of `process_instruction`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /(?<=else\s*\{).*?Err\s*\(\s*ProgramError::NotEnoughAccountKeys\s*\)\s*\}/s
+);
 ```
 
 ## 31
@@ -780,14 +827,20 @@ You should return `Err(ProgramError::NotEnoughAccountKeys);` in the `else` block
 
 Each `AccountInfo` element has an `owner` field which is the public key of the program that owns the account.
 
-Add an `if` statement checking for the case where this field's value does not match the `program_id` value.
+Add an `if` statement checking for the case where this field's value does **not** match the `program_id` value.
 
 ### --tests--
 
 You should have `if account.owner != program_id {}` in `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /if\s+(account\.owner\s*!=\s*program_id)|(program_id\s*!=\s*account\.owner)\s*\{/s
+);
 ```
 
 ## 32
@@ -798,10 +851,16 @@ Within the `if` statement, use `msg` to log `Account info does not match program
 
 ### --tests--
 
-You should have `msg("Account info does not match program id");` in `src/program-rust/src/lib.rs`.
+You should have `msg!("Account info does not match program id");` in `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /msg!\s*\(\s*"Account info does not match program id"\s*\)\s*;/s
+);
 ```
 
 ## 33
@@ -815,7 +874,13 @@ Within the `if` statement, return the `IncorrectProgramId` variant of `ProgramEr
 You should return `Err(ProgramError::IncorrectProgramId)` in the `if` statement.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /(?<=if.*?\{).*?Err\s*\(\s*ProgramError::IncorrectProgramId\s*\);?\s*\}/s
+);
 ```
 
 ## 34
@@ -831,7 +896,13 @@ Define a struct named `GreetingAccount` with a public field named `counter` with
 You should have `pub struct GreetingAccount { pub counter: u32 }` in the root of `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /pub\s+struct\s+GreetingAccount\s*\{\s*pub\s+counter\s*:\s*u32\s*\}/s
+);
 ```
 
 ## 35
@@ -845,7 +916,13 @@ Derive `BorshSerialize` and `BorshDeserialize` for your `GreetingAccount` struct
 You should add `#[derive(BorshSerialize, BorshDeserialize)]` above `GreetingAccount`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file.replace(/s+/, ''),
+  /#\[derive\(BorshSerialize,BorshDeserialize\)\]pubstructGreetingAccount/s
+);
 ```
 
 ## 36
@@ -865,13 +942,22 @@ Assign this value to a mutable variable named `greeting_account`.
 You should declare a mutable variable named `greeting_account`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /let\s+mut\s+greeting_account\s*=/s);
 ```
 
 You should assign `GreetingAccount::try_from_slice(&account.data.borrow())?;` to `greeting_account`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /greeting_account\s*=\s*GreetingAccount::try_from_slice\s*\(\s*&account.data.borrow\s*\(\s*\)\s*\)\s*\?\s*;/s
+);
 ```
 
 ## 37
@@ -885,7 +971,10 @@ Increment the `counter` field of `greeting_account` by one.
 You should have `greeting_account.counter += 1;` in `src/program-rust/src/lib.rs`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /greeting_account\.counter\s*+=\s*1\s*;/s);
 ```
 
 ## 38
@@ -899,13 +988,22 @@ Declare a new variable named `acc_data`, and assign it the value of `&mut accoun
 You should declare a new variable named `acc_data`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /let\s+acc_data\s*=/s);
 ```
 
 You should assign `&mut account.data.borrow_mut()[..]` to `acc_data`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /acc_data\s*=\s*&mut\s+account\.data\.borrow_mut\s*\(\s*\)\s*\[\s*\.\.\s*\]\s*;/s
+);
 ```
 
 ## 39
@@ -923,7 +1021,13 @@ greeting_account.serialize(&mut acc_data.as_mut())?;
 You should serialize the mutated data with `greeting_account.serialize(&mut acc_data.as_mut())?`.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(
+  file,
+  /greeting_account\.serialize\s*\(\s*&mut\s+acc_data\.as_mut\s*\(\s*\)\s*\)\s*\?\s*;/s
+);
 ```
 
 ## 40
