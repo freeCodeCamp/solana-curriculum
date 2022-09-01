@@ -408,13 +408,97 @@ const file = await __helpers.getFile(
 assert.include(file, 'use solana_program;');
 ```
 
-## 19
+## 20
 
 ### --description--
 
-Solana account addresses have the type `Pubkey`.
+When your smart contract is called, a function needs to be run.
 
-Import the `Pubkey` struct from the `pubkey` module of `solana_program`.
+Define a public function with the handle `process_instruction`.
+
+### --tests--
+
+You should define a function with the handle `process_instruction`.
+
+```js
+assert.fail();
+```
+
+## 21
+
+### --description--
+
+In order to tell your program which function is the entrypoint for the contract, import the `entrypoint` macro from the `solana_program` crate, and pass `process_instruction` as the argument.
+
+### --tests--
+
+You should import `solana_program::entrypoint`.
+
+```js
+
+```
+
+You should call the `entrypoint` macro in the root of your program.
+
+```js
+
+```
+
+You should pass `process_instruction` as an argument: `entrypoint!(process_instruction);`.
+
+```js
+
+```
+
+## 22
+
+### --description--
+
+To make debugging your application easier, import the `msg` macro from `solana_program`, and use it to log the string slice `Hello World` to the console whenever `process_instruction` is called.
+
+### --tests--
+
+You should import `solana_program::msg;`.
+
+```js
+
+```
+
+You should call the `msg` macro within the `process_instruction` function.
+
+```js
+
+```
+
+You should pass `"Hello World"` to `msg` as an argument: `msg!("Hello World");`.
+
+```js
+
+```
+
+## 23
+
+### --description--
+
+Within `src/program-rust/`, run `cargo build` to try build your library. You should see an error, because an entrypoint function is supposed to take 3 arguments.
+
+### --tests--
+
+You should run `cargo build` within the `src/program-rust/` directory.
+
+```js
+
+```
+
+## 24
+
+### --description--
+
+The first argument an entrypoint function takes is a reference to a `Pubkey` which is the public key of the account the program was loaded into.
+
+Add a parameter to the function definition named `program_id` with the correct type.
+
+_Import the `Pubkey` struct from the `pubkey` module of `solana_program`._
 
 ### --tests--
 
@@ -439,24 +523,198 @@ const cb = (stdout, stderr) => {
 await __helpers.rustTest(path, filePath, test, cb);
 ```
 
-## 20
-
-### --description--
-
-When your smart contract is called, a function needs to be run.
-
-Define a public function with the handle `process_instruction`.
-
-### --tests--
-
-You should define a function with the handle `process_instruction`.
+You should define `process_instruction` to have one parameter named `program_id`.
 
 ```js
-assert.fail();
+
 ```
 
-## 21
+You should type `program_id` with `&Pubkey`.
+
+```js
+
+```
+
+## 25
 
 ### --description--
 
+The second argument an entrypoint function takes is a slice of accounts with which the program can interact.
+
+Add a parameter to the function definition named `accounts` with the type `&[AccountInfo]`.
+
 ### --tests--
+
+You should have `use solana_program::account_info::AccountInfo;` in `src/program-rust/src/lib.rs`.
+
+```js
+const path =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const test = `fn t1() {
+    fn _acc(_a: AccountInfo) {}
+    assert!(true, "This code should compile");
+}`;
+const cb = (stdout, stderr) => {
+  if (stderr && !stderr.includes('Blocking')) {
+    assert.fail(stderr);
+  } else {
+    assert.include(stdout, 'result: ok. 1 passed');
+  }
+};
+await __helpers.rustTest(path, filePath, test, cb);
+```
+
+You should define `process_instruction` to have a second parameter named `accounts`.
+
+```js
+
+```
+
+You should type `accounts` with `&[AccountInfo]`.
+
+```js
+
+```
+
+## 23
+
+### --description--
+
+The third argument an entrypoint function takes is instruction data from the smart contract call.
+
+Add a parameter to the function definition named `instruction_data` with the type `&[u8]`.
+
+### --tests--
+
+You should have `use solana_program::account_info::AccountInfo;` in `src/program-rust/src/lib.rs`.
+
+```js
+const path =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const test = `fn t1() {
+    fn _acc(_a: AccountInfo) {}
+    assert!(true, "This code should compile");
+}`;
+const cb = (stdout, stderr) => {
+  if (stderr && !stderr.includes('Blocking')) {
+    assert.fail(stderr);
+  } else {
+    assert.include(stdout, 'result: ok. 1 passed');
+  }
+};
+await __helpers.rustTest(path, filePath, test, cb);
+```
+
+You should define `process_instruction` to have a third parameter named `instruction_data`.
+
+```js
+
+```
+
+You should type `instruction_data` with `&[u8]`.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Now that the entrypoint function definition is correct, rebuild your program.
+
+### --tests--
+
+You should run `cargo build` in the `src/program-rust/` directory.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Within the `process_instruction` function, create an iterator over the `accounts`, and store the iterator in a variable named `accounts_iter`.
+
+### --tests--
+
+You should have `let accounts_iter = accounts.iter();` in `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Safely access the next element of the `accounts_iter` collection with:
+
+```rust
+if let Some(account) = accounts_iter.next {
+
+}
+```
+
+Also, add an `else` clause to the `if let`, and use `msg` to log an appropriate message to the console.
+
+### --tests--
+
+You should have `if let Some(account) = accounts_iter.next {}` in `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+You should add an `else` clause with a call to the `msg` macro.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Each `AccountInfo` element has an `owner` field which is the public key of the program that owns the account.
+
+Add an `if` statement checking for the case where this field's value does not match the `program_id` value.
+
+### --tests--
+
+You should have `if account.owner != program_id {}` in `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Within the `if` statement, use `msg` to log `Account info does not match program id` to the console.
+
+### --tests--
+
+You should have `msg("Account info does not match program id");` in `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+In order to interact with the data associated with this smart contract account, you need to define a struct resembling the account data.
+
+Define a struct named `GreetingAccount` with a public field named `counter` with a value of `u32`.
+
+### --tests--
+
+You should have `pub struct GreetingAccount { pub counter: u32 }`
