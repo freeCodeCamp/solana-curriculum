@@ -14,12 +14,12 @@ no-entrypoint = []
 
 [dependencies]
 borsh = "0.9.3"
-borsh-derive = "0.9.1"
-solana-program = "1.11.4"
+borsh-derive = "0.9.3"
+solana-program = "1.11.10"
 
 [dev-dependencies]
-solana-program-test = "1.11.4"
-solana-sdk = "~1.11.4"
+solana-program-test = "1.11.10"
+solana-sdk = "1.11.10"
 
 [lib]
 name = "helloworld"
