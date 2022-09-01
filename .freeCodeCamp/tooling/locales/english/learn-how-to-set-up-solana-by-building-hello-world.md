@@ -375,9 +375,87 @@ assert.isAtLeast(Number(balance), 1);
 
 ### --description--
 
+Checkout your balance.
+
 ### --tests--
 
+You should use `solana balance <ACCOUNT_ADDRESS>` to check your balance.
+
+```js
+const { stdout } = await __helpers.getCommandOutput('solana address');
+const accountAddress = stdout.trim();
+const lastCommand = await __helpers.getLastCommand();
+
+assert.include(lastCommand, `solana balance ${accountAddress}`);
+```
+
 ## 18
+
+### --description--
+
+Now that your Solana account is set up, open the `src/program-rust/src/lib.rs` file. This is where you will be developing your first Solana smart contract.
+
+Start by importing the `solana_program` crate.
+
+### --tests--
+
+You should have `use solana_program;` in `src/program-rust/src/lib.rs`.
+
+```js
+const file = await __helpers.getFile(
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs'
+);
+assert.include(file, 'use solana_program;');
+```
+
+## 19
+
+### --description--
+
+Solana account addresses have the type `Pubkey`.
+
+Import the `Pubkey` struct from the `pubkey` module of `solana_program`.
+
+### --tests--
+
+You should have `use solana_program::pubkey::Pubkey;` in `src/program-rust/src/lib.rs`.
+
+```js
+const path =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const test = `fn t1() {
+    let _a: Pubkey = Pubkey::new_unique();
+    assert!(true, "This code should compile");
+}`;
+const cb = (stdout, stderr) => {
+  if (stderr && !stderr.includes('Blocking')) {
+    assert.fail(stderr);
+  } else {
+    assert.include(stdout, 'result: ok. 1 passed');
+  }
+};
+await __helpers.rustTest(path, filePath, test, cb);
+```
+
+## 20
+
+### --description--
+
+When your smart contract is called, a function needs to be run.
+
+Define a public function with the handle `process_instruction`.
+
+### --tests--
+
+You should define a function with the handle `process_instruction`.
+
+```js
+assert.fail();
+```
+
+## 21
 
 ### --description--
 
