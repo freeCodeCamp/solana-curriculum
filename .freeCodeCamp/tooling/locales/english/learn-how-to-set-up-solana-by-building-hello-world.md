@@ -408,7 +408,7 @@ const file = await __helpers.getFile(
 assert.include(file, 'use solana_program;');
 ```
 
-## 20
+## 19
 
 ### --description--
 
@@ -418,13 +418,17 @@ Define a public function with the handle `process_instruction`.
 
 ### --tests--
 
-You should define a function with the handle `process_instruction`.
+You should define a **PUBLIC** function with the handle `process_instruction`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs'
+);
+
+assert.match(file, /pub\s+fn\s+process_instruction\s*\(/s);
 ```
 
-## 21
+## 20
 
 ### --description--
 
@@ -435,22 +439,45 @@ In order to tell your program which function is the entrypoint for the contract,
 You should import `solana_program::entrypoint`.
 
 ```js
-
+const path =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const test = `fn t1() {
+    let _a = entrypoint;
+    assert!(true, "This code should compile");
+}`;
+const cb = (stdout, stderr) => {
+  if (stderr && !stderr.includes('Blocking')) {
+    assert.fail(stderr);
+  } else {
+    assert.include(stdout, 'result: ok. 1 passed');
+  }
+};
+await __helpers.rustTest(path, filePath, test, cb);
 ```
 
 You should call the `entrypoint` macro in the root of your program.
 
 ```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
 
+assert.match(file, /entrypoint!\(/);
 ```
 
 You should pass `process_instruction` as an argument: `entrypoint!(process_instruction);`.
 
 ```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
 
+assert.match(file, /entrypoint!\(\s*process_instruction\s*\)/s);
 ```
 
-## 22
+## 21
 
 ### --description--
 
@@ -461,22 +488,45 @@ To make debugging your application easier, import the `msg` macro from `solana_p
 You should import `solana_program::msg;`.
 
 ```js
-
+const path =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const test = `fn t1() {
+    let _a = msg;
+    assert!(true, "This code should compile");
+}`;
+const cb = (stdout, stderr) => {
+  if (stderr && !stderr.includes('Blocking')) {
+    assert.fail(stderr);
+  } else {
+    assert.include(stdout, 'result: ok. 1 passed');
+  }
+};
+await __helpers.rustTest(path, filePath, test, cb);
 ```
 
 You should call the `msg` macro within the `process_instruction` function.
 
 ```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
 
+assert.match(file, /msg!\(/);
 ```
 
 You should pass `"Hello World"` to `msg` as an argument: `msg!("Hello World");`.
 
 ```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
 
+assert.match(file, /msg!\(\s*"Hello World"\s*\)/s);
 ```
 
-## 23
+## 22
 
 ### --description--
 
@@ -487,10 +537,19 @@ Within `src/program-rust/`, run `cargo build` to try build your library. You sho
 You should run `cargo build` within the `src/program-rust/` directory.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand, /cargo build/, 'Last command was incorrect');
 
+const dir = await __helpers.getCWD();
+const cwd = dir.split('\n').filter(Boolean).pop();
+assert.match(
+  cwd,
+  /src\/program-rust/,
+  "You should be in the 'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust' dir"
+);
 ```
 
-## 24
+## 23
 
 ### --description--
 
@@ -535,7 +594,7 @@ You should type `program_id` with `&Pubkey`.
 
 ```
 
-## 25
+## 24
 
 ### --description--
 
@@ -578,7 +637,7 @@ You should type `accounts` with `&[AccountInfo]`.
 
 ```
 
-## 23
+## 25
 
 ### --description--
 
@@ -621,7 +680,7 @@ You should type `instruction_data` with `&[u8]`.
 
 ```
 
-## 1
+## 26
 
 ### --description--
 
@@ -635,21 +694,23 @@ You should run `cargo build` in the `src/program-rust/` directory.
 
 ```
 
-## 1
+## 27
 
 ### --description--
 
 Within the `process_instruction` function, create an iterator over the `accounts`, and store the iterator in a variable named `accounts_iter`.
 
+_Note: Make `accounts_iter` mutable_
+
 ### --tests--
 
-You should have `let accounts_iter = accounts.iter();` in `src/program-rust/src/lib.rs`.
+You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/src/lib.rs`.
 
 ```js
 
 ```
 
-## 1
+## 28
 
 ### --description--
 
@@ -677,7 +738,43 @@ You should add an `else` clause with a call to the `msg` macro.
 
 ```
 
-## 1
+## 29
+
+### --description--
+
+Import the `ProgramResult` type from the `entrypoint` module of `solana_program`, and the `ProgramError` enum from the `program_error` module of `solana_program`.
+
+Adjust the return type of `process_instruction` to be `ProgramResult`.
+
+### --tests--
+
+You should add a return type of `ProgramResult` to `process_instruction`.
+
+```js
+
+```
+
+## 30
+
+### --description--
+
+Be sure to call `Ok(())` when your function succeeds. Otherwise use the `NotEnoughAccountKeys` variant of `ProgramError` as the return for the `Err` variant of your function.
+
+### --tests--
+
+You should return `Ok(())` in the `if let` block of `process_instruction`.
+
+```js
+
+```
+
+You should return `Err(ProgramError::NotEnoughAccountKeys);` in the `else` block of `process_instruction`.
+
+```js
+
+```
+
+## 31
 
 ### --description--
 
@@ -693,7 +790,7 @@ You should have `if account.owner != program_id {}` in `src/program-rust/src/lib
 
 ```
 
-## 1
+## 32
 
 ### --description--
 
@@ -707,7 +804,21 @@ You should have `msg("Account info does not match program id");` in `src/program
 
 ```
 
-## 1
+## 33
+
+### --description--
+
+Within the `if` statement, return the `IncorrectProgramId` variant of `ProgramError` as the `Err`.
+
+### --tests--
+
+You should return `Err(ProgramError::IncorrectProgramId)` in the `if` statement.
+
+```js
+
+```
+
+## 34
 
 ### --description--
 
@@ -717,4 +828,130 @@ Define a struct named `GreetingAccount` with a public field named `counter` with
 
 ### --tests--
 
-You should have `pub struct GreetingAccount { pub counter: u32 }`
+You should have `pub struct GreetingAccount { pub counter: u32 }` in the root of `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+## 35
+
+### --description--
+
+Derive `BorshSerialize` and `BorshDeserialize` for your `GreetingAccount` struct to be able to serialize and deserilize the data in the account.
+
+### --tests--
+
+You should add `#[derive(BorshSerialize, BorshDeserialize)]` above `GreetingAccount`.
+
+```js
+
+```
+
+## 36
+
+### --description--
+
+Deserialize the `data` in the `account` variable with:
+
+```rust
+GreetingAccount::try_from_slice(&account.data.borrow())?;
+```
+
+Assign this value to a mutable variable named `greeting_account`.
+
+### --tests--
+
+You should declare a mutable variable named `greeting_account`.
+
+```js
+
+```
+
+You should assign `GreetingAccount::try_from_slice(&account.data.borrow())?;` to `greeting_account`.
+
+```js
+
+```
+
+## 37
+
+### --description--
+
+Increment the `counter` field of `greeting_account` by one.
+
+### --tests--
+
+You should have `greeting_account.counter += 1;` in `src/program-rust/src/lib.rs`.
+
+```js
+
+```
+
+## 38
+
+### --description--
+
+Declare a new variable named `acc_data`, and assign it the value of `&mut account.data.borrow_mut()[..]`.
+
+### --tests--
+
+You should declare a new variable named `acc_data`.
+
+```js
+
+```
+
+You should assign `&mut account.data.borrow_mut()[..]` to `acc_data`.
+
+```js
+
+```
+
+## 39
+
+### --description--
+
+Serialize the account data into your program with:
+
+```rust
+greeting_account.serialize(&mut acc_data.as_mut())?;
+```
+
+### --tests--
+
+You should serialize the mutated data with `greeting_account.serialize(&mut acc_data.as_mut())?`.
+
+```js
+
+```
+
+## 40
+
+### --description--
+
+Log the number of times the account has been greeted, using the `msg` macro.
+
+### --tests--
+
+You should use `msg` to log the number of times the account has been greeted.
+
+```js
+
+```
+
+## 41
+
+### --description--
+
+Contratulations on finishing this project!
+
+🎆
+
+### --tests--
+
+Well Done!
+
+```js
+assert.fail('All lessons for this project finished');
+```
