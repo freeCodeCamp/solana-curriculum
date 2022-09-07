@@ -4,7 +4,6 @@ import { getState, getProjectConfig, ROOT } from './env.js';
 import runLesson from './lesson.js';
 import runTests from './test.js';
 import { watch } from 'chokidar';
-import { join } from 'path';
 const { currentProject } = await getState();
 const { testPollingRate, runTestsOnWatch } = await getProjectConfig(
   currentProject
@@ -16,9 +15,10 @@ function hotReload(ws) {
   let testsRunning = false;
   let isClearConsole = false;
 
+  // TODO: Migrate list to config
   const pathsToIgnore = [
     '.logs/.temp.log',
-    '.freeCodeCamp/config/',
+    'config/',
     '/node_modules/',
     '.git',
     '/target/',

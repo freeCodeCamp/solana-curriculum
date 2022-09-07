@@ -3,7 +3,7 @@ const { DefinePlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './client/index.tsx',
+  entry: path.join(__dirname, 'client/index.tsx'),
   devtool: 'inline-source-map',
   mode: process.env.NODE_ENV || 'development',
   devServer: {
@@ -18,7 +18,6 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx|tsx|ts)$/,
-        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -49,7 +48,6 @@ module.exports = {
       },
       {
         test: /\.(ts|tsx)$/,
-        exclude: /node_modules/,
         use: ['ts-loader']
       },
       {

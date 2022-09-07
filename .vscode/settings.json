@@ -23,7 +23,7 @@
     "bash": {
       "path": "bash",
       "icon": "terminal-bash",
-      "args": ["--init-file", ".freeCodeCamp/bash/sourcerer.sh"]
+      "args": ["--init-file", "./bash/sourcerer.sh"]
     }
   },
   "rust-analyzer.linkedProjects": [
