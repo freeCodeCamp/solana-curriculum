@@ -8,6 +8,7 @@ export enum Events {
   UPDATE_TEST = 'update-test',
   UPDATE_DESCRIPTION = 'update-description',
   UPDATE_PROJECT_HEADING = 'update-project-heading',
+  UPDATE_PROJECTS = 'update-projects',
   RESET_TESTS = 'reset-tests',
   RUN_TESTS = 'run-tests',
   RESET_PROJECT = 'reset-project',
@@ -34,3 +35,7 @@ export interface ProjectI {
 export type ConsoleError = {
   error: string;
 } & TestType;
+
+export type FreeCodeCampConfigI = {
+  [key: string]: any;
+};

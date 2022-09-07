@@ -53,6 +53,32 @@ export function updateProject(ws, project) {
   );
 }
 /**
+ * Update the projects state
+ * @param {WebSocket} ws WebSocket connection to the client
+ * @param {Project[]} projects Array of Project objects
+ */
+export function updateProjects(ws, projects) {
+  ws.send(
+    parse({
+      event: 'update-projects',
+      data: projects
+    })
+  );
+}
+/**
+ * Update the projects state
+ * @param {WebSocket} ws WebSocket connection to the client
+ * @param {any} config config object
+ */
+export function updateFreeCodeCampConfig(ws, config) {
+  ws.send(
+    parse({
+      event: 'update-freeCodeCamp-config',
+      data: config
+    })
+  );
+}
+/**
  * Update hints
  * @param {WebSocket} ws WebSocket connection to the client
  * @param {string} hints `\n` separated string

@@ -14,7 +14,7 @@ import {
   updateTests,
   updateProject
 } from './client-socks.js';
-import { ROOT, getState, getProjectConfig } from './env.js';
+import { ROOT, getState, getProjectConfig, freeCodeCampConfig } from './env.js';
 import seedLesson from './seed.js';
 
 /**
@@ -27,8 +27,7 @@ async function runLesson(ws, projectDashedName) {
   const { locale } = await getState();
   const projectFile = join(
     ROOT,
-    '.freeCodeCamp/tooling/locales',
-    locale,
+    freeCodeCampConfig.curriculum.locales[locale],
     project.dashedName + '.md'
   );
   const lessonNumber = project.currentLesson;

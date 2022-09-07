@@ -1,4 +1,4 @@
-import { getState, ROOT } from './env.js';
+import { getState } from './env.js';
 
 export async function t(key, args = {}, forceLangToUse) {
   const { locale: loc } = await getState();
@@ -6,7 +6,7 @@ export async function t(key, args = {}, forceLangToUse) {
   // Read file and parse JSON
   const locale = forceLangToUse ?? loc;
   const comments = import(
-    join(ROOT, `.freeCodeCamp/tooling/locales/${locale}/comments.json`),
+    `.freeCodeCamp/tooling/locales/${locale}/comments.json`,
     {
       assert: { type: 'json' }
     }
