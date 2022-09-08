@@ -10,12 +10,17 @@
     ".prettierignore": false,
     ".prettierrc": false,
     ".vscode": false,
+    "bash": false,
+    "config": false,
+    "curriculum": false,
+    "tooling": false,
+    "Dockerfile": false,
+    "freecodecamp.conf.json": false,
     "node_modules": false,
     "package.json": false,
     "package-lock.json": false,
     "LICENSE": false,
     "README.md": false,
-    "renovate.json": false,
     "build-x-using-y": false,
     "learn-how-to-set-up-solana-by-building-hello-world": false
   },
@@ -28,5 +33,6 @@
   },
   "rust-analyzer.linkedProjects": [
     "learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/Cargo.toml"
-  ]
+  ],
+  "workbench.colorTheme": "freeCodeCamp Dark Theme"
 }
