@@ -1,9 +1,12 @@
 
 [package]
-name = "solana-bpf-helloworld"
+name = "solana-sbf-helloworld"
 version = "0.0.1"
 description = "Hello World program written in Rust"
-authors = ["Solana Maintainers <maintainers@solana.com>", "Shaun Hamilton <shauhami020@gmail.com>"]
+authors = [
+  "Solana Maintainers <maintainers@solana.com>",
+  "Shaun Hamilton <shauhami020@gmail.com>",
+]
 repository = "https://github.com/freeCodeCamp/solana-curriculum"
 license = "Apache-2.0"
 homepage = "https://web3.freecodecamp.org/"

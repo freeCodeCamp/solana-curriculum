@@ -1,16 +1,20 @@
 # Solana - Learn How to Set Up Solana by Building Hello World
 
+<!-- TODO: ANYTIME solana-test-validator is needed, have a test for it. -->
+
 ## 1
 
 ### --description--
 
 Welcome to the Solana curriculum! For the duration of this project, you will be working in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
-Start by changing into the above directory.
+Open a new terminal, and change into the above directory.
+
+_Note: Do not change the existing terminal_
 
 ### --tests--
 
-You should be in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
+You should use `cd` to change into the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
 
 ```js
 const cwdFile = await __helpers.getCWD();
@@ -55,6 +59,8 @@ assert.match(
 You will likely need to adjust the environment variable for your `PATH`, in order for you to use the `solana` alias.
 
 If prompted in the terminal, update your `PATH` environment variable to include the Solana programs.
+
+**Note:** You need to manually click the _Run Tests_ button.
 
 ### --tests--
 
@@ -202,6 +208,8 @@ As this is your first time using the Solana CLI, you should generate a new keypa
 solana-keygen new
 ```
 
+_Note:_ When prompted, hit _ENTER_ in the terminal to generate a keypair with an empty passphrase.
+
 ### --tests--
 
 You should run `solana-keygen new` in the terminal.
@@ -263,6 +271,8 @@ Open a new terminal, and start a Solana test validator with:
 solana-test-validator
 ```
 
+**Note:** You need to manually click the _Run Tests_ button.
+
 ### --tests--
 
 You should start a test validator with `solana-test-validator`.
@@ -276,15 +286,17 @@ assert.match(temp, /solana-test-validator/);
 
 ### --description--
 
-<!-- TODO: These terms are new, and difficult to explain in a few words. Remove this lesson? -->
-
-- The `json_rpc_url` value is the fullnode endpoint _RPC_ calls will be made.
-- The `websocket_url` value is the fullnode _PubSub_ WebSocket endpoint.
-
 Manually make an RPC call with:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getBalance", "params": ["your_address_public_key", { "commitment": "finalized" }]}' http://localhost:8899
+curl -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBalance",
+  "params": ["your_address_public_key", { "commitment": "finalized" }]
+}' \
+http://localhost:8899
 ```
 
 _Remember to replace `your_address_public_key`_
@@ -296,7 +308,6 @@ You should make an RPC call using `curl`.
 ```js
 const { stdout } = await __helpers.getCommandOutput('solana address');
 const camperPublicKey = stdout.trim();
-console.log('CAMPER PUBLIC KEY: ', camperPublicKey);
 const toMatch = `curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getBalance", "params": ["${camperPublicKey}", { "commitment": "finalized" }]}' http://localhost:8899`;
 const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand.replace(/\s/g, ''), toMatch.replace(/\s/g, ''));
@@ -393,7 +404,7 @@ assert.include(lastCommand, `solana balance ${accountAddress}`);
 
 ### --description--
 
-Now that your Solana account is set up, open the `src/program-rust/src/lib.rs` file. This is where you will be developing your first Solana smart contract.
+Open the `src/program-rust/src/lib.rs` file. This is where you will be developing your first Solana smart contract.
 
 Start by importing the `solana_program` crate.
 
@@ -439,22 +450,11 @@ In order to tell your program which function is the entrypoint for the contract,
 You should import `solana_program::entrypoint`.
 
 ```js
-const path =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
 const filePath =
   'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
-const test = `fn t1() {
-    let _a = entrypoint;
-    assert!(true, "This code should compile");
-}`;
-const cb = (stdout, stderr) => {
-  if (stderr && !stderr.includes('Blocking')) {
-    assert.fail(stderr);
-  } else {
-    assert.include(stdout, 'result: ok. 1 passed');
-  }
-};
-await __helpers.rustTest(path, filePath, test, cb);
+const file = await __helpers.getFile(filePath);
+
+assert.match(file, /solana_program::entrypoint/);
 ```
 
 You should call the `entrypoint` macro in the root of your program.
@@ -721,6 +721,84 @@ assert.match(cwd, 'src/program-rust');
 
 ### --description--
 
+Before deploying, build your program with:
+
+```bash
+cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program
+```
+
+### --tests--
+
+You should run the above command to build your program.
+
+```js
+
+```
+
+## 28
+
+### --description--
+
+Your program is located in `dist/program/helloworld.so`. You can deploy it to your localnet with:
+
+```bash
+solana program deploy <path_to_program>
+```
+
+### --tests--
+
+You should run `solana program deploy <path_to_program>` in the terminal.
+
+```js
+
+```
+
+## 29
+
+### --description--
+
+After deploying, your program id should be printed to the console.
+
+View the program account with:
+
+```bash
+solana program show <program_id>
+```
+
+### --tests--
+
+You should run `solana program show <program_id>` in the terminal.
+
+```js
+
+```
+
+## 30
+
+### --description--
+
+To call your program, run:
+
+```bash
+npm run call:hello-world
+```
+
+This will run the code in `src/client/hello-world/` to call your program.
+
+### --tests--
+
+You should run `npm run call:hello-world` in the terminal.
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Having a program that prints `Hello World` to the console is fun, but it is not very useful. Make it do something more interesting.
+
 Within the `process_instruction` function, create an iterator over the `accounts`, and store the iterator in a variable named `accounts_iter`.
 
 _Note: Make `accounts_iter` mutable_
@@ -736,7 +814,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter()\s*;/s);
 ```
 
-## 28
+## 32
 
 ### --description--
 
@@ -773,7 +851,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 ```
 
-## 29
+## 33
 
 ### --description--
 
@@ -792,7 +870,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /process_instructions\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
 ```
 
-## 30
+## 34
 
 ### --description--
 
@@ -821,7 +899,7 @@ assert.match(
 );
 ```
 
-## 31
+## 35
 
 ### --description--
 
@@ -843,7 +921,7 @@ assert.match(
 );
 ```
 
-## 32
+## 36
 
 ### --description--
 
@@ -863,7 +941,7 @@ assert.match(
 );
 ```
 
-## 33
+## 37
 
 ### --description--
 
@@ -883,7 +961,7 @@ assert.match(
 );
 ```
 
-## 34
+## 38
 
 ### --description--
 
@@ -905,7 +983,7 @@ assert.match(
 );
 ```
 
-## 35
+## 39
 
 ### --description--
 
@@ -925,7 +1003,7 @@ assert.match(
 );
 ```
 
-## 36
+## 40
 
 ### --description--
 
@@ -960,7 +1038,7 @@ assert.match(
 );
 ```
 
-## 37
+## 41
 
 ### --description--
 
@@ -977,7 +1055,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /greeting_account\.counter\s*+=\s*1\s*;/s);
 ```
 
-## 38
+## 42
 
 ### --description--
 
@@ -1006,7 +1084,7 @@ assert.match(
 );
 ```
 
-## 39
+## 43
 
 ### --description--
 
@@ -1030,7 +1108,7 @@ assert.match(
 );
 ```
 
-## 40
+## 44
 
 ### --description--
 
@@ -1044,7 +1122,53 @@ You should use `msg` to log the number of times the account has been greeted.
 
 ```
 
-## 41
+## 45
+
+### --description--
+
+Now that your program is complete, rebuild it.
+
+### --tests--
+
+You should run `cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program` in the terminal.
+
+```js
+
+```
+
+## 46
+
+### --description--
+
+Re-deploy your program to your local Solana cluster.
+
+### --tests--
+
+You should run `solana program deploy dist/program/helloworld.so` in the terminal.
+
+```js
+
+```
+
+## 47
+
+### --description--
+
+Send a message to your program to increment the counter by running:
+
+```bash
+npm run call:increment
+```
+
+### --tests--
+
+You should run `npm run call:increment` in the terminal.
+
+```js
+
+```
+
+## 48
 
 ### --description--
 
