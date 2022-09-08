@@ -1,7 +1,7 @@
 {
   "path": ".",
   "scripts": {
-    "develop-course": "NODE_ENV=development nodemon --watch ./tooling/ --ignore ./config/ .freeCodeCamp/tooling/server.js",
+    "develop-course": "NODE_ENV=development node ./.freeCodeCamp/tooling/server.js",
     "run-course": "NODE_ENV=production node ./.freeCodeCamp/tooling/server.js",
     "test": {
       "functionName": "handleMessage",
@@ -33,7 +33,7 @@
       "favicon": "./client/assets/fcc_primary_small.svg"
     },
     "landing": {
-      "description": "Placeholder description",
+      "description": "Learn the Solana toolchain, and test your new-found skills.",
       "faq-link": "#",
       "faq-text": "Link to FAQ related to course"
     }
