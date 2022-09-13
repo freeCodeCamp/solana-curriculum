@@ -732,7 +732,11 @@ cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist
 You should run the above command to build your program.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.match(
+  lastCommand,
+  /cargo build-sbf --manifest-path=.*? --sbf-out-dir=.*?/
+);
 ```
 
 ## 28
@@ -742,12 +746,12 @@ You should run the above command to build your program.
 Your program is located in `dist/program/helloworld.so`. You can deploy it to your localnet with:
 
 ```bash
-solana program deploy <path_to_program>
+solana program deploy <PATH_TO_PROGRAM>
 ```
 
 ### --tests--
 
-You should run `solana program deploy <path_to_program>` in the terminal.
+You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
 
@@ -762,12 +766,12 @@ After deploying, your program id should be printed to the console.
 View the program account with:
 
 ```bash
-solana program show <program_id>
+solana program show <PROGRAM_ID>
 ```
 
 ### --tests--
 
-You should run `solana program show <program_id>` in the terminal.
+You should run `solana program show <PROGRAM_ID>` in the terminal.
 
 ```js
 
