@@ -4,7 +4,7 @@
 
 ### --description--
 
-Welcome to the Solana curriculum! For the duration of this project, you will be working in the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
+Welcome to the Solana curriculum! For the duration of this project, you will be working in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
 
 Open a new terminal, and change into the above directory.
 
@@ -12,12 +12,15 @@ _Note: Do not change the existing terminal_
 
 ### --tests--
 
-You should use `cd` to change into the `learn-how-to-set-up-solana-by-building-hello-world/` directory.
+You should use `cd` to change into the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
 
 ```js
 const cwdFile = await __helpers.getCWD();
 const cwd = cwdFile.split('\n').filter(Boolean).pop();
-assert.include(cwd, 'learn-how-to-set-up-solana-by-building-hello-world');
+assert.include(
+  cwd,
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract'
+);
 ```
 
 ## 2
@@ -492,7 +495,7 @@ You should have `use solana_program;` in `src/program-rust/src/lib.rs`.
 
 ```js
 const file = await __helpers.getFile(
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs'
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs'
 );
 assert.include(file, 'use solana_program;');
 ```
@@ -511,7 +514,7 @@ You should define a **PUBLIC** function with the handle `process_instruction`.
 
 ```js
 const file = await __helpers.getFile(
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs'
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs'
 );
 
 assert.match(file, /pub\s+fn\s+process_instruction\s*\(/s);
@@ -529,7 +532,7 @@ You should import `solana_program::entrypoint`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
 assert.match(file, /solana_program::entrypoint/);
@@ -539,7 +542,7 @@ You should call the `entrypoint` macro in the root of your program.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
 assert.match(file, /entrypoint!\(/);
@@ -549,7 +552,7 @@ You should pass `process_instruction` as an argument: `entrypoint!(process_instr
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
 assert.match(file, /entrypoint!\(\s*process_instruction\s*\)/s);
@@ -567,9 +570,9 @@ You should import `solana_program::msg;`.
 
 ```js
 const path =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const test = `fn t1() {
     let _a = msg;
     assert!(true, "This code should compile");
@@ -588,7 +591,7 @@ You should call the `msg` macro within the `process_instruction` function.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
 assert.match(file, /msg!\(/);
@@ -598,7 +601,7 @@ You should pass `"Hello World"` to `msg` as an argument: `msg!("Hello World");`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
 assert.match(file, /msg!\(\s*"Hello World"\s*\)/s);
@@ -622,8 +625,8 @@ const dir = await __helpers.getCWD();
 const cwd = dir.split('\n').filter(Boolean).pop();
 assert.match(
   cwd,
-  /src\/program-rust/,
-  "You should be in the 'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust' dir"
+  /src\/program-rust\/?$/,
+  "You should be in the 'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust' dir"
 );
 ```
 
@@ -643,9 +646,9 @@ You should have `use solana_program::pubkey::Pubkey;` in `src/program-rust/src/l
 
 ```js
 const path =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const test = `fn t1() {
     let _a: Pubkey = Pubkey::new_unique();
     assert!(true, "This code should compile");
@@ -664,7 +667,7 @@ You should define `process_instruction` to have one parameter named `program_id`
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /process_instructions\s*\(\s*program_id\s*/s);
 ```
@@ -673,7 +676,7 @@ You should type `program_id` with `&Pubkey`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /program_id\s*:\s*&Pubkey/s);
 ```
@@ -692,9 +695,9 @@ You should have `use solana_program::account_info::AccountInfo;` in `src/program
 
 ```js
 const path =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const test = `fn t1() {
     fn _acc(_a: AccountInfo) {}
     assert!(true, "This code should compile");
@@ -713,7 +716,7 @@ You should define `process_instruction` to have a second parameter named `accoun
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /process_instructions\s*\(.*?,\s*accounts/s);
 ```
@@ -722,7 +725,7 @@ You should type `accounts` with `&[AccountInfo]`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /accounts\s*:\s*&\[\s*AccountInfo\s*\]/s);
 ```
@@ -741,9 +744,9 @@ You should have `use solana_program::account_info::AccountInfo;` in `src/program
 
 ```js
 const path =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const test = `fn t1() {
     fn _acc(_a: AccountInfo) {}
     assert!(true, "This code should compile");
@@ -762,7 +765,7 @@ You should define `process_instruction` to have a third parameter named `instruc
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /process_instructions\s*\(.*?,\s*instruction_data/s);
 ```
@@ -771,7 +774,7 @@ You should type `instruction_data` with `&[u8]`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /instruction_data\s*:\s*&\[\s*u8\s*\]/s);
 ```
@@ -780,19 +783,23 @@ assert.match(file, /instruction_data\s*:\s*&\[\s*u8\s*\]/s);
 
 ### --description--
 
-Now that the entrypoint function definition is correct, rebuild your program.
+Now that the entrypoint function definition is correct, rebuild your program to see if it compiles.
 
 ### --tests--
 
-You should run `cargo build` in the `src/program-rust/` directory.
+You should run `cargo build` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.match(lastCommand, /cargo build/);
+assert.include(lastCommand, 'cargo build');
+```
 
+You should be in the `src/program-rust` directory.
+
+```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, 'src/program-rust');
+assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
 ## 27
@@ -813,8 +820,16 @@ You should run the above command to build your program.
 const lastCommand = await __helpers.getLastCommand();
 assert.match(
   lastCommand,
-  /cargo build-sbf --manifest-path=.*? --sbf-out-dir=.*?/
+  /cargo build-sbf --manifest-path=.*? --sbf-out-dir=.*?/s
 );
+```
+
+You should be in the `src/program-rust` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
 ## 28
@@ -848,7 +863,16 @@ try {
 You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program deploy dist/program/helloworld.so');
+```
 
+You should be in the `src/program-rust` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
 ## 29
@@ -884,7 +908,8 @@ try {
 You should run `solana program show <PROGRAM_ID>` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program show');
 ```
 
 ## 30
@@ -920,7 +945,19 @@ try {
 You should run `npm run call:hello-world` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'npm run call:hello-world');
+```
 
+You should be in the `/learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 31
@@ -939,7 +976,7 @@ You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter()\s*;/s);
 ```
@@ -964,7 +1001,7 @@ You should have `if let Some(account) = accounts_iter.next() {}` in `src/program
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -976,7 +1013,7 @@ You should add an `else` clause with a call to the `msg` macro.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 ```
@@ -995,7 +1032,7 @@ You should add a return type of `ProgramResult` to `process_instruction`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /process_instructions\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
 ```
@@ -1012,7 +1049,7 @@ You should return `Ok(())` in the `if let` block of `process_instruction`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /(?<=\.next\s*\(\s*\)\s*\{).*?Ok\(\s*\(\s*\)\s*\)\s*\}/s);
 ```
@@ -1021,7 +1058,7 @@ You should return `Err(ProgramError::NotEnoughAccountKeys)` in the `else` block 
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1043,7 +1080,7 @@ You should have `if account.owner != program_id {}` in `src/program-rust/src/lib
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1063,7 +1100,7 @@ You should have `msg!("Account info does not match program id");` in `src/progra
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1083,7 +1120,7 @@ You should return `Err(ProgramError::IncorrectProgramId)` in the `if` statement.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1105,7 +1142,7 @@ You should have `pub struct GreetingAccount { pub counter: u32 }` in the root of
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1125,7 +1162,7 @@ You should add `#[derive(BorshSerialize, BorshDeserialize)]` above `GreetingAcco
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file.replace(/s+/, ''),
@@ -1151,7 +1188,7 @@ You should declare a mutable variable named `greeting_account`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /let\s+mut\s+greeting_account\s*=/s);
 ```
@@ -1160,7 +1197,7 @@ You should assign `GreetingAccount::try_from_slice(&account.data.borrow())?;` to
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1180,7 +1217,7 @@ You should have `greeting_account.counter += 1;` in `src/program-rust/src/lib.rs
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /greeting_account\.counter\s*+=\s*1\s*;/s);
 ```
@@ -1197,7 +1234,7 @@ You should declare a new variable named `acc_data`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(file, /let\s+acc_data\s*=/s);
 ```
@@ -1206,7 +1243,7 @@ You should assign `&mut account.data.borrow_mut()[..]` to `acc_data`.
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1230,7 +1267,7 @@ You should serialize the mutated data with `greeting_account.serialize(&mut acc_
 
 ```js
 const filePath =
-  'learn-how-to-set-up-solana-by-building-hello-world/src/program-rust/src/lib.rs';
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
@@ -1249,7 +1286,10 @@ Log the number of times the account has been greeted, using the `msg` macro.
 You should use `msg` to log the number of times the account has been greeted.
 
 ```js
-
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /msg!\(/);
 ```
 
 ## 45
@@ -1263,7 +1303,19 @@ Now that your program is complete, rebuild it.
 You should run `cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program'
+);
+```
 
+You should be in the `src/program-rust` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
 ## 46
@@ -1293,7 +1345,16 @@ try {
 You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program deploy dist/program/helloworld.so');
+```
 
+You should be in the `src/program-rust` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
 ## 47
@@ -1327,7 +1388,19 @@ try {
 You should run `npm run call:increment` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'npm run call:increment');
+```
 
+You should be in the `/learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 48
