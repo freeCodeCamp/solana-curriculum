@@ -1,8 +1,8 @@
 [
   {
     "id": 0,
-    "title": "Learn How to Set Up Solana by Building Hello World",
-    "dashedName": "learn-how-to-set-up-solana-by-building-hello-world",
+    "title": "Learn How to Set Up Solana by Building a Hello World Smart Contract",
+    "dashedName": "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract",
     "isIntegrated": false,
     "description": "In this course, you will learn how to set up Solana by building a simple hello world contract.",
     "isPublic": true,

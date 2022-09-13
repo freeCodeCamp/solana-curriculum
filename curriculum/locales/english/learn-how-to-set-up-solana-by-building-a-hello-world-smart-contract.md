@@ -1,6 +1,4 @@
-# Solana - Learn How to Set Up Solana by Building Hello World
-
-<!-- TODO: ANYTIME solana-test-validator is needed, have a test for it. -->
+# Solana - Learn How to Set Up Solana by Building a Hello World Smart Contract
 
 ## 1
 
