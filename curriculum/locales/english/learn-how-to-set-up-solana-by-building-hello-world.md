@@ -282,6 +282,22 @@ const temp = await __helpers.getTemp();
 assert.match(temp, /solana-test-validator/);
 ```
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 ## 14
 
 ### --description--
@@ -302,6 +318,22 @@ http://localhost:8899
 _Remember to replace `your_address_public_key`_
 
 ### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 You should make an RPC call using `curl`.
 
@@ -336,6 +368,22 @@ _Remember to replace `<ACCOUNT_ADDRESS>`_
 
 ### --tests--
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 You should use the command `solana balance <ACCOUNT_ADDRESS>`.
 
 ```js
@@ -360,6 +408,22 @@ solana airdrop 1 <RECIPIENT_ACCOUNT_ADDRESS>
 _Remember to replace `<RECIPIENT_ACCOUNT_ADDRESS>` with your public key_
 
 ### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 You should use the above command to request an airdrop.
 
@@ -389,6 +453,22 @@ assert.isAtLeast(Number(balance), 1);
 Checkout your balance.
 
 ### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 You should use `solana balance <ACCOUNT_ADDRESS>` to check your balance.
 
@@ -751,6 +831,22 @@ solana program deploy <PATH_TO_PROGRAM>
 
 ### --tests--
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
@@ -771,6 +867,22 @@ solana program show <PROGRAM_ID>
 
 ### --tests--
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 You should run `solana program show <PROGRAM_ID>` in the terminal.
 
 ```js
@@ -790,6 +902,22 @@ npm run call:hello-world
 This will run the code in `src/client/hello-world/` to call your program.
 
 ### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 You should run `npm run call:hello-world` in the terminal.
 
@@ -1148,6 +1276,22 @@ Re-deploy your program to your local Solana cluster.
 
 ### --tests--
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
@@ -1165,6 +1309,22 @@ npm run call:increment
 ```
 
 ### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+if (stderr) {
+  assert.fail(stderr);
+}
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 You should run `npm run call:increment` in the terminal.
 
@@ -1187,3 +1347,5 @@ Well Done!
 ```js
 assert.fail('All lessons for this project finished');
 ```
+
+## --fcc-end--
