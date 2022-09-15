@@ -3,6 +3,7 @@
     ".devcontainer": true,
     ".editorconfig": true,
     ".freeCodeCamp": true,
+    ".git": true,
     ".gitignore": true,
     ".gitpod.Dockerfile": true,
     ".gitpod.yml": true,
