@@ -279,21 +279,18 @@ solana-test-validator
 You should start a test validator with `solana-test-validator`.
 
 ```js
-const temp = await __helpers.getTemp();
+const temp = await __helpers.getBashHistory();
 assert.match(temp, /solana-test-validator/);
 ```
 
 The validator should be running at `http://localhost:8899`.
 
 ```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl -s -S http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
+  const jsonOut = JSON.parse(stdout.trim());
+  assert.include(jsonOut, { result: 'ok' }, 'The validator should have a "health" result of "ok"');
 } catch (e) {
   assert.fail(e);
 }
@@ -306,14 +303,7 @@ try {
 Manually make an RPC call with:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d \
-'{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "getBalance",
-  "params": ["your_address_public_key", { "commitment": "finalized" }]
-}' \
-http://localhost:8899
+curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"getBalance","params":["your_address_public_key",{"commitment":"finalized"}]}' http://localhost:8899
 ```
 
 _Remember to replace `your_address_public_key`_
@@ -325,9 +315,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -374,9 +361,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -398,7 +382,7 @@ assert.include(lastCommand, `solana balance ${accountAddress}`);
 
 ### --description--
 
-You can see your balance is `0` ☹️.
+You can see your balance is `500000000` 😲. Maybe that is not enough for yourself 😨.
 
 Request an _airdrop_ of 1 SOL to your account with:
 
@@ -415,9 +399,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -435,7 +416,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, `solana airdrop 1 ${accountAddress}`);
 ```
 
-Your account should have at least 1 SOL.
+Your account should have at least `500000001` SOL.
 
 ```js
 const { stdout: stdout1 } = await __helpers.getCommandOutput('solana address');
@@ -444,14 +425,14 @@ const { stdout } = await __helpers.getCommandOutput(
   `solana balance ${accountAddress}`
 );
 const balance = stdout.trim()?.match(/\d+/)[0];
-assert.isAtLeast(Number(balance), 1);
+assert.isAtLeast(Number(balance), 500000001);
 ```
 
 ## 17
 
 ### --description--
 
-Checkout your balance.
+Check out your balance.
 
 ### --tests--
 
@@ -460,9 +441,7 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
+
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -849,9 +828,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -894,9 +870,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -931,9 +904,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -1331,9 +1301,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
@@ -1374,9 +1341,6 @@ The validator should be running at `http://localhost:8899`.
 ```js
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-if (stderr) {
-  assert.fail(stderr);
-}
 try {
   const jsonOut = JSON.parse(stdout);
   assert.deepInclude(jsonOut, { result: 'ok' });
