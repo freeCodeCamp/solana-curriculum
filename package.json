@@ -9,6 +9,6 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@freecodecamp/freecodecamp-os": "^1.6.2"
+    "@freecodecamp/freecodecamp-os": "1.6.2"
   }
 }
