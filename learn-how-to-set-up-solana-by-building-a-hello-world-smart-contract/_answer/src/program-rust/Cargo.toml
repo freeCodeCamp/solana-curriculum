@@ -18,7 +18,7 @@ borsh-derive = "0.9.1"
 solana-program = "1.11.4"
 
 [dev-dependencies]
-solana-program-test = "1.11.4"
+solana-program-test = "1.14.1"
 solana-sdk = "~1.11.4"
 
 [lib]
