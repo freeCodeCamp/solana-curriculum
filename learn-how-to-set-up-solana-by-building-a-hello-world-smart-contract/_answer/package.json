@@ -12,7 +12,7 @@
     "test:program-rust": "cargo test-bpf --manifest-path=./src/program-rust/Cargo.toml"
   },
   "dependencies": {
-    "@solana/web3.js": "1.53.0",
+    "@solana/web3.js": "1.62.0",
     "borsh": "0.7.0",
     "yaml": "2.1.1"
   },
