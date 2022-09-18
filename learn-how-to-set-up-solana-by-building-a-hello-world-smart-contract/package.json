@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "increment": "ts-node src/client/increment/main.ts",
-    "call:hello-world": "ts-node src/client/hello-world/main.ts",
+    "call:hello-world": "ts-node src/client/main.ts",
     "clean": "npm run clean:program-rust",
     "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist"
   },

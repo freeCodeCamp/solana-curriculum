@@ -276,13 +276,6 @@ solana-test-validator
 
 ### --tests--
 
-You should start a test validator with `solana-test-validator`.
-
-```js
-const temp = await __helpers.getBashHistory();
-assert.match(temp, /solana-test-validator/);
-```
-
 The validator should be running at `http://localhost:8899`.
 
 ```js
@@ -514,7 +507,14 @@ const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 
-assert.match(file, /solana_program::entrypoint/);
+const variants = [
+  /solana_program\s*::\s*entrypoint/,
+  /solana_program\s*::\s*\{\s*entrypoint\s*\}/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
 You should call the `entrypoint` macro in the root of your program.
@@ -548,22 +548,18 @@ To make debugging your application easier, import the `msg` macro from `solana_p
 You should import `solana_program::msg;`.
 
 ```js
-const path =
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
-const test = `fn t1() {
-    let _a = msg;
-    assert!(true, "This code should compile");
-}`;
-const cb = (stdout, stderr) => {
-  if (stderr && !stderr.includes('Blocking')) {
-    assert.fail(stderr);
-  } else {
-    assert.include(stdout, 'result: ok. 1 passed');
-  }
-};
-await __helpers.rustTest(path, filePath, test, cb);
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /solana_program\s*::\s*msg/,
+  /solana_program\s*::\s*\{[\s\S]*msg/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
 You should call the `msg` macro within the `process_instruction` function.
@@ -624,22 +620,18 @@ _Import the `Pubkey` struct from the `pubkey` module of `solana_program`._
 You should have `use solana_program::pubkey::Pubkey;` in `src/program-rust/src/lib.rs`.
 
 ```js
-const path =
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
-const test = `fn t1() {
-    let _a: Pubkey = Pubkey::new_unique();
-    assert!(true, "This code should compile");
-}`;
-const cb = (stdout, stderr) => {
-  if (stderr && !stderr.includes('Blocking')) {
-    assert.fail(stderr);
-  } else {
-    assert.include(stdout, 'result: ok. 1 passed');
-  }
-};
-await __helpers.rustTest(path, filePath, test, cb);
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /solana_program\s*::\s*pubkey::Pubkey/,
+  /solana_program\s*::\s*\{[\s\S]*pubkey::Pubkey/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
 You should define `process_instruction` to have one parameter named `program_id`.
@@ -648,7 +640,7 @@ You should define `process_instruction` to have one parameter named `program_id`
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /process_instructions\s*\(\s*program_id\s*/s);
+assert.match(file, /process_instruction\s*\(\s*program_id\s*/s);
 ```
 
 You should type `program_id` with `&Pubkey`.
@@ -673,22 +665,18 @@ Add a parameter to the function definition named `accounts` with the type `&[Acc
 You should have `use solana_program::account_info::AccountInfo;` in `src/program-rust/src/lib.rs`.
 
 ```js
-const path =
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
-const test = `fn t1() {
-    fn _acc(_a: AccountInfo) {}
-    assert!(true, "This code should compile");
-}`;
-const cb = (stdout, stderr) => {
-  if (stderr && !stderr.includes('Blocking')) {
-    assert.fail(stderr);
-  } else {
-    assert.include(stdout, 'result: ok. 1 passed');
-  }
-};
-await __helpers.rustTest(path, filePath, test, cb);
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /solana_program\s*::\s*account_info::AccountInfo/,
+  /solana_program\s*::\s*\{[\s\S]*account_info::AccountInfo/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
 You should define `process_instruction` to have a second parameter named `accounts`.
@@ -697,7 +685,7 @@ You should define `process_instruction` to have a second parameter named `accoun
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /process_instructions\s*\(.*?,\s*accounts/s);
+assert.match(file, /process_instruction\s*\(.*?,\s*accounts/s);
 ```
 
 You should type `accounts` with `&[AccountInfo]`.
@@ -719,34 +707,13 @@ Add a parameter to the function definition named `instruction_data` with the typ
 
 ### --tests--
 
-You should have `use solana_program::account_info::AccountInfo;` in `src/program-rust/src/lib.rs`.
-
-```js
-const path =
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust';
-const filePath =
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
-const test = `fn t1() {
-    fn _acc(_a: AccountInfo) {}
-    assert!(true, "This code should compile");
-}`;
-const cb = (stdout, stderr) => {
-  if (stderr && !stderr.includes('Blocking')) {
-    assert.fail(stderr);
-  } else {
-    assert.include(stdout, 'result: ok. 1 passed');
-  }
-};
-await __helpers.rustTest(path, filePath, test, cb);
-```
-
 You should define `process_instruction` to have a third parameter named `instruction_data`.
 
 ```js
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /process_instructions\s*\(.*?,\s*instruction_data/s);
+assert.match(file, /process_instruction\s*\(.*?,\s*instruction_data/s);
 ```
 
 You should type `instruction_data` with `&[u8]`.
@@ -759,6 +726,51 @@ assert.match(file, /instruction_data\s*:\s*&\[\s*u8\s*\]/s);
 ```
 
 ## 26
+
+### --description--
+
+Give your entrypoint function a return of `ProgramResult`. This type comes from the `entrypoint` module of `solana_program`.
+
+Also, return an empty tuple wrapped in the `Ok` variant of the `Result` enum.
+
+### --tests--
+
+You should have `use solana_program::entrypoint::ProgramResult;` in `src/program-rust/src/lib.rs`.
+
+```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /solana_program\s*::\s*entrypoint::ProgramResult/,
+  /solana_program\s*::\s*\{[\s\S]*entrypoint::ProgramResult/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
+```
+
+You should define `process_instruction` to return `ProgramResult`.
+
+```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /\)\s*->\s*ProgramResult\s*\{/s);
+```
+
+You should return `Ok(())` from `process_instruction`.
+
+```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+assert.match(file, /Ok\s*\(\s*\(\s*\)\s*\)/s);
+```
+
+## 27
 
 ### --description--
 
@@ -781,14 +793,14 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 27
+## 28
 
 ### --description--
 
 Before deploying, build your program with:
 
 ```bash
-cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program
+cargo build-sbf --sbf-out-dir=../../dist/program
 ```
 
 ### --tests--
@@ -799,7 +811,7 @@ You should run the above command to build your program.
 const lastCommand = await __helpers.getLastCommand();
 assert.match(
   lastCommand,
-  /cargo build-sbf --manifest-path=.*? --sbf-out-dir=.*?/s
+  /cargo build-sbf --sbf-out-dir=.*?/s
 );
 ```
 
@@ -811,7 +823,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 28
+## 29
 
 ### --description--
 
@@ -820,6 +832,8 @@ Your program is located in `dist/program/helloworld.so`. You can deploy it to yo
 ```bash
 solana program deploy <PATH_TO_PROGRAM>
 ```
+
+**NOTE:** `solana deploy <PATH_TO_PROGRAM>` will **not** work, because that deploys a non-upgradeable program.
 
 ### --tests--
 
@@ -843,15 +857,18 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program deploy dist/program/helloworld.so');
 ```
 
-You should be in the `src/program-rust` directory.
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract` directory.
 
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /src\/program-rust\/?$/);
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
-## 29
+## 30
 
 ### --description--
 
@@ -885,7 +902,26 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program show');
 ```
 
-## 30
+## 31
+
+### --description--
+
+To view the logs from an on-chain program, open a new terminal, and run:
+
+```bash
+solana logs
+```
+
+### --tests--
+
+You should run `solana logs` in a new terminal.
+
+```js
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Streaming transaction logs');
+```
+
+## 32
 
 ### --description--
 
@@ -895,7 +931,7 @@ To call your program, run:
 npm run call:hello-world
 ```
 
-This will run the code in `src/client/hello-world/` to call your program.
+This will run the code in `src/client/`. Watch the `solana logs` terminal for the _'Program log'_ output.
 
 ### --tests--
 
@@ -930,7 +966,7 @@ assert.match(
 );
 ```
 
-## 31
+## 33
 
 ### --description--
 
@@ -951,7 +987,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter()\s*;/s);
 ```
 
-## 32
+## 34
 
 ### --description--
 
@@ -988,7 +1024,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 ```
 
-## 33
+## 35
 
 ### --description--
 
@@ -1004,10 +1040,10 @@ You should add a return type of `ProgramResult` to `process_instruction`.
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /process_instructions\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
+assert.match(file, /process_instruction\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
 ```
 
-## 34
+## 36
 
 ### --description--
 
@@ -1036,7 +1072,7 @@ assert.match(
 );
 ```
 
-## 35
+## 37
 
 ### --description--
 
@@ -1058,7 +1094,7 @@ assert.match(
 );
 ```
 
-## 36
+## 38
 
 ### --description--
 
@@ -1078,7 +1114,7 @@ assert.match(
 );
 ```
 
-## 37
+## 39
 
 ### --description--
 
@@ -1098,7 +1134,7 @@ assert.match(
 );
 ```
 
-## 38
+## 40
 
 ### --description--
 
@@ -1120,7 +1156,7 @@ assert.match(
 );
 ```
 
-## 39
+## 41
 
 ### --description--
 
@@ -1140,7 +1176,7 @@ assert.match(
 );
 ```
 
-## 40
+## 42
 
 ### --description--
 
@@ -1175,7 +1211,7 @@ assert.match(
 );
 ```
 
-## 41
+## 43
 
 ### --description--
 
@@ -1192,7 +1228,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /greeting_account\.counter\s*+=\s*1\s*;/s);
 ```
 
-## 42
+## 44
 
 ### --description--
 
@@ -1221,7 +1257,7 @@ assert.match(
 );
 ```
 
-## 43
+## 45
 
 ### --description--
 
@@ -1245,7 +1281,7 @@ assert.match(
 );
 ```
 
-## 44
+## 46
 
 ### --description--
 
@@ -1262,7 +1298,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /msg!\(/);
 ```
 
-## 45
+## 47
 
 ### --description--
 
@@ -1288,7 +1324,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 46
+## 48
 
 ### --description--
 
@@ -1324,7 +1360,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 47
+## 49
 
 ### --description--
 
@@ -1367,7 +1403,7 @@ assert.match(
 );
 ```
 
-## 48
+## 50
 
 ### --description--
 
