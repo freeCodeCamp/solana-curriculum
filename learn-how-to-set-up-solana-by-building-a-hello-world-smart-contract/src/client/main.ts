@@ -3,26 +3,33 @@ import {
   establishPayer,
   checkProgram,
   sayHello,
-  reportGreetings
+  reportGreetings,
+  getProgramId,
+  getAccountPubkey
 } from './hello_world';
 
 async function main() {
   console.log("Let's say hello to a Solana account...");
 
   // Establish connection to the cluster
-  await establishConnection();
+  const connection = await establishConnection();
+
+  // Get the program ID of the hello world program
+  const programId = await getProgramId();
 
   // Determine who pays for the fees
-  await establishPayer();
+  const payer = await establishPayer(connection);
+
+  const accountPubkey = await getAccountPubkey(payer, programId);
 
   // Check if the program has been deployed
-  await checkProgram();
+  await checkProgram(connection, payer, programId, accountPubkey);
 
   // Say hello to an account
-  await sayHello();
+  await sayHello(connection, payer, programId, accountPubkey);
 
   // Find out how many times that account has been greeted
-  await reportGreetings();
+  await reportGreetings(connection, accountPubkey);
 
   console.log('Success');
 }
@@ -34,3 +41,6 @@ main().then(
     process.exit(-1);
   }
 );
+
+// RECOVERY SEED: clean obscure rebel pig sponsor over brother trouble raven pulse pole garden
+// pubkey: 2tQr9iXop8K5QCJcsLkPWW3HrTog7kFqEd6rDEix2CqG
