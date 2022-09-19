@@ -37,7 +37,7 @@ You will be using the Solana CLI to:
 Install the Solana CLI with:
 
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.11.10/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.14.2/install)"
 ```
 
 ### --tests--
@@ -49,7 +49,7 @@ const lastCommand = await __helpers.getLastCommand();
 
 assert.match(
   lastCommand,
-  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.11\.10\/install\)"/
+  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.14\.2\/install\)"/
 );
 ```
 
@@ -660,6 +660,8 @@ The second argument an entrypoint function takes is a slice of accounts with whi
 
 Add a parameter to the function definition named `accounts` with the type `&[AccountInfo]`.
 
+_Import the `AccountInfo` struct from the `account_info` module of `solana_program`._
+
 ### --tests--
 
 You should have `use solana_program::account_info::AccountInfo;` in `src/program-rust/src/lib.rs`.
@@ -917,8 +919,8 @@ solana logs
 You should run `solana logs` in a new terminal.
 
 ```js
-const terminalOut = await __helpers.getTerminalOutput();
-assert.include(terminalOut, 'Streaming transaction logs');
+const temp = await __helpers.getTemp();
+assert.include(temp, 'Streaming transaction logs');
 ```
 
 ## 32
@@ -984,7 +986,7 @@ You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter()\s*;/s);
+assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter\(\s*\)\s*;/s);
 ```
 
 ## 34
@@ -1028,19 +1030,25 @@ assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 
 ### --description--
 
-Import the `ProgramResult` type from the `entrypoint` module of `solana_program`, and the `ProgramError` enum from the `program_error` module of `solana_program`.
-
-Adjust the return type of `process_instruction` to be `ProgramResult`.
+Import the `ProgramError` enum from the `program_error` module of `solana_program`.
 
 ### --tests--
 
-You should add a return type of `ProgramResult` to `process_instruction`.
+You should have `use solana_program::program_error::ProgramError;` in `src/program-rust/src/lib.rs`.
 
 ```js
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /process_instruction\s*\(.*?\)\s*->\s*ProgramResult\s*\{/s);
+
+const variants = [
+  /solana_program\s*::\s*program_error::ProgramError/,
+  /solana_program\s*::\s*\{[\s\S]*program_error::ProgramError/,
+  /solana_program::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
 ## 36
@@ -1057,7 +1065,7 @@ You should return `Ok(())` in the `if let` block of `process_instruction`.
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /(?<=\.next\s*\(\s*\)\s*\{).*?Ok\(\s*\(\s*\)\s*\)\s*\}/s);
+assert.match(file, /(?<=\.next\s*\(\s*\)\s*\{).*?Ok\(\s*\(\s*\)\s*\);?\s*\}/s);
 ```
 
 You should return `Err(ProgramError::NotEnoughAccountKeys)` in the `else` block of `process_instruction`.
@@ -1068,7 +1076,7 @@ const filePath =
 const file = await __helpers.getFile(filePath);
 assert.match(
   file,
-  /(?<=else\s*\{).*?Err\s*\(\s*ProgramError::NotEnoughAccountKeys\s*\)\s*\}/s
+  /(?<=else\s*\{).*?Err\s*\(\s*ProgramError::NotEnoughAccountKeys\s*\)/s
 );
 ```
 
@@ -1171,12 +1179,54 @@ const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
 assert.match(
-  file.replace(/s+/, ''),
-  /#\[derive\(BorshSerialize,BorshDeserialize\)\]pubstructGreetingAccount/s
+  file.replace(/\s+/g, ''),
+  /#\[derive\((BorshSerialize,BorshDeserialize)|(BorshDeserialize,BorshSerialize)\)\]pubstructGreetingAccount/s
 );
 ```
 
 ## 42
+
+### --description--
+
+Bring `BorshSerialize` and `BorshDeserialize` in scope from the `borsh` crate.
+
+### --tests--
+
+You should have `use borsh::BorshSerialize;` in `src/program-rust/src/lib.rs`.
+
+```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /borsh\s*::\s*BorshSerialize/,
+  /borsh\s*::\s*\{[\s\S]*BorshSerialize/,
+  /borsh::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
+```
+
+You should have `use borsh::BorshDeserialize;` in `src/program-rust/src/lib.rs`.
+
+```js
+const filePath =
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
+const file = await __helpers.getFile(filePath);
+
+const variants = [
+  /borsh\s*::\s*BorshDeserialize/,
+  /borsh\s*::\s*\{[\s\S]*BorshDeserialize/,
+  /borsh::prelude::\*/
+];
+
+const someMatch = variants.some(r => file.match(r));
+assert.isTrue(someMatch, `Your code should match one of ${variants}`);
+```
+
+## 43
 
 ### --description--
 
@@ -1211,7 +1261,7 @@ assert.match(
 );
 ```
 
-## 43
+## 44
 
 ### --description--
 
@@ -1225,10 +1275,10 @@ You should have `greeting_account.counter += 1;` in `src/program-rust/src/lib.rs
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /greeting_account\.counter\s*+=\s*1\s*;/s);
+assert.match(file, /greeting_account\.counter\s*\+=\s*1\s*;/s);
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -1257,7 +1307,7 @@ assert.match(
 );
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -1281,7 +1331,7 @@ assert.match(
 );
 ```
 
-## 46
+## 47
 
 ### --description--
 
@@ -1298,7 +1348,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /msg!\(/);
 ```
 
-## 47
+## 48
 
 ### --description--
 
@@ -1306,13 +1356,13 @@ Now that your program is complete, rebuild it.
 
 ### --tests--
 
-You should run `cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program` in the terminal.
+You should run `cargo build-sbf --sbf-out-dir=../../dist/program` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
 assert.include(
   lastCommand,
-  'cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program'
+  'cargo build-sbf --sbf-out-dir=../../dist/program'
 );
 ```
 
@@ -1324,7 +1374,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 48
+## 49
 
 ### --description--
 
@@ -1352,15 +1402,83 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program deploy dist/program/helloworld.so');
 ```
 
-You should be in the `src/program-rust` directory.
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
 
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /src\/program-rust\/?$/);
+assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
 ```
 
-## 49
+## 50
+
+### --description--
+
+If you read closely, you should see your program failed to deploy.
+
+When you initially deployed, Solana allocated twice the amount of data it needed to store your account.
+
+Use `solana program show <PROGRAM_ID>` to view the data allocated for your program account.
+
+### --tests--
+
+You should run `solana program show <PROGRAM_ID>` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program show');
+```
+
+## 51
+
+### --description--
+
+The `Data Length` field returned shows the size (in bytes) allocated for your program account.
+
+Check your current program account size by running:
+
+```bash
+du -b dist/program/helloworld.so
+```
+
+### --tests--
+
+You should run `du -b dist/program/helloworld.so` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'du -b dist/program/helloworld.so');
+```
+
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
+```
+
+## 52
+
+### --description--
+
+Deploy a new program, by deleting the `dist/` directory, building again, then deploying.
+
+### --tests--
+
+You should rebuild your program with `cargo build-sbf`.
+
+```js
+
+```
+
+You should deploy your new program with `solana program deploy <PATH_TO_PROGRAM>`.
+
+```js
+
+```
+
+## 53
 
 ### --description--
 
@@ -1392,7 +1510,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'npm run call:increment');
 ```
 
-You should be in the `/learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract` directory.
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
 
 ```js
 const wds = await __helpers.getCWD();
@@ -1403,7 +1521,7 @@ assert.match(
 );
 ```
 
-## 50
+## 54
 
 ### --description--
 
