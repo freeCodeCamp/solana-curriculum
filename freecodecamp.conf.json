@@ -36,7 +36,7 @@
     "landing": {
       "description": "Learn the Solana toolchain, and test your new-found skills.",
       "faq-link": "#",
-      "faq-text": "Link to FAQ related to course"
+      "faq-text": "https://github.com/freeCodeCamp/solana-curriculum/issues"
     }
   },
   "config": {

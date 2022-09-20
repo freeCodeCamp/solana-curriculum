@@ -283,7 +283,11 @@ const command = `curl -s -S http://localhost:8899 -X POST -H "Content-Type: appl
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout.trim());
-  assert.include(jsonOut, { result: 'ok' }, 'The validator should have a "health" result of "ok"');
+  assert.include(
+    jsonOut,
+    { result: 'ok' },
+    'The validator should have a "health" result of "ok"'
+  );
 } catch (e) {
   assert.fail(e);
 }
@@ -811,10 +815,7 @@ You should run the above command to build your program.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.match(
-  lastCommand,
-  /cargo build-sbf --sbf-out-dir=.*?/s
-);
+assert.match(lastCommand, /cargo build-sbf --sbf-out-dir=.*?/s);
 ```
 
 You should be in the `src/program-rust` directory.
@@ -986,7 +987,10 @@ You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter\(\s*\)\s*;/s);
+assert.match(
+  file,
+  /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter\(\s*\)\s*;/s
+);
 ```
 
 ## 34
@@ -1360,10 +1364,7 @@ You should run `cargo build-sbf --sbf-out-dir=../../dist/program` in the termina
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.include(
-  lastCommand,
-  'cargo build-sbf --sbf-out-dir=../../dist/program'
-);
+assert.include(lastCommand, 'cargo build-sbf --sbf-out-dir=../../dist/program');
 ```
 
 You should be in the `src/program-rust` directory.
@@ -1407,7 +1408,10 @@ You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 50
@@ -1455,7 +1459,10 @@ You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 52
@@ -1469,13 +1476,20 @@ Deploy a new program, by deleting the `dist/` directory, building again, then de
 You should rebuild your program with `cargo build-sbf`.
 
 ```js
-
+const isFileExists = __helpers.fileExists(
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/dist/program/helloworld.so'
+);
+assert.isTrue(
+  isFileExists,
+  'The `dist/program/helloworld.so` file should exist'
+);
 ```
 
 You should deploy your new program with `solana program deploy <PATH_TO_PROGRAM>`.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program deploy');
 ```
 
 ## 53
@@ -1485,7 +1499,7 @@ You should deploy your new program with `solana program deploy <PATH_TO_PROGRAM>
 Send a message to your program to increment the counter by running:
 
 ```bash
-npm run call:increment
+npm run call:hello-world
 ```
 
 ### --tests--
@@ -1503,11 +1517,11 @@ try {
 }
 ```
 
-You should run `npm run call:increment` in the terminal.
+You should run `npm run call:hello-world` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.include(lastCommand, 'npm run call:increment');
+assert.include(lastCommand, 'npm run call:hello-world');
 ```
 
 You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
@@ -1525,16 +1539,179 @@ assert.match(
 
 ### --description--
 
-Contratulations on finishing this project!
+Solana does not store smart contract state using the program account. Instead, a new account is used solely for the program state (data).
 
-🎆
+View the account address for this _data account_ by running:
+
+```bash
+npm run call:hello-world
+```
+
+See which address the program says hello to.
 
 ### --tests--
 
-Well Done!
+The validator should be running at `http://localhost:8899`.
 
 ```js
-assert.fail('All lessons for this project finished');
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+You should run `npm run call:hello-world` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'npm run call:hello-world');
+```
+
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
+```
+
+## 55
+
+### --description--
+
+View the updated account state associated with your program account:
+
+```bash
+solana account <ACCOUNT_ADDRESS>
+```
+
+### --tests--
+
+You should run `solana account <ACCOUNT_ADDRESS>` in the terminal.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  'npm run call:hello-world',
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract'
+);
+const programStateAccount = stdout.match(/Saying hello to: (\w+)/)?.[1];
+const toMatch = `solana account ${programStateAccount}`;
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, toMatch);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 56
+
+### --description--
+
+Notice the final line of output with the name `0000`. This is the data you are storing!
+
+Take note of its value. Then, run `npm run call:hello-world` again.
+
+### --tests--
+
+You should run `npm run call:hello-world` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'npm run call:hello-world');
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/` directory.
+
+```js
+const wds = await __helpers.getCWD();
+const cwd = wds.split('\n').filter(Boolean).pop();
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
+```
+
+## 57
+
+### --description--
+
+Now, get the data account state again, and look at the change in the data value.
+
+### --tests--
+
+You should run `solana account <ACCOUNT_ADDRESS>` in the terminal.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  'npm run call:hello-world',
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract'
+);
+const programStateAccount = stdout.match(/Saying hello to: (\w+)/)?.[1];
+const toMatch = `solana account ${programStateAccount}`;
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, toMatch);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 58
+
+### --description--
+
+Contratulations on finishing this project! Feel free to play with your code.
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
 ```
 
 ## --fcc-end--
