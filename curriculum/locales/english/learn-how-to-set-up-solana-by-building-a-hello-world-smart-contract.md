@@ -283,7 +283,11 @@ const command = `curl -s -S http://localhost:8899 -X POST -H "Content-Type: appl
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout.trim());
-  assert.include(jsonOut, { result: 'ok' }, 'The validator should have a "health" result of "ok"');
+  assert.include(
+    jsonOut,
+    { result: 'ok' },
+    'The validator should have a "health" result of "ok"'
+  );
 } catch (e) {
   assert.fail(e);
 }
@@ -811,10 +815,7 @@ You should run the above command to build your program.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.match(
-  lastCommand,
-  /cargo build-sbf --sbf-out-dir=.*?/s
-);
+assert.match(lastCommand, /cargo build-sbf --sbf-out-dir=.*?/s);
 ```
 
 You should be in the `src/program-rust` directory.
@@ -986,7 +987,10 @@ You should have `let mut accounts_iter = accounts.iter();` in `src/program-rust/
 const filePath =
   'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/src/lib.rs';
 const file = await __helpers.getFile(filePath);
-assert.match(file, /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter\(\s*\)\s*;/s);
+assert.match(
+  file,
+  /let\s+mut\s+accounts_iter\s*=\s*accounts\.iter\(\s*\)\s*;/s
+);
 ```
 
 ## 34
@@ -1360,10 +1364,7 @@ You should run `cargo build-sbf --sbf-out-dir=../../dist/program` in the termina
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.include(
-  lastCommand,
-  'cargo build-sbf --sbf-out-dir=../../dist/program'
-);
+assert.include(lastCommand, 'cargo build-sbf --sbf-out-dir=../../dist/program');
 ```
 
 You should be in the `src/program-rust` directory.
@@ -1407,7 +1408,10 @@ You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 50
@@ -1455,7 +1459,10 @@ You should be in the `learn-how-to-set-up-solana-by-building-a-hello-world-smart
 ```js
 const wds = await __helpers.getCWD();
 const cwd = wds.split('\n').filter(Boolean).pop();
-assert.match(cwd, /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/);
+assert.match(
+  cwd,
+  /learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract\/?$/
+);
 ```
 
 ## 52
@@ -1469,13 +1476,20 @@ Deploy a new program, by deleting the `dist/` directory, building again, then de
 You should rebuild your program with `cargo build-sbf`.
 
 ```js
-
+const isFileExists = __helpers.fileExists(
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/dist/program/helloworld.so'
+);
+assert.isTrue(
+  isFileExists,
+  'The `dist/program/helloworld.so` file should exist'
+);
 ```
 
 You should deploy your new program with `solana program deploy <PATH_TO_PROGRAM>`.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana program deploy');
 ```
 
 ## 53
