@@ -41,6 +41,3 @@ main().then(
     process.exit(-1);
   }
 );
-
-// RECOVERY SEED: clean obscure rebel pig sponsor over brother trouble raven pulse pole garden
-// pubkey: 2tQr9iXop8K5QCJcsLkPWW3HrTog7kFqEd6rDEix2CqG
