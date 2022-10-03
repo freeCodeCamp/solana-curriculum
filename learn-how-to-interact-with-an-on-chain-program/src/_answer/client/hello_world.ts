@@ -81,9 +81,11 @@ export async function establishPayer(connection: Connection): Promise<Keypair> {
 
   let lamports = await connection.getBalance(payer.publicKey);
 
-  `Using account ${payer.publicKey.toBase58()} containing ${
-    lamports / LAMPORTS_PER_SOL
-  } SOL to pay for fees.`;
+  console.log(
+    `Using account ${payer.publicKey.toBase58()} containing ${
+      lamports / LAMPORTS_PER_SOL
+    } SOL to pay for fees.`
+  );
   return payer;
 }
 

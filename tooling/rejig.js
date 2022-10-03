@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 
 const PATH =
-  './curriculum/locales/english/learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract.md';
+  './curriculum/locales/english/learn-how-to-interact-with-an-on-chain-program.md';
 
 /**
  * Ensures all lessons are incremented by 1
