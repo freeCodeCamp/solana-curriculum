@@ -12,8 +12,8 @@
   },
   {
     "id": 1,
-    "title": "Learn How to Interact with an On-Chain Program",
-    "dashedName": "learn-how-to-interact-with-an-on-chain-program",
+    "title": "Learn How to Interact with On-Chain Programs",
+    "dashedName": "learn-how-to-interact-with-on-chain-programs",
     "isIntegrated": false,
     "description": "In this course, you will learn how to write the client code to interact with your previously deployed hello world smart contract.",
     "isPublic": true,

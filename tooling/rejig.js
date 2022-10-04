@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 
 const PATH =
-  './curriculum/locales/english/learn-how-to-interact-with-an-on-chain-program.md';
+  './curriculum/locales/english/learn-how-to-interact-with-on-chain-programs.md';
 
 /**
  * Ensures all lessons are incremented by 1

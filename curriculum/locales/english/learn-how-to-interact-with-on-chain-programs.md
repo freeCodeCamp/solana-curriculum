@@ -1,4 +1,4 @@
-# Solana - Learn How to Interact with an On-Chain Program
+# Solana - Learn How to Interact with On-Chain Programs
 
 ## 1
 
@@ -16,7 +16,7 @@ npm run build
 
 ### --tests--
 
-You should run `npm run build` in `learn-how-to-interact-with-an-on-chain-program`.
+You should run `npm run build` in `learn-how-to-interact-with-on-chain-programs`.
 
 ```js
 
@@ -390,7 +390,7 @@ You should return the result of `await PublicKey.createWithSeed`.
 
 ### --tests--
 
-## 16
+## 19
 
 ### --description--
 
@@ -406,7 +406,7 @@ You should have a `src/client/utils.js` file.
 
 ```
 
-## 17
+## 20
 
 ### --description--
 
@@ -432,7 +432,7 @@ You should export `getRpcUrl` as a named export.
 
 ```
 
-## 18
+## 21
 
 ### --description--
 
