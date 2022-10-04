@@ -288,11 +288,107 @@ You should import `createKeypairFromFile` from `@solana/web3.js`.
 
 ```
 
-You should the `publicKey` property of the keypair.
+You should return the `publicKey` property of the keypair.
 
 ```js
 
 ```
+
+## 16
+
+### --description--
+
+In Solana, program accounts (smart contracts) are stateless. As such, separate accounts (data accounts) need to be created to persist data.
+
+Within `hello-world.js`, export an asynchronous function with the handle `getAccountPubkey`. This function should expect two arguments: `payer` and `programId`.
+
+### --tests--
+
+You should define a function with the handle `getAccountPubkey`.
+
+```js
+
+```
+
+You should define `getAccountPubkey` as asynchronous.
+
+```js
+
+```
+
+You should define `getAccountPubkey` with a first parameter `payer`.
+
+```js
+
+```
+
+You should define `getAccountPubkey` with a second parameter `programId`.
+
+```js
+
+```
+
+You should export `getAccountPubkey` as a named export.
+
+```js
+
+```
+
+## 17
+
+### --description--
+
+Within `getAccountPubkey`, use the `createWithSeed` function on the `PublicKey` class from `@solana/web3.js` to create a public key, passing in the following arguments:
+
+1. `payer.publicKey`
+2. Any string of your choosing which will act as the seed
+3. `programId`
+
+Then, return the awaited result.
+
+### --tests--
+
+You should import `PublicKey` from `@solana/web3.js`.
+
+```js
+
+```
+
+You should call `PublicKey.createWithSeed` within `getAccountPubkey`.
+
+```js
+
+```
+
+You should pass `payer.publicKey` as the first argument to `createWithSeed`.
+
+```js
+
+```
+
+You should pass a string as the second argument to `createWithSeed`.
+
+```js
+
+```
+
+You should pass `programId` as the third argument to `createWithSeed`.
+
+```js
+
+```
+
+You should return the result of `await PublicKey.createWithSeed`.
+
+```js
+
+```
+
+## 18
+
+### --description--
+
+### --tests--
 
 ## 16
 
