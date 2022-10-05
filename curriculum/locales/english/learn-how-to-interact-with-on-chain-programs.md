@@ -388,9 +388,174 @@ You should return the result of `await PublicKey.createWithSeed`.
 
 ### --description--
 
+Creating a transaction interacting with a non-existent account still costs _lamports_ (one lamport is the minimum token value divisible). So, it is best to double-check the program account exists.
+
+Within `hello-world.js`, define and export a function with the following signature:
+
+```typescript
+function checkProgram(
+  connection: Connection,
+  payer: Keypair,
+  programId: PublicKey,
+  accountPubkey: PublicKey
+): Promise<void>;
+```
+
 ### --tests--
 
+You should define a function with the handle `checkProgram`.
+
+```js
+
+```
+
+You should define `checkProgram` with a first parameter named `connection`.
+
+```js
+
+```
+
+You should define `checkProgram` with a second parameter named `payer`.
+
+```js
+
+```
+
+You should define `checkProgram` with a third parameter named `programId`.
+
+```js
+
+```
+
+You should define `checkProgram` with a fourth parameter named `accountPubkey`.
+
+```js
+
+```
+
+You should define `checkProgram` to be a named export.
+
+```js
+
+```
+
+You should define `checkProgram` to be asynchronous.
+
+```js
+
+```
+
 ## 19
+
+### --description--
+
+Within, `checkProgram`, use the `getAccountInfo` method on `connection` to get the **program account** information _if any exists_. The `getAccountInfo` method expects a `PublicKey` as an argument.
+
+If the result is equal to `null`, throw an `Error` with a string message.
+
+### --tests--
+
+`checkProgram` should throw an `Error` instance, if `await connection.getAccountInfo(programId)` returns `null`.
+
+```js
+
+```
+
+## 20
+
+### --description--
+
+Within `checkProgram`, make use of the `executable` property of the `AccountInfo` result to throw an `Error` if the program account is not executable.
+
+### --tests--
+
+`checkProgram` should throw an `Error` instance, if the program account `executable` property equals `false`.
+
+```js
+
+```
+
+## 21
+
+### --description--
+
+If this is the first time the program account is being invoked, it will not own a _data account_ to store any state.
+
+Within `checkProgram`, get the account info of the program **data** account, _if any exists_. If the result is equal to `null`, throw an `Error` with a string message.
+
+### --tests--
+
+`checkProgram` should throw an `Error` instance, if the program **data account** does not exist.
+
+```js
+
+```
+
+## 22
+
+### --description--
+
+Instead of throwing when a program data account is not found, you can create the account.
+
+Within `hello-world.js`, define and export a function with the following signature:
+
+```javascript
+function createAccount(connection: Connection, payer: Keypair, programId: PublicKey, accountPubkey: PublicKey): Promise<void>
+```
+
+### --tests--
+
+You should define a function with the handle `createAccount`.
+
+```js
+
+```
+
+You should define `createAccount` with a first parameter named `connection`.
+
+```js
+
+```
+
+You should define `createAccount` with a second parameter named `payer`.
+
+```js
+
+```
+
+You should define `createAccount` with a third parameter named `programId`.
+
+```js
+
+```
+
+You should define `createAccount` with a fourth parameter named `accountPubkey`.
+
+```js
+
+```
+
+You should define `createAccount` to be a named export.
+
+```js
+
+```
+
+You should define `createAccount` to be asynchronous.
+
+```js
+
+```
+
+## 23
+
+### --description--
+
+Storing data on accounts costs a _rent_ fee.
+
+### --tests--
+
+## 24
 
 ### --description--
 
@@ -406,7 +571,7 @@ You should have a `src/client/utils.js` file.
 
 ```
 
-## 20
+## 25
 
 ### --description--
 
@@ -432,7 +597,7 @@ You should export `getRpcUrl` as a named export.
 
 ```
 
-## 21
+## 26
 
 ### --description--
 
