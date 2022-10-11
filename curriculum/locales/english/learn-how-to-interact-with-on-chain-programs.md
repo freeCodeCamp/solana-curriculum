@@ -36,6 +36,14 @@ You should have a `src/client` directory.
 
 ```
 
+### --seed--
+
+#### --cmd--
+
+```bash
+npm run build
+```
+
 ## 3
 
 ### --description--
@@ -48,6 +56,14 @@ You should have a `src/client/main.js` file.
 
 ```js
 
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+mkdir src/client
 ```
 
 ## 4
@@ -64,6 +80,14 @@ You should have an asynchronous function with the handle `main`.
 
 ```
 
+### --seed--
+
+#### --cmd--
+
+```bash
+touch src/client/main.js
+```
+
 ## 5
 
 ### --description--
@@ -76,6 +100,14 @@ You should call `main` with `await`.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+async function main() {}
 ```
 
 ## 6
@@ -92,6 +124,16 @@ You should have `console.log("Saying 'hello' to a Solana account")`.
 
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+async function main() {}
+
+await main();
+```
+
 ## 7
 
 ### --description--
@@ -106,6 +148,18 @@ You should have a `src/client/hello-world.js` file.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+async function main() {
+  console.log("Saying 'hello' to a Solana account");
+}
+
+await main();
 ```
 
 ## 8
@@ -134,6 +188,14 @@ You should export `establishConnection` as a named export.
 
 ```
 
+### --seed--
+
+#### --cmd--
+
+```bash
+touch src/client/hello-world.js
+```
+
 ## 9
 
 ### --description--
@@ -154,6 +216,14 @@ You should install at least version `1.63`.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+export async function establishConnection() {}
 ```
 
 ## 10
@@ -184,6 +254,14 @@ Your `establishConnection` function should return the new connection.
 
 ```
 
+### --seed--
+
+#### --cmd--
+
+```bash
+npm install @solana/web3.js
+```
+
 ## 11
 
 ### --description--
@@ -196,6 +274,18 @@ You should have `const connection = await establishConnection()` in `main.js.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
 ```
 
 ## 12
@@ -226,6 +316,19 @@ You should export `establishPayer` as a named export.
 
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+async function main() {
+  console.log("Saying 'hello' to a Solana account");
+  const connection = await establishConnection();
+}
+
+await main();
+```
+
 ## 13
 
 ### --description--
@@ -240,6 +343,20 @@ You should return the result of `Keypair.generate()`.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {}
 ```
 
 ## 14
@@ -270,6 +387,22 @@ You should export `getProgramId` as a named export.
 
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+```
+
 ## 15
 
 ### --description--
@@ -292,6 +425,24 @@ You should return the `publicKey` property of the keypair.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {}
 ```
 
 ## 16
