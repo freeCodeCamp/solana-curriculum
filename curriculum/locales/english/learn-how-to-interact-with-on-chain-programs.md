@@ -551,11 +551,233 @@ You should define `createAccount` to be asynchronous.
 
 ### --description--
 
-Storing data on accounts costs a _rent_ fee.
+Storing data on accounts costs a _rent_ fee. This fee is paid in _lamports_ and is calculated based on the size of the account. The `getMinimumBalanceForRentExemption` method on the `Connection` class can be used to calculate the rent fee payable to prevent an account from being purged.
+
+Within `createAccount`, use the `getMinimumBalanceForRentExemption` method on `connection` to get the minimum balance required to create an account with a size of `10000` bytes. Store this in a variable named `lamports`.
 
 ### --tests--
 
+You should call `connection.getMinimumBalanceForRentExemption` within `createAccount`.
+
+```js
+
+```
+
+You should pass `10000` as the first argument to `getMinimumBalanceForRentExemption`.
+
+```js
+
+```
+
+You should await the result of `getMinimumBalanceForRentExemption`.
+
+```js
+
+```
+
+You should assign the value to a variable named `lamports`.
+
+```js
+
+```
+
 ## 24
+
+### --description--
+
+You can estimate the cost of creating a program data account of size `10000` bytes by using the following CLI command:
+
+```bash
+solana rent 10000
+```
+
+### --tests--
+
+You should run `solana rent 10000` in the terminal.
+
+```js
+
+```
+
+## 25
+
+### --description--
+
+Randomly guessing the size of your account might not always be best.
+
+Within `hello-world.js`, define an `ACCOUNT_SIZE` constant, and set its value to:
+
+```javascript
+borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length;
+```
+
+### --tests--
+
+You should define a constant named `ACCOUNT_SIZE` in the `hello-world.js` file.
+
+```js
+
+```
+
+You should set the value of `ACCOUNT_SIZE` to `borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length`.
+
+```js
+
+```
+
+## 26
+
+### --description--
+
+Define a class named `HelloWorldAccount` whose contstructor takes a single parameter named `fields`.
+
+Then, assign the value of `fields.counter` to a property named `counter` on the instance.
+
+### --tests--
+
+You should define a class named `HelloWorldAccount`.
+
+```js
+
+```
+
+You should define a constructor for `HelloWorldAccount` with a single parameter named `fields`.
+
+```js
+
+```
+
+You should assign the value of `fields.counter` to `this.counter`.
+
+```js
+
+```
+
+## 27
+
+### --description--
+
+Define a variable named `HelloWorldSchema` and set its value to:
+
+```javascript
+new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+```
+
+This is a _schema_ that matches the definition of the `GreetingAccount` struct in `src/program-rust/src/lib.rs`.
+
+### --tests--
+
+You should define a variable named `HelloWorldSchema`.
+
+```js
+
+```
+
+You should set the value of `HelloWorldSchema` to the given schema.
+
+```js
+
+```
+
+## 28
+
+### --description--
+
+Within `createAccount`, replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` constant.
+
+### --tests--
+
+You should replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` constant.
+
+```js
+
+```
+
+## 29
+
+### --description--
+
+In order to create the program data account, you need to define a `Transaction` that will be signed by the `payer` and sent to the network.
+
+Within `createAccount`, create a new `Transaction` instance and store it in a variable named `transaction`.
+
+### --tests--
+
+You should create a new `Transaction` instance within `createAccount`.
+
+```js
+
+```
+
+You should store the result in a variable named `transaction`.
+
+```js
+
+```
+
+## 30
+
+### --description--
+
+Within `createAccount`, create a new variable named `instruction`, and set its value to:
+
+```javascript
+{
+  basePubkey: payer.publicKey,
+  fromPubkey: payer.publicKey,
+  lamports,
+  newAccountPubkey: accountPubkey,
+  programId,
+  seed: <SAME_SEED_USED_IN_GET_ACCOUNT_PUBKEY_FUNCTION>,
+  space: ACCOUNT_SIZE,
+}
+```
+
+### --tests--
+
+You should create a new variable named `instruction` within `createAccount`.
+
+```js
+
+```
+
+You should set the value of `instruction` to the given object.
+
+```js
+
+```
+
+You should use the same seed you used in the `getAccountPubkey` function.
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Within `createAccount`, use the `add` method on `transaction` to add an instruction to create the program data account.
+
+This instruction should be created using the `createAccountWithSeed` function on the `SystemProgram` class from `@solana/web3.js`.
+
+### --tests--
+
+You should call `transaction.add` within `createAccount`.
+
+```js
+
+```
+
+You should call `SystemProgram.createAccountWithSeed` within `transaction.add`.
+
+```js
+
+```
+
+## 32
 
 ### --description--
 
@@ -571,7 +793,7 @@ You should have a `src/client/utils.js` file.
 
 ```
 
-## 25
+## 33
 
 ### --description--
 
@@ -597,7 +819,7 @@ You should export `getRpcUrl` as a named export.
 
 ```
 
-## 26
+## 34
 
 ### --description--
 
