@@ -485,6 +485,28 @@ You should export `getAccountPubkey` as a named export.
 
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, createKeypairFromFile } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+```
+
 ## 17
 
 ### --description--
@@ -533,6 +555,30 @@ You should return the result of `await PublicKey.createWithSeed`.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, createKeypairFromFile } from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {}
 ```
 
 ## 18
@@ -596,6 +642,37 @@ You should define `checkProgram` to be asynchronous.
 
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  createKeypairFromFile,
+  PublicKey
+} from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+}
+```
+
 ## 19
 
 ### --description--
@@ -612,6 +689,44 @@ If the result is equal to `null`, throw an `Error` with a string message.
 
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  createKeypairFromFile,
+  PublicKey
+} from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {}
+```
+
 ## 20
 
 ### --description--
@@ -624,6 +739,49 @@ Within `checkProgram`, make use of the `executable` property of the `AccountInfo
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  createKeypairFromFile,
+  PublicKey
+} from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programInfo = await connection.getAccountInfo(programId);
+  if (programInfo === null) {
+    throw new Error('Program account does not exist');
+  }
+}
 ```
 
 ## 21
@@ -640,6 +798,52 @@ Within `checkProgram`, get the account info of the program **data** account, _if
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  createKeypairFromFile,
+  PublicKey
+} from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programInfo = await connection.getAccountInfo(programId);
+  if (programInfo === null) {
+    throw new Error('Program account does not exist');
+  }
+  if (!programInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+}
 ```
 
 ## 22
@@ -780,7 +984,7 @@ You should set the value of `ACCOUNT_SIZE` to `borsh.serialize(HelloWorldSchema,
 
 ### --description--
 
-Define a class named `HelloWorldAccount` whose contstructor takes a single parameter named `fields`.
+Define a class named `HelloWorldAccount` whose constructor takes a single parameter named `fields`.
 
 Then, assign the value of `fields.counter` to a property named `counter` on the instance.
 
@@ -932,13 +1136,11 @@ You should call `SystemProgram.createAccountWithSeed` within `transaction.add`.
 
 ### --description--
 
-This script is going to require a few utility functions.
-
-Within `src/client`, create a file named `utils.js`.
+Within `createAccount`, pass `transaction` as the argument to the `createAccountWithSeed` call.
 
 ### --tests--
 
-You should have a `src/client/utils.js` file.
+You should have `SystemProgram.createAccountWithSeed(transaction)` within `transaction.add`.
 
 ```js
 
@@ -948,32 +1150,579 @@ You should have a `src/client/utils.js` file.
 
 ### --description--
 
-Within `utils.js`, export an asynchronous function named `getRpcUrl`.
+You have created a transaction, but need to send it to the network.
+
+Await the `sendAndConfirmTransaction` function from `@solana/web3.js` to send the transaction to the network. This function expects at least three arguments:
+
+- `connection`
+- `transaction`
+- An array of _signers_ (use the `payer` as the only signer)
 
 ### --tests--
 
-You should define a function named `getRpcUrl` in `src/client/utils.js`.
+You should call `sendAndConfirmTransaction` within `createAccount`.
 
 ```js
 
 ```
 
-You should define `getRpcUrl` as being asynchronous.
+You should pass `connection` as the first argument.
 
 ```js
 
 ```
 
-You should export `getRpcUrl` as a named export.
+You should pass `transaction` as the second argument.
 
 ```js
 
+```
+
+You should pass `[payer]` as the third argument.
+
+```js
+
+```
+
+You should await the result of `sendAndConfirmTransaction`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  sendAndConfirmTransaction,
+  SystemProgram,
+  Transaction
+} from '@solana/web3.js';
+import { createKeypairFromFile } from '../_answer/client/utils';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const keypair = await createKeypairFromFile(
+    '../../dist/program/helloworld-keypair.json'
+  );
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(payer.publicKey, 'hello', programId);
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const accountInfo = await connection.getAccountInfo(programId);
+  if (!accountInfo === null) {
+    throw new Error('Program not found');
+  }
+  if (!accountInfo.executable) {
+    throw new Error('Program not executable');
+  }
+  const programDataInfo = await connection.getAccountInfo(accountPubkey);
+  if (!programDataInfo === null) {
+    throw new Error('Program data account not found');
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    this.counter = fields.counter;
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimunBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basPubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'hello',
+    space: ACCOUNT_SIZE
+  };
+  transaction.add(SystemProgram.createAccountWithSeed(instruction));
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
 ```
 
 ## 34
 
 ### --description--
 
+Within `checkProgram`, instead of throwing an error when the program data account is not found, create the program data account.
+
 ### --tests--
+
+You should call `createAccount` within `checkProgram`.
+
+```js
+
+```
+
+You should pass `connection` as the first argument.
+
+```js
+
+```
+
+You should pass `payer` as the second argument.
+
+```js
+
+```
+
+You should pass `programId` as the third argument.
+
+```js
+
+```
+
+You should pass `accountPubkey` as the fourth argument.
+
+```js
+
+```
+
+You should await the result of `createAccount`.
+
+```js
+
+```
+
+## 35
+
+### --description--
+
+Within `hello-world.js`, export an asynchronous function named `sayHello` with the following signature:
+
+```javascript
+function sayHello(
+  connection,
+  payer,
+  programId,
+  accountPubkey,
+): Promise<void>
+```
+
+### --tests--
+
+You should define a function with the handle `sayHello`.
+
+```js
+
+```
+
+You should define `sayHello` with a first parameter named `connection`.
+
+```js
+
+```
+
+You should define `sayHello` with a second parameter named `payer`.
+
+```js
+
+```
+
+You should define `sayHello` with a third parameter named `programId`.
+
+```js
+
+```
+
+You should define `sayHello` with a fourth parameter named `accountPubkey`.
+
+```js
+
+```
+
+You should define `sayHello` as an asynchronous function.
+
+```js
+
+```
+
+You should define `sayHello` to be a named export.
+
+```js
+
+```
+
+## 36
+
+### --description--
+
+To say hello to your smart contract, you need to send a transaction with some data.
+
+Within `sayHello`, create an `transaction` variable with a value of:
+
+```javascript
+{
+  keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+  programId,
+  data: Buffer.alloc(0),
+}
+```
+
+_The `data` field is empty because the program does not do anything with it._
+
+### --tests--
+
+You should define a variable named `transaction`.
+
+```js
+
+```
+
+You should give `transaction` a value of the above object literal.
+
+```js
+
+```
+
+## 37
+
+### --description--
+
+Within `sayHello`, define an `instruction` variable to be a new instance `TransactionInstruction` from `@solana/web3.js`. The constructor expects your transaction object as an argument.
+
+### --tests--
+
+You should define a variable named `instruction`.
+
+```js
+
+```
+
+You should give `instruction` a value of `new TransactionInstruction(transaction)`.
+
+```js
+
+```
+
+## 38
+
+### --description--
+
+Now, send and confirm the transaction.
+
+### --tests--
+
+You should call `sendAndConfirmTransaction` within `sayHello`.
+
+```js
+
+```
+
+Calling `sayHello` should send the correct transaction with `sendAndConfirmTransaction(connection, new Transaction().add(instruction), [payer])`.
+
+```js
+
+```
+
+## 39
+
+### --description--
+
+Within `main.js` in the `main` function, create a variable named `programId` and use the function you created to assign it the program id.
+
+### --tests--
+
+You should define a variable named `programId`.
+
+```js
+
+```
+
+You should assign `programId` the value of `await getProgramId()`.
+
+```js
+
+```
+
+You should import `getProgramId` from `./hello-world.js`.
+
+```js
+
+```
+
+## 40
+
+### --description--
+
+Within `main`, create a variable named `payer` and use the function you created to assign it the payer.
+
+### --tests--
+
+You should define a variable named `payer`.
+
+```js
+
+```
+
+You should assign `payer` the value of `await establishPayer(connection)`.
+
+```js
+
+```
+
+You should import `establishPayer` from `./hello-world.js`.
+
+```js
+
+```
+
+## 41
+
+### --description--
+
+Within `main`, create a variable named `accountPubkey` and use the function you created to assign it the account pubkey.
+
+### --tests--
+
+You should define a variable named `accountPubkey`.
+
+```js
+
+```
+
+You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`.
+
+```js
+
+```
+
+You should import `getAccountPubkey` from `./hello-world.js`.
+
+```js
+
+```
+
+## 42
+
+### --description--
+
+Within `main`, ensure the program account is deployed, and the program data account is created.
+
+### --tests--
+
+You should call `await checkProgram(connection, payer, programId, accountPubkey)` within `main`.
+
+```js
+
+```
+
+## 43
+
+### --description--
+
+Within `main`, say hello to the program.
+
+### --tests--
+
+You should call `await sayHello(connection, payer, programId, accountPubkey)` within `main`.
+
+```js
+
+```
+
+## 44
+
+### --description--
+
+Now that you can say hello to the program, you will want to find out how many times the program has been said hello to.
+
+Within `hello-world.js`, export an asynchronous function named `getHelloCount` with the following signature:
+
+```javascript
+function getHelloCount(
+  connection,
+  accountPubkey,
+): Promise<number>
+```
+
+### --tests--
+
+You should define a function with the handle `getHelloCount`.
+
+```js
+
+```
+
+You should define `getHelloCount` with a first parameter named `connection`.
+
+```js
+
+```
+
+You should define `getHelloCount` with a second parameter named `accountPubkey`.
+
+```js
+
+```
+
+You should define `getHelloCount` as an asynchronous function.
+
+```js
+
+```
+
+You should define `getHelloCount` to be a named export.
+
+```js
+
+```
+
+## 45
+
+### --description--
+
+Within `getHelloCount`, create a `accountInfo` variable with the correct value.
+
+### --tests--
+
+You should define a variable named `accountInfo`.
+
+```js
+
+```
+
+You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`.
+
+```js
+
+```
+
+## 46
+
+### --description--
+
+In order to read the data from an account, you need to deserialize it based on the program's schema.
+
+Within `getHelloCount`, create a `greeting` variable with a value of:
+
+```javascript
+borsh.deserialize(<SCHEMA>, <CLASS_TYPE>, <ACCOUNT_DATA>)
+```
+
+### --tests--
+
+You should define a variable named `greeting`.
+
+```js
+
+```
+
+You should give `greeting` a value of `borsh.deserialize(HelloWorldSchema, HelloWorldAccount, accountInfo.data)`.
+
+```js
+
+```
+
+## 47
+
+### --description--
+
+Within `getHelloCount`, return the `counter` property of the `greeting` variable.
+
+### --tests--
+
+You should return the `counter` property of `greeting`.
+
+```js
+
+```
+
+## 48
+
+### --description--
+
+Within `main.js` in the `main` function, get the hello count, and store it in a variable named `helloCount`.
+
+### --tests--
+
+You should define a variable named `helloCount`.
+
+```js
+
+```
+
+You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`.
+
+```js
+
+```
+
+You should import `getHelloCount` from `./hello-world.js`.
+
+```js
+
+```
+
+## 49
+
+### --description--
+
+Within `main`, log the `helloCount` variable value.
+
+### --tests--
+
+You should log the `helloCount` variable value.
+
+```js
+
+```
+
+## 50
+
+### --description--
+
+Use Nodejs to execute the `main.js` script.
+
+### --tests--
+
+You should run `node src/client/main.js` in the terminal.
+
+```js
+
+```
 
 ## --fcc-end
