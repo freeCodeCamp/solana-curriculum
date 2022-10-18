@@ -16,10 +16,22 @@ npm run build
 
 ### --tests--
 
-You should run `npm run build` in `learn-how-to-interact-with-on-chain-programs`.
+You should run `npm run build` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand, 'npm run build');
+```
 
+You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(
+  cwd,
+  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract'
+);
 ```
 
 ## 2
@@ -33,7 +45,10 @@ Within the `src` directory, create a directory named `client` to hold your code.
 You should have a `src/client` directory.
 
 ```js
-
+const pathExists = __helpers.fileExists(
+  'learn-how-to-interact-with-on-chain-programs/src/client'
+);
+assert.isTrue(pathExists, 'You should have a `src/client` directory.');
 ```
 
 ### --seed--
@@ -55,7 +70,10 @@ Within the `src/client` directory, create a file named `main.js` which will be t
 You should have a `src/client/main.js` file.
 
 ```js
-
+const pathExists = __helpers.fileExists(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+assert.isTrue(pathExists, 'You should have a `src/client/main.js` file.');
 ```
 
 ### --seed--
@@ -77,7 +95,19 @@ Within `src/client/main.js`, create an asynchronous function named `main`.
 You should have an asynchronous function with the handle `main`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const mainFunctionDeclaration = babelisedCode.getFunctionDeclaration('main');
+assert.exists(
+  mainFunctionDeclaration,
+  'You should have a function named `main`'
+);
+assert(
+  mainFunctionDeclaration.async,
+  'main should be an asynchronous function'
+);
 ```
 
 ### --seed--
@@ -99,7 +129,17 @@ Call your `main` function, awaiting the process before exiting.
 You should call `main` with `await`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const mainExpressionStatement = babelisedCode.getExpressionStatement('main');
+assert.exists(mainExpressionStatement, 'You should call `main`');
+assert.equal(
+  mainExpressionStatement.expression.type,
+  'AwaitExpression',
+  'You should call `main` with `await`'
+);
 ```
 
 ### --seed--
@@ -118,10 +158,29 @@ Within the `main` function, log to the console the string `Saying 'hello' to a S
 
 ### --tests--
 
-You should have `console.log("Saying 'hello' to a Solana account")`.
+You should have `console.log("Saying 'hello' to a Solana account")` within `main`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const consoleLogExpressionStatement =
+  babelisedCode.getExpressionStatement('console.log');
+assert.exists(
+  consoleLogExpressionStatement,
+  'You should have a `console.log` statement'
+);
+assert.equal(
+  consoleLogExpressionStatement.scope.join('.'),
+  'global.main',
+  'The console.log should be within the main function'
+);
+assert.equal(
+  consoleLogExpressionStatement.expression?.arguments?.[0]?.value,
+  "Saying 'hello' to a Solana account",
+  'You should have `console.log("Saying \'hello\' to a Solana account")`'
+);
 ```
 
 ### --seed--
@@ -147,7 +206,13 @@ Within the `src/client` directory, create a file named `hello-world.js`.
 You should have a `src/client/hello-world.js` file.
 
 ```js
-
+const pathExists = __helpers.pathExists(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+assert.isTrue(
+  pathExists,
+  'You should have a `src/client/hello-world.js` file.'
+);
 ```
 
 ### --seed--
@@ -173,19 +238,70 @@ Within `hello-world.js`, export an asynchronous function named `establishConnect
 You should define a function named `establishConnection` in `src/client/hello-world.js`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const establishConnectionFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionFunctionDeclaration,
+  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
+);
 ```
 
 You should define `establishConnection` as being asynchronous.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const establishConnectionFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionFunctionDeclaration,
+  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
+);
+assert.isTrue(
+  establishConnectionFunctionDeclaration.async,
+  'establishConnection should be an asynchronous function'
+);
 ```
 
 You should export `establishConnection` as a named export.
 
 ```js
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const establishConnectionFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionFunctionDeclaration,
+  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
+);
 
+const establishConnectionExportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    const name = e.declaration?.id?.name;
+    return name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionExportNamedDeclaration,
+  'You should export `establishConnection` as a named export'
+);
 ```
 
 ### --seed--
@@ -209,13 +325,34 @@ Install the `@solana/web3.js` module.
 You should have `@solana/web3.js` in your `package.json` dependencies field.
 
 ```js
-
+const packageJsonFile = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/package.json'
+);
+const packageJson = JSON.parse(packageJsonFile);
+assert.exists(
+  packageJson.dependencies?.['@solana/web3.js'],
+  'You should have `@solana/web3.js` in your `package.json` dependencies field.'
+);
 ```
 
 You should install at least version `1.63`.
 
 ```js
-
+const packageJsonFile = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/package.json'
+);
+const packageJson = JSON.parse(packageJsonFile);
+assert.exists(
+  packageJson.dependencies?.['@solana/web3.js'],
+  'You should have `@solana/web3.js` in your `package.json` dependencies field.'
+);
+const version = packageJson.dependencies?.['@solana/web3.js'];
+const numberVersion = Number(version.replace(/[\^\*]/g, ''));
+assert.isAtLeast(
+  numberVersion,
+  1.63,
+  'You should install at least version `1.63`'
+);
 ```
 
 ### --seed--
@@ -239,19 +376,85 @@ Return this new connection from `establishConnection`.
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const solanaWeb3ImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === '@solana/web3.js';
+  });
+assert.exists(
+  solanaWeb3ImportDeclaration,
+  'You should import from `@solana/web3.js`'
+);
+const connectionImportSpecifier = solanaWeb3ImportDeclaration.specifiers.find(
+  s => {
+    return s.imported.name === 'Connection';
+  }
+);
+assert.exists(
+  connectionImportSpecifier,
+  'You should import `Connection` from `@solana/web3.js`'
+);
 ```
 
 You should create a new connection with `new Connection('http://localhost:8899')`.
 
 ```js
-
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const newConnectionExpression = babelisedCode
+  .getType('NewExpression')
+  .find(e => {
+    return e.callee.name === 'Connection';
+  });
+assert.exists(
+  newConnectionExpression,
+  'You should create a new connection with `new Connection()`'
+);
+assert.equal(
+  newConnectionExpression.scope.join(),
+  'global,establishConnection',
+  'You should create the new connection within the `establishConnection` function'
+);
+assert.equal(
+  newConnectionExpression.arguments[0].value,
+  'http://localhost:8899',
+  "You should create a new connection with `new Connection('http://localhost:8899')`"
+);
 ```
 
 Your `establishConnection` function should return the new connection.
 
 ```js
+const codeString = __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const establishConnectionFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionFunctionDeclaration,
+  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
+);
+const returnStatement = establishConnectionFunctionDeclaration.body.body.find(
+  s => {
+    return s.type === 'ReturnStatement';
+  }
+);
+assert.exists(
+  returnStatement,
+  'Your `establishConnection` function should return the new connection'
+);
 
+// TODO: Can probably just run the function to see what it returns...
 ```
 
 ### --seed--
@@ -900,6 +1103,56 @@ You should define `createAccount` to be asynchronous.
 
 ```js
 
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  createKeypairFromFile,
+  PublicKey
+} from '@solana/web3.js';
+
+export async function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  return createKeypairFromFile(
+    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
+  ).publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programInfo = await connection.getAccountInfo(programId);
+  if (programInfo === null) {
+    throw new Error('Program account does not exist');
+  }
+  if (!programInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const accountInfo = await connection.getAccountInfo(accountPubkey);
+  if (accountInfo === null) {
+    throw new Error('Program data account does not exist');
+  }
+}
 ```
 
 ## 23
