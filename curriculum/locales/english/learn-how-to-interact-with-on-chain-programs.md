@@ -95,7 +95,7 @@ Within `src/client/main.js`, create an asynchronous function named `main`.
 You should have an asynchronous function with the handle `main`.
 
 ```js
-const codeString = __helpers.getFile(
+const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
@@ -129,7 +129,7 @@ Call your `main` function, awaiting the process before exiting.
 You should call `main` with `await`.
 
 ```js
-const codeString = __helpers.getFile(
+const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
@@ -161,7 +161,7 @@ Within the `main` function, log to the console the string `Saying 'hello' to a S
 You should have `console.log("Saying 'hello' to a Solana account")` within `main`.
 
 ```js
-const codeString = __helpers.getFile(
+const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
@@ -206,7 +206,7 @@ Within the `src/client` directory, create a file named `hello-world.js`.
 You should have a `src/client/hello-world.js` file.
 
 ```js
-const pathExists = __helpers.pathExists(
+const pathExists = __helpers.fileExists(
   'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 assert.isTrue(
@@ -238,10 +238,6 @@ Within `hello-world.js`, export an asynchronous function named `establishConnect
 You should define a function named `establishConnection` in `src/client/hello-world.js`.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const establishConnectionFunctionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => {
@@ -256,10 +252,6 @@ assert.exists(
 You should define `establishConnection` as being asynchronous.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const establishConnectionFunctionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => {
@@ -278,10 +270,6 @@ assert.isTrue(
 You should export `establishConnection` as a named export.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const establishConnectionFunctionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => {
@@ -302,6 +290,22 @@ assert.exists(
   establishConnectionExportNamedDeclaration,
   'You should export `establishConnection` as a named export'
 );
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -347,7 +351,9 @@ assert.exists(
   'You should have `@solana/web3.js` in your `package.json` dependencies field.'
 );
 const version = packageJson.dependencies?.['@solana/web3.js'];
-const numberVersion = Number(version.replace(/[\^\*]/g, ''));
+const versionSansRange = version.replace(/[\^\*\~]/g, '');
+const versionSansPatch = versionSansRange.replace(/(?<=\.\d+)\.\d+$/, '');
+const numberVersion = Number(versionSansPatch);
 assert.isAtLeast(
   numberVersion,
   1.63,
@@ -376,10 +382,6 @@ Return this new connection from `establishConnection`.
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const solanaWeb3ImportDeclaration = babelisedCode
   .getImportDeclarations()
   .find(i => {
@@ -403,10 +405,6 @@ assert.exists(
 You should create a new connection with `new Connection('http://localhost:8899')`.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const newConnectionExpression = babelisedCode
   .getType('NewExpression')
   .find(e => {
@@ -431,10 +429,6 @@ assert.equal(
 Your `establishConnection` function should return the new connection.
 
 ```js
-const codeString = __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const establishConnectionFunctionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => {
@@ -457,6 +451,22 @@ assert.exists(
 // TODO: Can probably just run the function to see what it returns...
 ```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
 ### --seed--
 
 #### --cmd--
@@ -473,10 +483,37 @@ Within the `main` function in `main.js`, make a call to `establishConnection`, a
 
 ### --tests--
 
-You should have `const connection = await establishConnection()` in `main.js.
+You should have `const connection = await establishConnection()` in `main.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'connection';
+  });
+assert.exists(
+  connectionVariableDeclaration,
+  'You should declare a variable named `connection` in `main.js`'
+);
+assert.equal(
+  connectionVariableDeclaration.scope.join(),
+  'global,main',
+  'You should declare the `connection` variable within the `main` function'
+);
+const awaitExpression = connectionVariableDeclaration?.declarations?.[0]?.init;
+assert.exists(
+  awaitExpression,
+  'You should give `connection` a value of `await establishConnection()`'
+);
+assert.equal(
+  awaitExpression?.argument?.callee?.name,
+  'establishConnection',
+  'You should give `connection` a value of `await establishConnection()`'
+);
 ```
 
 ### --seed--
@@ -504,19 +541,60 @@ Within `hello-world.js`, export an asynchronous function named `establishPayer`.
 You should define a function with the handle `establishPayer`.
 
 ```js
-
+const establishPayerFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'establishPayer';
+  });
+assert.exists(
+  establishPayerFunctionDeclaration,
+  'You should define a function named `establishPayer` in `src/client/hello-world.js`'
+);
 ```
 
 You should define `establishPayer` as being asynchronous.
 
 ```js
-
+const establishPayerFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'establishPayer';
+  });
+assert.isTrue(
+  establishPayerFunctionDeclaration.async,
+  'You should define `establishPayer` as being asynchronous'
+);
 ```
 
 You should export `establishPayer` as a named export.
 
 ```js
+const establishPayerExportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    const name = e.declaration?.id?.name;
+    return name === 'establishPayer';
+  });
+assert.exists(
+  establishPayerExportNamedDeclaration,
+  'You should export `establishPayer` as a named export'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -545,7 +623,19 @@ Return this keypair.
 You should return the result of `Keypair.generate()`.
 
 ```js
-
+const { Keypair } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/node_modules/@solana/web3.js/lib/index.cjs.js'
+);
+const { establishPayer } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const keypair = await establishPayer();
+assert.exists(keypair, 'You should return the result of `Keypair.generate()`');
+assert.instanceOf(
+  keypair,
+  Keypair,
+  'You should return the result of `Keypair.generate()`'
+);
 ```
 
 ### --seed--
@@ -575,19 +665,60 @@ Within `hello-world.js`, export an asynchronous function with the handle `getPro
 You should define a function with the handle `getProgramId`.
 
 ```js
-
+const getProgramIdFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getProgramId';
+  });
+assert.exists(
+  getProgramIdFunctionDeclaration,
+  'You should define a function named `getProgramId` in `src/client/hello-world.js`'
+);
 ```
 
 You should define `getProgramId` as asynchronous.
 
 ```js
-
+const getProgramIdFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getProgramId';
+  });
+assert.isTrue(
+  getProgramIdFunctionDeclaration.async,
+  'You should define `getProgramId` as being asynchronous'
+);
 ```
 
 You should export `getProgramId` as a named export.
 
 ```js
+const getProgramIdExportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    const name = e.declaration?.id?.name;
+    return name === 'getProgramId';
+  });
+assert.exists(
+  getProgramIdExportNamedDeclaration,
+  'You should export `getProgramId` as a named export'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -610,24 +741,104 @@ export async function establishPayer() {
 
 ### --description--
 
-The program id is its public key.
+The program id is its public key. You can derive it from the program's keypair.
 
-Within `getProgramId`, use the `createKeypairFromFile` function from `@solana/web3.js` to get the program keypair, passing in the path to the `dist/program/helloworld-keypair.json` file as an argument.
+<!-- TODO: createKeypairFromFile is not a function from solana 🤦‍♂️ remove for utility -->
 
-Then, return the public key.
+Within `getProgramId`, declare a variable `secretKeyString`, and assign it the value of:
+
+```js
+await readFile(<PATH_TO_KEYPAIR_JSON>, 'utf8');
+```
+
+Where `<PATH_TO_KEYPAIR_JSON>` is the path to the keypair json file.
 
 ### --tests--
 
-You should import `createKeypairFromFile` from `@solana/web3.js`.
+You should import `readFile` from `fs/promises`.
 
 ```js
-
+const readFileImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === 'fs/promises';
+  });
+assert.exists(
+  readFileImportDeclaration,
+  'You should import `readFile` from `fs/promises`'
+);
 ```
 
-You should return the `publicKey` property of the keypair.
+You should define a variable named `secretKeyString`.
 
 ```js
+const secretKeyStringVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations[0].id.name === 'secretKeyString';
+  });
+assert.exists(
+  secretKeyStringVariableDeclaration,
+  'You should define a variable named `secretKeyString`'
+);
+```
 
+`secretKeyString` should be assigned the result of `readFile`.
+
+```js
+const secretKeyStringVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations[0].id.name === 'secretKeyString';
+  });
+const awaitExpression = secretKeyStringVariableDeclaration.declarations[0].init;
+assert.exists(
+  awaitExpression,
+  '`secretKeyString` should be assigned the result of awaiting `readFile`'
+);
+const readFileCallExpression = awaitExpression.argument;
+assert.equal(
+  readFileCallExpression.callee.name,
+  'readFile',
+  '`secretKeyString` should be assigned the result of awaiting `readFile`'
+);
+```
+
+You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`.
+
+```js
+const readFileCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return c.callee.name === 'readFile';
+  });
+assert.exists(
+  readFileCallExpression,
+  'You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`'
+);
+const firstArgument = readFileCallExpression.arguments?.[0]?.value;
+const urlToAssert = new URL(firstArgument, 'file://');
+assert.equal(
+  readFileCallExpression.arguments[0].value,
+  'dist/program/helloworld-keypair.json',
+  'You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -652,6 +863,226 @@ export async function getProgramId() {}
 
 ### --description--
 
+Within `getProgramId`, define a variable `secretKey`, and assign it the value of:
+
+```js
+Uint8Array.from(JSON.parse(secretKeyString));
+```
+
+### --tests--
+
+You should define a variable named `secretKey`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'secretKey';
+  });
+assert.exists(
+  secretKeyVariableDeclaration,
+  'You should define a variable named `secretKey`'
+);
+```
+
+`secretKey` should be assigned the result of `Uint8Array.from`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'secretKey';
+  });
+const callExpression = secretKeyVariableDeclaration?.declarations?.[0]?.init;
+const uintMemberExpression = callExpression?.callee;
+assert.equal(
+  uintMemberExpression?.object?.name,
+  'Uint8Array',
+  '`secretKey` should be assigned the result of `Uint8Array.from`'
+);
+assert.equal(
+  uintMemberExpression?.property?.name,
+  'from',
+  '`secretKey` should be assigned the result of `Uint8Array.from`'
+);
+```
+
+You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'secretKey';
+  });
+const callExpression = secretKeyVariableDeclaration?.declarations?.[0]?.init;
+const jsonCallExpression = callExpression?.arguments?.[0];
+const jsonMemberExpression = jsonCallExpression?.callee;
+assert.equal(
+  jsonMemberExpression?.object?.name,
+  'JSON',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+assert.equal(
+  jsonMemberExpression?.property?.name,
+  'parse',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+assert.equal(
+  jsonCallExpression?.arguments?.[0]?.name,
+  'secretKeyString',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 17
+
+### --description--
+
+Within `getProgramId`, define a variable `keypair`, and assign it the value of calling the `fromSecretKey` method on `Keypair`, passing `secretKey` as the first argument.
+
+### --tests--
+
+You should define a variable named `keypair`.
+
+```js
+const keypairVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'keypair';
+  });
+assert.exists(
+  keypairVariableDeclaration,
+  'You should define a variable named `keypair`'
+);
+assert.equal(
+  keypairVariableDeclaration.scope.join(),
+  'global,getProgramId',
+  'You should define `keypair` within `getProgramId`'
+);
+```
+
+`keypair` should be assigned the result of calling the `fromSecretKey` method on `Keypair`.
+
+```js
+const keypairVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'keypair';
+  });
+const callExpression = keypairVariableDeclaration?.declarations?.[0]?.init;
+const fromSecretKeyMemberExpression = callExpression?.callee;
+assert.equal(
+  fromSecretKeyMemberExpression?.object?.name,
+  'Keypair',
+  '`keypair` should be assigned the result of calling the `fromSecretKey` method on `Keypair`'
+);
+assert.equal(
+  fromSecretKeyMemberExpression?.property?.name,
+  'fromSecretKey',
+  '`keypair` should be assigned the result of calling the `fromSecretKey` method on `Keypair`'
+);
+```
+
+You should pass `secretKey` as the first argument to `fromSecretKey`.
+
+```js
+const keypairVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'keypair';
+  });
+const callExpression = keypairVariableDeclaration?.declarations?.[0]?.init;
+const secretKeyArgument = callExpression?.arguments?.[0];
+assert.equal(
+  secretKeyArgument?.name,
+  'secretKey',
+  'You should pass `secretKey` as the first argument to `fromSecretKey`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 18
+
+### --description--
+
+Within `getProgramId`, return the `publicKey` property of `keypair`.
+
+### --tests--
+
+You should return the `publicKey` property of `keypair`.
+
+```js
+const returnStatement = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'getProgramId';
+});
+const blockStatement = returnStatement?.body?.body;
+const returnExpression = blockStatement?.find(b => {
+  return b.type === 'ReturnStatement';
+});
+assert.equal(
+  returnExpression?.argument?.object?.name,
+  'keypair',
+  'You should return the `publicKey` property of `keypair`'
+);
+assert.equal(
+  returnExpression?.argument?.property?.name,
+  'publicKey',
+  'You should return the `publicKey` property of `keypair`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 19
+
+### --description--
+
 In Solana, program accounts (smart contracts) are stateless. As such, separate accounts (data accounts) need to be created to persist data.
 
 Within `hello-world.js`, export an asynchronous function with the handle `getAccountPubkey`. This function should expect two arguments: `payer` and `programId`.
@@ -661,31 +1092,94 @@ Within `hello-world.js`, export an asynchronous function with the handle `getAcc
 You should define a function with the handle `getAccountPubkey`.
 
 ```js
-
+const getAccountPubkeyFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getAccountPubkey';
+  });
+assert.exists(
+  getAccountPubkeyFunctionDeclaration,
+  'You should define a function with the handle `getAccountPubkey`'
+);
 ```
 
 You should define `getAccountPubkey` as asynchronous.
 
 ```js
-
+const getAccountPubkeyFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getAccountPubkey';
+  });
+assert.isTrue(
+  getAccountPubkeyFunctionDeclaration.async,
+  'You should define `getAccountPubkey` as asynchronous'
+);
 ```
 
 You should define `getAccountPubkey` with a first parameter `payer`.
 
 ```js
-
+const getAccountPubkeyFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getAccountPubkey';
+  });
+const firstParameter = getAccountPubkeyFunctionDeclaration.params[0];
+assert.exists(
+  firstParameter,
+  'You should define `getAccountPubkey` to accept a first argument'
+);
+assert.equal(
+  firstParameter.name,
+  'payer',
+  'You should define `getAccountPubkey` with a first parameter `payer`'
+);
 ```
 
 You should define `getAccountPubkey` with a second parameter `programId`.
 
 ```js
-
+const getAccountPubkeyFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'getAccountPubkey';
+  });
+const secondParameter = getAccountPubkeyFunctionDeclaration.params[1];
+assert.exists(
+  secondParameter,
+  'You should define `getAccountPubkey` to accept a second argument'
+);
+assert.equal(
+  secondParameter.name,
+  'programId',
+  'You should define `getAccountPubkey` with a second parameter `programId`'
+);
 ```
 
 You should export `getAccountPubkey` as a named export.
 
 ```js
+const getAccountPubkeyExportDeclaration = babelisedCode
+  .getExportNamedDeclarations()
+  .find(e => {
+    return e.declaration.id.name === 'getAccountPubkey';
+  });
+assert.exists(
+  getAccountPubkeyExportDeclaration,
+  'You should export `getAccountPubkey` as a named export'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+delete global.babelisedCode;
+global.babelisedCode = babelisedCode;
 ```
 
 ### --seed--
@@ -704,13 +1198,12 @@ export async function establishPayer() {
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  return createKeypairFromFile('../../dist/program/helloworld-keypair.json')
+    .publicKey;
 }
 ```
 
-## 17
+## 20
 
 ### --description--
 
@@ -727,13 +1220,32 @@ Then, return the awaited result.
 You should import `PublicKey` from `@solana/web3.js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(
+  importDeclaration,
+  'You should import `PublicKey` from `@solana/web3.js`'
+);
 ```
 
 You should call `PublicKey.createWithSeed` within `getAccountPubkey`.
 
 ```js
-
+const createWithSeedCallExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => {
+    return c.callee.property.name === 'createWithSeed';
+  });
+assert.exists(
+  createWithSeedCallExpression,
+  'You should call `PublicKey.createWithSeed`'
+);
+assert.equal(
+  createWithSeedCallExpression.scope.join(),
+  'global,getAccountPubkey',
+  'You should call `PublicKey.createWithSeed` within `getAccountPubkey`'
+);
 ```
 
 You should pass `payer.publicKey` as the first argument to `createWithSeed`.
@@ -760,6 +1272,17 @@ You should return the result of `await PublicKey.createWithSeed`.
 
 ```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+delete global.babelisedCode;
+global.babelisedCode = babelisedCode;
+```
+
 ### --seed--
 
 #### --"src/client/hello-world.js"--
@@ -784,7 +1307,7 @@ export async function getProgramId() {
 export async function getAccountPubkey(payer, programId) {}
 ```
 
-## 18
+## 21
 
 ### --description--
 
@@ -876,7 +1399,7 @@ export async function getAccountPubkey(payer, programId) {
 }
 ```
 
-## 19
+## 22
 
 ### --description--
 
@@ -930,7 +1453,7 @@ export async function checkProgram(
 ) {}
 ```
 
-## 20
+## 23
 
 ### --description--
 
@@ -987,7 +1510,7 @@ export async function checkProgram(
 }
 ```
 
-## 21
+## 24
 
 ### --description--
 
@@ -1049,7 +1572,7 @@ export async function checkProgram(
 }
 ```
 
-## 22
+## 25
 
 ### --description--
 
@@ -1155,7 +1678,7 @@ export async function checkProgram(
 }
 ```
 
-## 23
+## 26
 
 ### --description--
 
@@ -1189,7 +1712,7 @@ You should assign the value to a variable named `lamports`.
 
 ```
 
-## 24
+## 27
 
 ### --description--
 
@@ -1207,7 +1730,7 @@ You should run `solana rent 10000` in the terminal.
 
 ```
 
-## 25
+## 28
 
 ### --description--
 
@@ -1233,7 +1756,7 @@ You should set the value of `ACCOUNT_SIZE` to `borsh.serialize(HelloWorldSchema,
 
 ```
 
-## 26
+## 29
 
 ### --description--
 
@@ -1261,7 +1784,7 @@ You should assign the value of `fields.counter` to `this.counter`.
 
 ```
 
-## 27
+## 30
 
 ### --description--
 
@@ -1289,7 +1812,7 @@ You should set the value of `HelloWorldSchema` to the given schema.
 
 ```
 
-## 28
+## 31
 
 ### --description--
 
@@ -1303,7 +1826,7 @@ You should replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` const
 
 ```
 
-## 29
+## 32
 
 ### --description--
 
@@ -1325,7 +1848,7 @@ You should store the result in a variable named `transaction`.
 
 ```
 
-## 30
+## 33
 
 ### --description--
 
@@ -1363,7 +1886,7 @@ You should use the same seed you used in the `getAccountPubkey` function.
 
 ```
 
-## 31
+## 34
 
 ### --description--
 
@@ -1385,7 +1908,7 @@ You should call `SystemProgram.createAccountWithSeed` within `transaction.add`.
 
 ```
 
-## 32
+## 35
 
 ### --description--
 
@@ -1399,7 +1922,7 @@ You should have `SystemProgram.createAccountWithSeed(transaction)` within `trans
 
 ```
 
-## 33
+## 36
 
 ### --description--
 
@@ -1536,7 +2059,7 @@ export async function createAccount(
 }
 ```
 
-## 34
+## 37
 
 ### --description--
 
@@ -1580,7 +2103,7 @@ You should await the result of `createAccount`.
 
 ```
 
-## 35
+## 38
 
 ### --description--
 
@@ -1639,7 +2162,7 @@ You should define `sayHello` to be a named export.
 
 ```
 
-## 36
+## 39
 
 ### --description--
 
@@ -1671,7 +2194,7 @@ You should give `transaction` a value of the above object literal.
 
 ```
 
-## 37
+## 40
 
 ### --description--
 
@@ -1691,7 +2214,7 @@ You should give `instruction` a value of `new TransactionInstruction(transaction
 
 ```
 
-## 38
+## 41
 
 ### --description--
 
@@ -1711,7 +2234,7 @@ Calling `sayHello` should send the correct transaction with `sendAndConfirmTrans
 
 ```
 
-## 39
+## 42
 
 ### --description--
 
@@ -1737,7 +2260,7 @@ You should import `getProgramId` from `./hello-world.js`.
 
 ```
 
-## 40
+## 43
 
 ### --description--
 
@@ -1763,7 +2286,7 @@ You should import `establishPayer` from `./hello-world.js`.
 
 ```
 
-## 41
+## 44
 
 ### --description--
 
@@ -1789,7 +2312,7 @@ You should import `getAccountPubkey` from `./hello-world.js`.
 
 ```
 
-## 42
+## 45
 
 ### --description--
 
@@ -1803,7 +2326,7 @@ You should call `await checkProgram(connection, payer, programId, accountPubkey)
 
 ```
 
-## 43
+## 46
 
 ### --description--
 
@@ -1817,7 +2340,7 @@ You should call `await sayHello(connection, payer, programId, accountPubkey)` wi
 
 ```
 
-## 44
+## 47
 
 ### --description--
 
@@ -1864,7 +2387,7 @@ You should define `getHelloCount` to be a named export.
 
 ```
 
-## 45
+## 48
 
 ### --description--
 
@@ -1884,7 +2407,7 @@ You should assign `accountInfo` the value of `await connection.getAccountInfo(ac
 
 ```
 
-## 46
+## 49
 
 ### --description--
 
@@ -1910,7 +2433,7 @@ You should give `greeting` a value of `borsh.deserialize(HelloWorldSchema, Hello
 
 ```
 
-## 47
+## 50
 
 ### --description--
 
@@ -1924,7 +2447,7 @@ You should return the `counter` property of `greeting`.
 
 ```
 
-## 48
+## 51
 
 ### --description--
 
@@ -1950,7 +2473,7 @@ You should import `getHelloCount` from `./hello-world.js`.
 
 ```
 
-## 49
+## 52
 
 ### --description--
 
@@ -1964,7 +2487,7 @@ You should log the `helloCount` variable value.
 
 ```
 
-## 50
+## 53
 
 ### --description--
 

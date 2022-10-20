@@ -9,7 +9,9 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@freecodecamp/freecodecamp-os": "^1.6.4"
+    "@babel/parser": "7.19.4",
+    "@freecodecamp/freecodecamp-os": "^1.6.4",
+    "babeliser": "0.4.1"
   },
   "devDependencies": {
     "clipboardy": "^3.0.0"
