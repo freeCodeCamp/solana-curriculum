@@ -1161,9 +1161,9 @@ You should export `getAccountPubkey` as a named export.
 
 ```js
 const getAccountPubkeyExportDeclaration = babelisedCode
-  .getExportNamedDeclarations()
+  .getType('ExportNamedDeclaration')
   .find(e => {
-    return e.declaration.id.name === 'getAccountPubkey';
+    return e.declaration?.id?.name === 'getAccountPubkey';
   });
 assert.exists(
   getAccountPubkeyExportDeclaration,
@@ -1178,8 +1178,13 @@ const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-delete global.babelisedCode;
 global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -1198,8 +1203,13 @@ export async function establishPayer() {
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile('../../dist/program/helloworld-keypair.json')
-    .publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    { encoding: 'utf8' }
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 ```
 
@@ -1221,10 +1231,13 @@ You should import `PublicKey` from `@solana/web3.js`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
-  return i.source.value === '@solana/web3.js';
+  return i.source?.value === '@solana/web3.js';
+});
+const specifier = importDeclaration.specifiers.find(s => {
+  return s.local?.name === 'PublicKey';
 });
 assert.exists(
-  importDeclaration,
+  specifier,
   'You should import `PublicKey` from `@solana/web3.js`'
 );
 ```
@@ -1233,43 +1246,111 @@ You should call `PublicKey.createWithSeed` within `getAccountPubkey`.
 
 ```js
 const createWithSeedCallExpression = babelisedCode
-  .getCallExpressions()
+  .getType('CallExpression')
   .find(c => {
-    return c.callee.property.name === 'createWithSeed';
+    return c.callee?.property?.name === 'createWithSeed';
   });
 assert.exists(
   createWithSeedCallExpression,
   'You should call `PublicKey.createWithSeed`'
 );
 assert.equal(
-  createWithSeedCallExpression.scope.join(),
+  createWithSeedCallExpression?.scope?.join(),
   'global,getAccountPubkey',
   'You should call `PublicKey.createWithSeed` within `getAccountPubkey`'
+);
+assert.equal(
+  createWithSeedCallExpression?.callee?.object?.name,
+  'PublicKey',
+  "You should use `PublicKey`'s `createWithSeed` function"
 );
 ```
 
 You should pass `payer.publicKey` as the first argument to `createWithSeed`.
 
 ```js
-
+const publicKeyCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return c.callee?.property?.name === 'createWithSeed';
+  });
+const payerPropertyAccessExpression = publicKeyCallExpression?.arguments?.[0];
+assert.exists(
+  payerPropertyAccessExpression,
+  'You should pass `payer.publicKey` as the first argument to `createWithSeed`'
+);
+assert.equal(
+  payerPropertyAccessExpression?.object?.name,
+  'payer',
+  'You should pass `payer.publicKey` as the first argument to `createWithSeed`'
+);
+assert.equal(
+  payerPropertyAccessExpression.property.name,
+  'publicKey',
+  'You should call `publicKey` on `payer`'
+);
 ```
 
 You should pass a string as the second argument to `createWithSeed`.
 
 ```js
-
+const createWithSeedCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return c.callee?.property?.name === 'createWithSeed';
+  });
+const secondArgument = createWithSeedCallExpression?.arguments?.[1];
+assert.exists(
+  secondArgument,
+  'You should pass a string as the second argument to `createWithSeed`'
+);
+assert.equal(
+  secondArgument.type,
+  'StringLiteral',
+  'You should pass a string as the second argument to `createWithSeed`'
+);
 ```
 
 You should pass `programId` as the third argument to `createWithSeed`.
 
 ```js
-
+const createWithSeedCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return c.callee?.property?.name === 'createWithSeed';
+  });
+const programIdPropertyAccessExpression =
+  publicKeyCallExpression?.arguments?.[2];
+assert.exists(
+  programIdPropertyAccessExpression,
+  'You should pass `programId` as the third argument to `createWithSeed`'
+);
+assert.equal(
+  programIdPropertyAccessExpression?.name,
+  'programId',
+  'You should pass `programId` as the third argument to `createWithSeed`'
+);
 ```
 
 You should return the result of `await PublicKey.createWithSeed`.
 
 ```js
-
+const getAccountPubkeyFunctionDeclaration = babelisedCode
+  .getType('FunctionDeclaration')
+  .find(f => {
+    return f.id?.name === 'getAccountPubkey';
+  });
+const returnStatement = getAccountPubkeyFunctionDeclaration?.body?.body?.find(
+  b => {
+    return b.type === 'ReturnStatement';
+  }
+);
+assert.exists(returnStatement, 'You should return within `getAccountPubkey`');
+assert.equal(
+  returnStatement?.argument?.callee?.property?.name,
+  'createWithSeed',
+  'You should return the result of `await PublicKey.createWithSeed`'
+);
 ```
 
 ### --before-all--
@@ -1279,8 +1360,13 @@ const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-delete global.babelisedCode;
 global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -1329,43 +1415,139 @@ function checkProgram(
 You should define a function with the handle `checkProgram`.
 
 ```js
-
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+assert.exists(
+  checkProgramFunctionDeclaration,
+  'You should define a function with the handle `checkProgram`'
+);
 ```
 
 You should define `checkProgram` with a first parameter named `connection`.
 
 ```js
-
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+const firstParameter = checkProgramFunctionDeclaration?.params?.[0];
+assert.exists(
+  firstParameter,
+  'You should define `checkProgram` to expect at least one argument'
+);
+assert.equal(
+  firstParameter?.name,
+  'connection',
+  'You should define `checkProgram` with a first parameter named `connection`'
+);
 ```
 
 You should define `checkProgram` with a second parameter named `payer`.
 
 ```js
-
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+const secondParameter = checkProgramFunctionDeclaration?.params?.[1];
+assert.exists(
+  secondParameter,
+  'You should define `checkProgram` to expect at least two arguments'
+);
+assert.equal(
+  secondParameter?.name,
+  'payer',
+  'You should define `checkProgram` with a second parameter named `payer`'
+);
 ```
 
 You should define `checkProgram` with a third parameter named `programId`.
 
 ```js
-
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+const thirdParameter = checkProgramFunctionDeclaration?.params?.[2];
+assert.exists(
+  thirdParameter,
+  'You should define `checkProgram` to expect at least three arguments'
+);
+assert.equal(
+  thirdParameter?.name,
+  'programId',
+  'You should define `checkProgram` with a third parameter named `programId`'
+);
 ```
 
 You should define `checkProgram` with a fourth parameter named `accountPubkey`.
 
 ```js
-
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+const fourthParameter = checkProgramFunctionDeclaration?.params?.[3];
+assert.exists(
+  fourthParameter,
+  'You should define `checkProgram` to expect at least four arguments'
+);
+assert.equal(
+  fourthParameter?.name,
+  'accountPubkey',
+  'You should define `checkProgram` with a fourth parameter named `accountPubkey`'
+);
 ```
 
 You should define `checkProgram` to be a named export.
 
 ```js
-
+const exportNamedDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(e => {
+    return e.declaration?.id?.name === 'checkProgram';
+  });
+assert.exists(
+  exportNamedDeclaration,
+  'You should define `checkProgram` to be a named export'
+);
 ```
 
 You should define `checkProgram` to be asynchronous.
 
 ```js
+const checkProgramFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'checkProgram';
+  });
+assert.isTrue(
+  checkProgramFunctionDeclaration?.async,
+  'You should define `checkProgram` to be asynchronous'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -1412,7 +1594,19 @@ If the result is equal to `null`, throw an `Error` with a string message.
 `checkProgram` should throw an `Error` instance, if `await connection.getAccountInfo(programId)` returns `null`.
 
 ```js
-
+const { checkProgram } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const connection = {
+  getAccountInfo: async () => null
+};
+const payer = {};
+const programId = {};
+const accountPubkey = {};
+assert.throws(
+  () => checkProgram(connection, payer, programId, accountPubkey),
+  Error
+);
 ```
 
 ### --seed--
@@ -1464,7 +1658,21 @@ Within `checkProgram`, make use of the `executable` property of the `AccountInfo
 `checkProgram` should throw an `Error` instance, if the program account `executable` property equals `false`.
 
 ```js
-
+const { checkProgram } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const connection = {
+  getAccountInfo: async () => ({
+    executable: false
+  })
+};
+const payer = {};
+const programId = {};
+const accountPubkey = {};
+assert.throws(
+  () => checkProgram(connection, payer, programId, accountPubkey),
+  Error
+);
 ```
 
 ### --seed--
@@ -1523,7 +1731,24 @@ Within `checkProgram`, get the account info of the program **data** account, _if
 `checkProgram` should throw an `Error` instance, if the program **data account** does not exist.
 
 ```js
-
+const { checkProgram } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const connection = {
+  getAccountInfo: async flip =>
+    flip
+      ? null
+      : {
+          executable: true
+        }
+};
+const payer = {};
+const programId = false;
+const accountPubkey = true;
+assert.throws(
+  () => checkProgram(connection, payer, programId, accountPubkey),
+  Error
+);
 ```
 
 ### --seed--
@@ -1589,43 +1814,127 @@ function createAccount(connection: Connection, payer: Keypair, programId: Public
 You should define a function with the handle `createAccount`.
 
 ```js
-
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+assert.exists(
+  functionDeclaration,
+  'You should define a function with the handle `createAccount`'
+);
 ```
 
 You should define `createAccount` with a first parameter named `connection`.
 
 ```js
-
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+const firstParameter = functionDeclaration?.params?.[0];
+assert.exists(
+  firstParameter,
+  'You should define `createAccount` to expect at least one argument'
+);
+assert.equal(
+  firstParameter?.name,
+  'connection',
+  'You should define `createAccount` with a first parameter named `connection`'
+);
 ```
 
 You should define `createAccount` with a second parameter named `payer`.
 
 ```js
-
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+const secondParameter = functionDeclaration?.params?.[1];
+assert.exists(
+  secondParameter,
+  'You should define `createAccount` to expect at least two arguments'
+);
+assert.equal(
+  secondParameter?.name,
+  'payer',
+  'You should define `createAccount` with a second parameter named `payer`'
+);
 ```
 
 You should define `createAccount` with a third parameter named `programId`.
 
 ```js
-
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+const thirdParameter = functionDeclaration?.params?.[2];
+assert.exists(
+  thirdParameter,
+  'You should define `createAccount` to expect at least three arguments'
+);
+assert.equal(
+  thirdParameter?.name,
+  'programId',
+  'You should define `createAccount` with a third parameter named `programId`'
+);
 ```
 
 You should define `createAccount` with a fourth parameter named `accountPubkey`.
 
 ```js
-
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+const fourthParameter = functionDeclaration?.params?.[3];
+assert.exists(
+  fourthParameter,
+  'You should define `createAccount` to expect at least four arguments'
+);
+assert.equal(
+  fourthParameter?.name,
+  'accountPubkey',
+  'You should define `createAccount` with a fourth parameter named `accountPubkey`'
+);
 ```
 
 You should define `createAccount` to be a named export.
 
 ```js
-
+const exportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    return e.declaration?.id?.name === 'createAccount';
+  });
+assert.exists(
+  exportNamedDeclaration,
+  'You should define `createAccount` to be a named export'
+);
 ```
 
 You should define `createAccount` to be asynchronous.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+assert.isTrue(
+  functionDeclaration?.async,
+  'You should define `createAccount` to be asynchronous'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -1691,25 +2000,88 @@ Within `createAccount`, use the `getMinimumBalanceForRentExemption` method on `c
 You should call `connection.getMinimumBalanceForRentExemption` within `createAccount`.
 
 ```js
-
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.object?.name === 'connection' &&
+    c.callee?.property?.name === 'getMinimumBalanceForRentExemption'
+  );
+});
+assert.exists(
+  callExpression,
+  'You should call `connection.getMinimumBalanceForRentExemption`'
+);
+assert.equal(
+  callExpression?.scope?.join(),
+  'global,createAccount',
+  '`connection.getMinimumBalanceForRentExemption()` should be within `createAccount`'
+);
 ```
 
 You should pass `10000` as the first argument to `getMinimumBalanceForRentExemption`.
 
 ```js
-
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.object?.name === 'connection' &&
+    c.callee?.property?.name === 'getMinimumBalanceForRentExemption'
+  );
+});
+assert.equal(
+  callExpression?.arguments?.[0]?.value,
+  10000,
+  'You should pass `10000` as the first argument to `getMinimumBalanceForRentExemption`'
+);
 ```
 
 You should await the result of `getMinimumBalanceForRentExemption`.
 
 ```js
-
+const awaitExpression = babelisedCode.getType('AwaitExpression').find(a => {
+  return a.argument?.callee?.object?.name === 'connection';
+});
+assert.exists(
+  awaitExpression,
+  'You should await the result of `connection.getMinimumBalanceForRentExemption(10000)`'
+);
 ```
 
 You should assign the value to a variable named `lamports`.
 
 ```js
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'lamports';
+});
+assert.exists(
+  variableDeclaration,
+  'You should assign the value to a variable named `lamports`'
+);
+assert.equal(
+  variableDeclaration?.scope?.join(),
+  'global,createAccount',
+  '`lamports` should be defined within `createAccount`'
+);
+const awaitExpression = variabledDeclaration?.declarations?.[0]?.init;
+assert.equal(
+  awaitExpression?.argument?.callee?.object?.name,
+  'connection',
+  '`lamports` should be assigned the result of `connection.getMinimumBalanceForRentExemption(10000)`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 27
@@ -1727,7 +2099,8 @@ solana rent 10000
 You should run `solana rent 10000` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand, 'solana rent 10000');
 ```
 
 ## 28
@@ -1747,13 +2120,101 @@ borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length;
 You should define a constant named `ACCOUNT_SIZE` in the `hello-world.js` file.
 
 ```js
-
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'ACCOUNT_SIZE';
+});
+assert.exists(
+  variableDeclaration,
+  'You should define a constant named `ACCOUNT_SIZE`'
+);
+assert.equal(
+  variableDeclaration?.scope?.join(),
+  'global',
+  '`ACCOUNT_SIZE` should be defined in the global scope'
+);
+assert.equal(
+  variableDeclaration?.kind,
+  'const',
+  '`ACCOUNT_SIZE` should be defined as a constant'
+);
 ```
 
 You should set the value of `ACCOUNT_SIZE` to `borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length`.
 
 ```js
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'ACCOUNT_SIZE';
+});
+const memberExpression = variableDeclaration?.declarations?.[0]?.init;
+const callExpression = memberExpression?.object;
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'borsh',
+  '`ACCOUNT_SIZE` should use `borsh`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'serialize',
+  '`ACCOUNT_SIZE` should use `borsh.serialize`'
+);
+assert.equal(
+  callExpression?.arguments?.[0]?.name,
+  'HelloWorldSchema',
+  '`ACCOUNT_SIZE` should use `borsh.serialize(HelloWorldSchema, ...)`'
+);
+const newExpression = callExpression?.arguments?.[1];
+assert.equal(
+  newExpression?.callee?.name,
+  'HelloWorldAccount',
+  '`ACCOUNT_SIZE` should use `borsh.serialize(..., new HelloWorldAccount())`'
+);
+assert.equal(
+  newExpression?.type,
+  'NewExpression',
+  '`HelloWorldAccount()` should be instantiated with `new`'
+);
+assert.equal(
+  memberExpression?.property?.name,
+  'length',
+  '`ACCOUNT_SIZE` should use `borsh.serialize(...).length`'
+);
+```
 
+You should import `borsh` from `borsh`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source?.value === 'borsh';
+});
+assert.exists(importDeclaration, 'You should import from `borsh`');
+const importNamespaceSpecifier = importDeclaration?.specifiers?.find(s => {
+  return s.type === 'ImportNamespaceSpecifier';
+});
+assert.exists(
+  importNamespaceSpecifier,
+  'You should import `borsh` as a namespace: `import * as borsh from "borsh"`'
+);
+assert.equal(
+  importNamespaceSpecifier?.local?.name,
+  'borsh',
+  'You should import `borsh` as a namespace named `borsh`: `import * as borsh from "borsh"`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 29
@@ -1762,26 +2223,77 @@ You should set the value of `ACCOUNT_SIZE` to `borsh.serialize(HelloWorldSchema,
 
 Define a class named `HelloWorldAccount` whose constructor takes a single parameter named `fields`.
 
-Then, assign the value of `fields.counter` to a property named `counter` on the instance.
+Then, assign the value of `fields.counter` to a property named `counter` on the instance, on the condition `fields` exists.
 
 ### --tests--
 
 You should define a class named `HelloWorldAccount`.
 
 ```js
-
+const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+assert.exists(
+  classDeclaration,
+  'You should define a class named `HelloWorldAccount`'
+);
+assert.equal(
+  classDeclaration?.scope?.join(),
+  'global',
+  '`HelloWorldAccount` should be defined in the global scope'
+);
 ```
 
 You should define a constructor for `HelloWorldAccount` with a single parameter named `fields`.
 
 ```js
-
+const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+const constructor = classDeclaration?.body?.body?.find(m => {
+  return m.kind === 'constructor';
+});
+assert.exists(
+  constructor,
+  'You should define a constructor for `HelloWorldAccount`'
+);
+assert.equal(
+  constructor?.params?.length,
+  1,
+  'The constructor for `HelloWorldAccount` should take a single parameter'
+);
+assert.equal(
+  constructor?.params?.[0]?.name,
+  'fields',
+  'The constructor for `HelloWorldAccount` should take a single parameter named `fields`'
+);
 ```
 
-You should assign the value of `fields.counter` to `this.counter`.
+You should assign the value of `fields.counter` to `this.counter` only if `fields` is not `undefined`.
 
 ```js
+const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+const constructor = classDeclaration?.body?.body?.find(m => {
+  return m.kind === 'constructor';
+});
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 30
@@ -1803,13 +2315,114 @@ This is a _schema_ that matches the definition of the `GreetingAccount` struct i
 You should define a variable named `HelloWorldSchema`.
 
 ```js
-
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'HelloWorldSchema';
+});
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `HelloWorldSchema`'
+);
+assert.equal(
+  variableDeclaration?.scope?.join(),
+  'global',
+  '`HelloWorldSchema` should be defined in the global scope'
+);
 ```
 
 You should set the value of `HelloWorldSchema` to the given schema.
 
 ```js
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'HelloWorldSchema';
+});
+const newExpression = variableDeclaration?.declarations?.[0]?.init;
+assert.equal(
+  newExpression?.callee?.name,
+  'Map',
+  '`HelloWorldSchema` should use `Map(...)`'
+);
+assert.equal(
+  newExpression?.type,
+  'NewExpression',
+  '`HelloWorldSchema` should be set to `new Map(...)`'
+);
+const arrayExpressionOne = newExpression?.arguments?.[0];
+assert.equal(
+  arrayExpressionOne?.type,
+  'ArrayExpression',
+  '`HelloWorldSchema` should use `Map([ ... ])`'
+);
+const arrayExpressionTwo = arrayExpressionOne?.elements?.[0];
+assert.equal(
+  arrayExpressionTwo?.type,
+  'ArrayExpression',
+  '`HelloWorldSchema` should use `Map([ [ ... ] ])`'
+);
+assert.equal(
+  arrayExpressionTwo?.elements?.[0]?.name,
+  'HelloWorldAccount',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, ... ] ])`'
+);
+const objectExpression = arrayExpressionTwo?.elements?.[1];
+assert.equal(
+  objectExpression?.type,
+  'ObjectExpression',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { ... } ] ])`'
+);
+const kindObjectProperty = objectExpression?.properties?.[0];
+assert.equal(
+  kindObjectProperty?.key?.name,
+  'kind',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { kind: ... } ] ])`'
+);
+assert.equal(
+  kindObjectProperty?.value?.value,
+  'struct',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { kind: "struct" } ] ])`'
+);
+const fieldsObjectProperty = objectExpression?.properties?.[1];
+assert.equal(
+  fieldsObjectProperty?.key?.name,
+  'fields',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { fields: ... } ] ])`'
+);
+assert.equal(
+  fieldsObjectProperty?.value?.type,
+  'ArrayExpression',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { fields: [ ... ] } ] ])`'
+);
+const arrayExpressionThree = fieldsObjectProperty?.value?.elements?.[0];
+assert.equal(
+  arrayExpressionThree?.type,
+  'ArrayExpression',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { fields: [ [ ... ] ] } ] ])`'
+);
+assert.equal(
+  arrayExpressionThree?.elements?.[0]?.value,
+  'counter',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { fields: [ [ "counter", ... ] ] } ] ])`'
+);
+assert.equal(
+  arrayExpressionThree?.elements?.[1]?.value,
+  'u32',
+  '`HelloWorldSchema` should use `Map([ [ HelloWorldAccount, { fields: [ [ "counter", "u32" ] ] } ] ])`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 31
@@ -1823,7 +2436,22 @@ Within `createAccount`, replace the hard-coded value of `10000` with the `ACCOUN
 You should replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` constant.
 
 ```js
-
+const createAccountFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id?.name === 'createAccount';
+  });
+const variableDeclaration = createAccountFunctionDeclaration?.body?.body?.find(
+  v => {
+    return v.declarations?.[0]?.id?.name === 'lamports';
+  }
+);
+const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
+assert.equal(
+  awaitExpression?.argument?.arguments?.[0]?.id?.name,
+  'ACCOUNT_SIZE',
+  'You should replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` constant'
+);
 ```
 
 ## 32
