@@ -2278,6 +2278,23 @@ const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
 const constructor = classDeclaration?.body?.body?.find(m => {
   return m.kind === 'constructor';
 });
+// EXAMPLE node-bug
+const nodeBug = new __helpers.NodeBug(codestring);
+const constructorBlockStart = constructor.body.start;
+const constructorBlockEnd = constructor.body.end;
+nodeBug.debug(constructorBlockStart, 'console.log(fields);fields = undefined;');
+nodeBug.debug(constructorBlockEnd - 1, 'console.log(this.counter);');
+await nodeBug.inspect();
+
+// Easier for this case:
+const nodeBug = new __helpers.NodeBug(codestring);
+const classDeclarationEnd = classDeclaration.end;
+nodeBug.debug(
+  classDeclarationEnd + 1,
+  'const __test=new HelloWorldAccount({counter:1});console.log(__test.counter);'
+);
+const stdout = await node.inspect(); // Can get stdout from node.inspect() return
+console.log(node.stdout); // Or can get stdout from node.stdout
 ```
 
 ### --before-all--
@@ -2467,13 +2484,59 @@ Within `createAccount`, create a new `Transaction` instance and store it in a va
 You should create a new `Transaction` instance within `createAccount`.
 
 ```js
-
+const transactionNewExpression = babelisedCode
+  .getType('NewExpression')
+  .find(n => {
+    return n.callee?.name === 'Transaction';
+  });
+assert.exists(
+  transactionNewExpression,
+  'You should create a new `Transaction`'
+);
+assert.equal(
+  transactionNewExpression?.scope?.join(),
+  'global,createAccount',
+  'You should create a new `Transaction` instance within `createAccount`'
+);
 ```
 
 You should store the result in a variable named `transaction`.
 
 ```js
+const transactionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'transaction' &&
+      v.scope?.join() === 'global,createAccount'
+    );
+  });
+assert.exists(
+  transactionVariableDeclaration,
+  'You should define a variable named `transaction`'
+);
+const newExpression = transactionVariableDeclaration?.declarations?.[0]?.init;
+assert.equal(
+  newExpression?.callee?.name,
+  'Transaction',
+  '`transaction` should be initialised with `new Transaction()`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 33
@@ -2499,19 +2562,54 @@ Within `createAccount`, create a new variable named `instruction`, and set its v
 You should create a new variable named `instruction` within `createAccount`.
 
 ```js
-
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return (
+    v.declarations?.[0]?.id?.name === 'instruction' &&
+    v.scope?.join() === 'global,createAccount'
+  );
+});
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `instruction`'
+);
 ```
 
 You should set the value of `instruction` to the given object.
 
 ```js
+const instructionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'instruction' &&
+      v.scope?.join() === 'global,createAccount'
+    );
+  });
+const { end } = instructionVariableDeclaration;
 
+// TODO: use helpers to test actual values
 ```
 
 You should use the same seed you used in the `getAccountPubkey` function.
 
 ```js
+// TODO: use helpers to test actual values
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 34
@@ -2527,13 +2625,56 @@ This instruction should be created using the `createAccountWithSeed` function on
 You should call `transaction.add` within `createAccount`.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.property?.name === 'add' &&
+    e.expression?.callee?.object?.name === 'transaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+assert.exists(
+  expressionStatement,
+  'You should call `transaction.add` within `createAccount`'
+);
 ```
 
 You should call `SystemProgram.createAccountWithSeed` within `transaction.add`.
 
 ```js
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.property?.name === 'add' &&
+    e.expression?.callee?.object?.name === 'transaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+const callExpression = expressionStatement?.expression?.arguments?.[0];
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'SystemProgram',
+  'You should use `SystemProgram` within `transaction.add`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'createAccountWithSeed',
+  'You should call `SystemProgram.createAccountWithSeed` within `transaction.add`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 35
@@ -2547,7 +2688,45 @@ Within `createAccount`, pass `transaction` as the argument to the `createAccount
 You should have `SystemProgram.createAccountWithSeed(transaction)` within `transaction.add`.
 
 ```js
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.property?.name === 'add' &&
+    e.expression?.callee?.object?.name === 'transaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+const callExpression = expressionStatement?.expression?.arguments?.[0];
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'SystemProgram',
+  'You should use `SystemProgram` within `transaction.add`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'createAccountWithSeed',
+  'You should call `SystemProgram.createAccountWithSeed` within `transaction.add`'
+);
+assert.equal(
+  callExpression?.arguments?.[0]?.name,
+  'transaction',
+  'You should pass `transaction` as the argument to `SystemProgram.createAccountWithSeed`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 36
@@ -2567,31 +2746,114 @@ Await the `sendAndConfirmTransaction` function from `@solana/web3.js` to send th
 You should call `sendAndConfirmTransaction` within `createAccount`.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+assert.exists(
+  expressionStatement,
+  'You should call `sendAndConfirmTransaction` within `createAccount`'
+);
 ```
 
 You should pass `connection` as the first argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[0]?.name,
+  'connection',
+  'You should pass `connection` as the first argument to `sendAndConfirmTransaction`'
+);
 ```
 
 You should pass `transaction` as the second argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[1]?.name,
+  'transaction',
+  'You should pass `transaction` as the second argument to `sendAndConfirmTransaction`'
+);
 ```
 
 You should pass `[payer]` as the third argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[2]?.elements?.[0]?.name,
+  'payer',
+  'You should pass `[payer]` as the third argument to `sendAndConfirmTransaction`'
+);
 ```
 
 You should await the result of `sendAndConfirmTransaction`.
 
 ```js
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope?.join() === 'global,createAccount'
+  );
+});
+assert.equal(
+  expressionStatement?.expression?.await,
+  true,
+  'You should await the result of `sendAndConfirmTransaction`'
+);
+```
 
+You should import `sendAndConfirmTransaction` from `@solana/web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(e => {
+  return (
+    e.source?.value === '@solana/web3.js' &&
+    e.specifiers?.find(s => s.imported?.name === 'sendAndConfirmTransaction')
+  );
+});
+assert.exists(
+  importDeclaration,
+  'You should import `sendAndConfirmTransaction` from `@solana/web3.js`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -2695,40 +2957,139 @@ Within `checkProgram`, instead of throwing an error when the program data accoun
 
 ### --tests--
 
+You should no longer throw an error when the program data account is not found.
+
+```js
+const { checkProgram } = await import('');
+
+const connection = {
+  getAccountInfo: a => (a === 'accountPubkey' ? null : { executable: true })
+};
+const payer = {
+  publicKey: 'payer'
+};
+const programId = 'programId';
+const accountPubkey = 'accountPubkey';
+assert.doesNotThrow(
+  () => checkProgram(connection, payer, programId, accountPubkey),
+  'You should no longer throw an error when the program data account is not found'
+);
+```
+
 You should call `createAccount` within `checkProgram`.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+assert.exists(
+  expressionStatement,
+  'You should call `createAccount` within `checkProgram`'
+);
 ```
 
 You should pass `connection` as the first argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[0]?.name,
+  'connection',
+  'You should pass `connection` as the first argument'
+);
 ```
 
 You should pass `payer` as the second argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[1]?.name,
+  'payer',
+  'You should pass `payer` as the second argument'
+);
 ```
 
 You should pass `programId` as the third argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[2]?.name,
+  'programId',
+  'You should pass `programId` as the third argument'
+);
 ```
 
 You should pass `accountPubkey` as the fourth argument.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.arguments?.[3]?.name,
+  'accountPubkey',
+  'You should pass `accountPubkey` as the fourth argument'
+);
 ```
 
 You should await the result of `createAccount`.
 
 ```js
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return (
+    e.expression?.callee?.name === 'createAccount' &&
+    e.scope?.join() === 'global,checkProgram'
+  );
+});
+const callExpression = expressionStatement?.expression;
+assert.equal(
+  callExpression?.type,
+  'AwaitExpression',
+  'You should await the result of `createAccount`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 38
@@ -2751,43 +3112,109 @@ function sayHello(
 You should define a function with the handle `sayHello`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+assert.exists(
+  functionDeclaration,
+  'You should define a function with the handle `sayHello`'
+);
 ```
 
 You should define `sayHello` with a first parameter named `connection`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+const parameter = functionDeclaration?.params?.[0];
+assert.equal(
+  parameter?.name,
+  'connection',
+  'You should define `sayHello` with a first parameter named `connection`'
+);
 ```
 
 You should define `sayHello` with a second parameter named `payer`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+const parameter = functionDeclaration?.params?.[1];
+assert.equal(
+  parameter?.name,
+  'payer',
+  'You should define `sayHello` with a second parameter named `payer`'
+);
 ```
 
 You should define `sayHello` with a third parameter named `programId`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+const parameter = functionDeclaration?.params?.[2];
+assert.equal(
+  parameter?.name,
+  'programId',
+  'You should define `sayHello` with a third parameter named `programId`'
+);
 ```
 
 You should define `sayHello` with a fourth parameter named `accountPubkey`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+const parameter = functionDeclaration?.params?.[3];
+assert.equal(
+  parameter?.name,
+  'accountPubkey',
+  'You should define `sayHello` with a fourth parameter named `accountPubkey`'
+);
 ```
 
 You should define `sayHello` as an asynchronous function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'sayHello');
+assert.isTrue(
+  functionDeclaration?.async,
+  'You should define `sayHello` as an asynchronous function'
+);
 ```
 
 You should define `sayHello` to be a named export.
 
 ```js
+const exportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => e.declaration?.id?.name === 'sayHello');
+assert.exists(
+  exportNamedDeclaration,
+  'You should define `sayHello` to be a named export'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 39
@@ -2813,7 +3240,15 @@ _The `data` field is empty because the program does not do anything with it._
 You should define a variable named `transaction`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v => v.id.name === 'transaction' && v.scope?.join() === 'global,sayHello'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `transaction`, within `sayHello`'
+);
 ```
 
 You should give `transaction` a value of the above object literal.
