@@ -136,7 +136,7 @@ const babelisedCode = new __helpers.Babeliser(codeString);
 const mainExpressionStatement = babelisedCode.getExpressionStatement('main');
 assert.exists(mainExpressionStatement, 'You should call `main`');
 assert.equal(
-  mainExpressionStatement.expression.type,
+  mainExpressionStatement?.expression?.type,
   'AwaitExpression',
   'You should call `main` with `await`'
 );
@@ -743,8 +743,6 @@ export async function establishPayer() {
 
 The program id is its public key. You can derive it from the program's keypair.
 
-<!-- TODO: createKeypairFromFile is not a function from solana 🤦‍♂️ remove for utility -->
-
 Within `getProgramId`, declare a variable `secretKeyString`, and assign it the value of:
 
 ```js
@@ -775,7 +773,7 @@ You should define a variable named `secretKeyString`.
 const secretKeyStringVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.declarations[0].id.name === 'secretKeyString';
+    return v.declarations?.[0]?.id?.name === 'secretKeyString';
   });
 assert.exists(
   secretKeyStringVariableDeclaration,
@@ -789,16 +787,17 @@ assert.exists(
 const secretKeyStringVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.declarations[0].id.name === 'secretKeyString';
+    return v.declarations?.[0]?.id?.name === 'secretKeyString';
   });
-const awaitExpression = secretKeyStringVariableDeclaration.declarations[0].init;
+const awaitExpression =
+  secretKeyStringVariableDeclaration?.declarations?.[0]?.init;
 assert.exists(
   awaitExpression,
   '`secretKeyString` should be assigned the result of awaiting `readFile`'
 );
-const readFileCallExpression = awaitExpression.argument;
+const readFileCallExpression = awaitExpression?.argument;
 assert.equal(
-  readFileCallExpression.callee.name,
+  readFileCallExpression?.callee?.name,
   'readFile',
   '`secretKeyString` should be assigned the result of awaiting `readFile`'
 );
@@ -819,7 +818,7 @@ assert.exists(
 const firstArgument = readFileCallExpression.arguments?.[0]?.value;
 const urlToAssert = new URL(firstArgument, 'file://');
 assert.equal(
-  readFileCallExpression.arguments[0].value,
+  readFileCallExpression?.arguments?.[0]?.value,
   'dist/program/helloworld-keypair.json',
   'You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`'
 );
@@ -1112,7 +1111,7 @@ const getAccountPubkeyFunctionDeclaration = babelisedCode
     return f.id.name === 'getAccountPubkey';
   });
 assert.isTrue(
-  getAccountPubkeyFunctionDeclaration.async,
+  getAccountPubkeyFunctionDeclaration?.async,
   'You should define `getAccountPubkey` as asynchronous'
 );
 ```
@@ -1125,13 +1124,13 @@ const getAccountPubkeyFunctionDeclaration = babelisedCode
   .find(f => {
     return f.id.name === 'getAccountPubkey';
   });
-const firstParameter = getAccountPubkeyFunctionDeclaration.params[0];
+const firstParameter = getAccountPubkeyFunctionDeclaration?.params?.[0];
 assert.exists(
   firstParameter,
   'You should define `getAccountPubkey` to accept a first argument'
 );
 assert.equal(
-  firstParameter.name,
+  firstParameter?.name,
   'payer',
   'You should define `getAccountPubkey` with a first parameter `payer`'
 );
@@ -1145,13 +1144,13 @@ const getAccountPubkeyFunctionDeclaration = babelisedCode
   .find(f => {
     return f.id.name === 'getAccountPubkey';
   });
-const secondParameter = getAccountPubkeyFunctionDeclaration.params[1];
+const secondParameter = getAccountPubkeyFunctionDeclaration?.params?.[1];
 assert.exists(
   secondParameter,
   'You should define `getAccountPubkey` to accept a second argument'
 );
 assert.equal(
-  secondParameter.name,
+  secondParameter?.name,
   'programId',
   'You should define `getAccountPubkey` with a second parameter `programId`'
 );
@@ -4134,7 +4133,7 @@ const expressionStatement = babelisedCode
   .find(
     e =>
       e.expression.callee.name === 'console.log' &&
-      e.expression.arguments[0].name === 'helloCount'
+      e.expression.arguments?.[0]?.name === 'helloCount'
   );
 assert.exists(
   expressionStatement,
@@ -4169,7 +4168,12 @@ Use Nodejs to execute the `main.js` script.
 You should run `node src/client/main.js` in the terminal.
 
 ```js
-
+const lastCommand = __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'node src/client/main.js',
+  'You should run `node src/client/main.js` in the terminal'
+);
 ```
 
 ## 55
