@@ -4172,4 +4172,23 @@ You should run `node src/client/main.js` in the terminal.
 
 ```
 
+## 55
+
+### --description--
+
+Contratulations on finishing this project! Feel free to play with your code.
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
+```
+
 ## --fcc-end
