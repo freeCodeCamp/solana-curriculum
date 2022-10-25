@@ -2278,23 +2278,25 @@ const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
 const constructor = classDeclaration?.body?.body?.find(m => {
   return m.kind === 'constructor';
 });
-// EXAMPLE node-bug
-const nodeBug = new __helpers.NodeBug(codestring);
-const constructorBlockStart = constructor.body.start;
-const constructorBlockEnd = constructor.body.end;
-nodeBug.debug(constructorBlockStart, 'console.log(fields);fields = undefined;');
-nodeBug.debug(constructorBlockEnd - 1, 'console.log(this.counter);');
-await nodeBug.inspect();
 
-// Easier for this case:
-const nodeBug = new __helpers.NodeBug(codestring);
-const classDeclarationEnd = classDeclaration.end;
-nodeBug.debug(
-  classDeclarationEnd + 1,
-  'const __test=new HelloWorldAccount({counter:1});console.log(__test.counter);'
-);
-const stdout = await node.inspect(); // Can get stdout from node.inspect() return
-console.log(node.stdout); // Or can get stdout from node.stdout
+assert.fail('TODO: node-bug');
+// EXAMPLE node-bug
+// const nodeBug = new __helpers.NodeBug(codestring);
+// const constructorBlockStart = constructor.body.start;
+// const constructorBlockEnd = constructor.body.end;
+// nodeBug.debug(constructorBlockStart, 'console.log(fields);fields = undefined;');
+// nodeBug.debug(constructorBlockEnd - 1, 'console.log(this.counter);');
+// await nodeBug.inspect();
+
+// // Easier for this case:
+// const nodeBug = new __helpers.NodeBug(codestring);
+// const classDeclarationEnd = classDeclaration.end;
+// nodeBug.debug(
+//   classDeclarationEnd + 1,
+//   'const __test=new HelloWorldAccount({counter:1});console.log(__test.counter);'
+// );
+// const stdout = await node.inspect(); // Can get stdout from node.inspect() return
+// console.log(node.stdout); // Or can get stdout from node.stdout
 ```
 
 ### --before-all--
@@ -2471,6 +2473,22 @@ assert.equal(
 );
 ```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
 ## 32
 
 ### --description--
@@ -2587,13 +2605,13 @@ const instructionVariableDeclaration = babelisedCode
   });
 const { end } = instructionVariableDeclaration;
 
-// TODO: use helpers to test actual values
+assert.fail('TODO: use node-bug');
 ```
 
 You should use the same seed you used in the `getAccountPubkey` function.
 
 ```js
-// TODO: use helpers to test actual values
+assert.fail('TODO: use node-bug');
 ```
 
 ### --before-all--
@@ -2960,7 +2978,9 @@ Within `checkProgram`, instead of throwing an error when the program data accoun
 You should no longer throw an error when the program data account is not found.
 
 ```js
-const { checkProgram } = await import('');
+const { checkProgram } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
 
 const connection = {
   getAccountInfo: a => (a === 'accountPubkey' ? null : { executable: true })
@@ -3254,7 +3274,7 @@ assert.exists(
 You should give `transaction` a value of the above object literal.
 
 ```js
-
+assert.fail('TODO: test interpretted value');
 ```
 
 ## 40
@@ -3268,13 +3288,54 @@ Within `sayHello`, define an `instruction` variable to be a new instance `Transa
 You should define a variable named `instruction`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v => v.id.name === 'instruction' && v.scope?.join() === 'global,sayHello'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `instruction`, within `sayHello`'
+);
 ```
 
 You should give `instruction` a value of `new TransactionInstruction(transaction)`.
 
 ```js
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v => v.id.name === 'instruction' && v.scope?.join() === 'global,sayHello'
+  );
+const newExpression = variableDeclaration?.init;
+assert.equal(
+  newExpression?.callee?.name,
+  'TransactionInstruction',
+  'You should give `instruction` a value of `new TransactionInstruction(transaction)`'
+);
 
+const transactionArgument = newExpression?.arguments?.[0];
+assert.equal(
+  transactionArgument?.name,
+  'transaction',
+  'You should give `instruction` a value of `new TransactionInstruction(transaction)`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 41
@@ -3288,13 +3349,37 @@ Now, send and confirm the transaction.
 You should call `sendAndConfirmTransaction` within `sayHello`.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return e.expression?.argument?.callee?.name === 'sendAndConfirmTransaction';
+});
+assert.exists(
+  expressionStatement,
+  'You should call `sendAndConfirmTransaction` within `sayHello`'
+);
 ```
 
 Calling `sayHello` should send the correct transaction with `sendAndConfirmTransaction(connection, new Transaction().add(instruction), [payer])`.
 
 ```js
+assert.fail(
+  'TODO: use node-bug to test function. spy on sendAndConfirmTransaction'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 42
@@ -3308,19 +3393,60 @@ Within `main.js` in the `main` function, create a variable named `programId` and
 You should define a variable named `programId`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'programId' && v.scope?.join() === 'global,main');
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `programId`, within `main`'
+);
 ```
 
 You should assign `programId` the value of `await getProgramId()`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'programId' && v.scope?.join() === 'global,main');
+const awaitExpression = variableDeclaration?.init;
+assert.equal(awaitExpression?.type, 'AwaitExpression');
+assert.equal(
+  awaitExpression?.argument?.callee?.name,
+  'getProgramId',
+  'You should assign `programId` the value of `await getProgramId()`'
+);
 ```
 
 You should import `getProgramId` from `./hello-world.js`.
 
 ```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+assert.exists(importDeclaration, 'You should import from `./hello-world.js`');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'getProgramId'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `getProgramId` from `./hello-world.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 43
@@ -3334,19 +3460,60 @@ Within `main`, create a variable named `payer` and use the function you created 
 You should define a variable named `payer`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'payer' && v.scope?.join() === 'global,main');
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `payer`, within `main`'
+);
 ```
 
 You should assign `payer` the value of `await establishPayer(connection)`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'payer' && v.scope?.join() === 'global,main');
+const awaitExpression = variableDeclaration?.init;
+assert.equal(awaitExpression?.type, 'AwaitExpression');
+assert.equal(
+  awaitExpression?.argument?.callee?.name,
+  'establishPayer',
+  'You should assign `payer` the value of `await establishPayer(connection)`'
+);
 ```
 
 You should import `establishPayer` from `./hello-world.js`.
 
 ```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+assert.exists(importDeclaration, 'You should import from `./hello-world.js`');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'establishPayer'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `establishPayer` from `./hello-world.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 44
@@ -3360,19 +3527,64 @@ Within `main`, create a variable named `accountPubkey` and use the function you 
 You should define a variable named `accountPubkey`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v => v.id.name === 'accountPubkey' && v.scope?.join() === 'global,main'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `accountPubkey`, within `main`'
+);
 ```
 
 You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v => v.id.name === 'accountPubkey' && v.scope?.join() === 'global,main'
+  );
+const awaitExpression = variableDeclaration?.init;
+assert.equal(awaitExpression?.type, 'AwaitExpression');
+assert.equal(
+  awaitExpression?.argument?.callee?.name,
+  'getAccountPubkey',
+  'You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`'
+);
 ```
 
 You should import `getAccountPubkey` from `./hello-world.js`.
 
 ```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+assert.exists(importDeclaration, 'You should import from `./hello-world.js`');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'getAccountPubkey'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `getAccountPubkey` from `./hello-world.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 45
@@ -3386,7 +3598,67 @@ Within `main`, ensure the program account is deployed, and the program data acco
 You should call `await checkProgram(connection, payer, programId, accountPubkey)` within `main`.
 
 ```js
+const expressionStatement = babelisedCode
+  .getExpressionStatements()
+  .find(e => e.expression?.argument?.callee?.name === 'checkProgram');
+assert.exists(expressionStatement, 'You should call `checkProgram`');
+assert.equal(
+  expressionStatement?.scope?.join(),
+  'global,main',
+  'You should call `checkProgram` within `main`'
+);
+const awaitExpression = expressionStatement?.expression;
+assert.equal(awaitExpression?.type, 'AwaitExpression');
+const arguments = awaitExpression?.argument?.arguments;
+const [connection, payer, programId, accountPubkey] = arguments;
+assert.equal(
+  connection?.name,
+  'connection',
+  '`connection` should be the first argument'
+);
+assert.equal(payer?.name, 'payer', '`payer` should be the second argument');
+assert.equal(
+  programId?.name,
+  'programId',
+  '`programId` should be the third argument'
+);
+assert.equal(
+  accountPubkey?.name,
+  'accountPubkey',
+  '`accountPubkey` should be the fourth argument'
+);
+```
 
+You should import `checkProgram` from `./hello-world.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+assert.exists(importDeclaration, 'You should import from `./hello-world.js`');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'checkProgram'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `checkProgram` from `./hello-world.js`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 46
@@ -3400,10 +3672,89 @@ Within `main`, say hello to the program.
 You should call `await sayHello(connection, payer, programId, accountPubkey)` within `main`.
 
 ```js
+const expressionStatement = babelisedCode
+  .getExpressionStatements()
+  .find(e => e.expression?.argument?.callee?.name === 'sayHello');
+assert.exists(expressionStatement, 'You should call `sayHello`');
+assert.equal(
+  expressionStatement?.scope?.join(),
+  'global,main',
+  'You should call `sayHello` within `main`'
+);
+const awaitExpression = expressionStatement?.expression;
+assert.equal(awaitExpression?.type, 'AwaitExpression');
+const arguments = awaitExpression?.argument?.arguments;
+const [connection, payer, programId, accountPubkey] = arguments;
+assert.equal(
+  connection?.name,
+  'connection',
+  '`connection` should be the first argument'
+);
+assert.equal(payer?.name, 'payer', '`payer` should be the second argument');
+assert.equal(
+  programId?.name,
+  'programId',
+  '`programId` should be the third argument'
+);
+assert.equal(
+  accountPubkey?.name,
+  'accountPubkey',
+  '`accountPubkey` should be the fourth argument'
+);
+```
 
+You should import `sayHello` from `./hello-world.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+assert.exists(importDeclaration, 'You should import from `./hello-world.js`');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'sayHello'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `sayHello` from `./hello-world.js`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 47
+
+### --description--
+
+Test your script by using `node` to run it.
+
+### --tests--
+
+You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const lastCommand = __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'node src/client/main.js',
+  'You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory'
+);
+```
+
+## 48
 
 ### --description--
 
@@ -3423,54 +3774,137 @@ function getHelloCount(
 You should define a function with the handle `getHelloCount`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getHelloCount');
+assert.exists(
+  functionDeclaration,
+  'You should define a function with the handle `getHelloCount`'
+);
 ```
 
 You should define `getHelloCount` with a first parameter named `connection`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getHelloCount');
+const [connection] = functionDeclaration?.params;
+assert.equal(
+  connection?.name,
+  'connection',
+  'You should define `getHelloCount` with a first parameter named `connection`'
+);
 ```
 
 You should define `getHelloCount` with a second parameter named `accountPubkey`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getHelloCount');
+const [, accountPubkey] = functionDeclaration?.params;
+assert.equal(
+  accountPubkey?.name,
+  'accountPubkey',
+  'You should define `getHelloCount` with a second parameter named `accountPubkey`'
+);
 ```
 
 You should define `getHelloCount` as an asynchronous function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getHelloCount');
+assert.isTrue(
+  functionDeclaration?.async,
+  'You should define `getHelloCount` as an asynchronous function'
+);
 ```
 
 You should define `getHelloCount` to be a named export.
 
 ```js
-
+const exportNamedDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => e.declaration?.id?.name === 'getHelloCount');
+assert.exists(
+  exportNamedDeclaration,
+  'You should define `getHelloCount` to be a named export'
+);
 ```
 
-## 48
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 49
 
 ### --description--
 
-Within `getHelloCount`, create a `accountInfo` variable with the correct value.
+Within `getHelloCount`, create an `accountInfo` variable with a value of the account info for the public key passed as a parameter.
 
 ### --tests--
 
 You should define a variable named `accountInfo`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'accountInfo' &&
+      v.scope.join() === 'global,getHelloCount'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `accountInfo`'
+);
 ```
 
 You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'accountInfo' &&
+      v.scope.join() === 'global,getHelloCount'
+  );
+const awaitExpression = variableDeclaration?.declarations[0]?.init;
+const callExpression = awaitExpression?.argument;
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'connection',
+  'You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'getAccountInfo',
+  'You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`'
+);
+assert.equal(
+  callExpression?.arguments[0]?.name,
+  'accountPubkey',
+  'You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`'
+);
 ```
 
-## 49
+## 50
 
 ### --description--
 
@@ -3487,16 +3921,74 @@ borsh.deserialize(<SCHEMA>, <CLASS_TYPE>, <ACCOUNT_DATA>)
 You should define a variable named `greeting`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'greeting' &&
+      v.scope.join() === 'global,getHelloCount'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `greeting`'
+);
 ```
 
 You should give `greeting` a value of `borsh.deserialize(HelloWorldSchema, HelloWorldAccount, accountInfo.data)`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'greeting' &&
+      v.scope.join() === 'global,getHelloCount'
+  );
+const callExpression = variableDeclaration?.declarations[0]?.init;
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'borsh',
+  'You should give `greeting` a value of `borsh...()`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'deserialize',
+  'You should give `greeting` a value of `borsh.deserialize()`'
+);
+assert.equal(
+  callExpression?.arguments[0]?.name,
+  'HelloWorldSchema',
+  'You should give `greeting` a value of `borsh.deserialize(HelloWorldSchema)`'
+);
+assert.equal(
+  callExpression?.arguments[1]?.name,
+  'HelloWorldAccount',
+  'You should give `greeting` a value of `borsh.deserialize(, HelloWorldAccount)`'
+);
+assert.equal(
+  callExpression?.arguments[2]?.object?.name,
+  'accountInfo',
+  'You should give `greeting` a value of `borsh.deserialize(, , accountInfo.data)`'
+);
 ```
 
-## 50
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 51
 
 ### --description--
 
@@ -3507,10 +3999,42 @@ Within `getHelloCount`, return the `counter` property of the `greeting` variable
 You should return the `counter` property of `greeting`.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getHelloCount');
+const returnStatement = functionDeclaration?.body?.body?.find(
+  b => b.type === 'ReturnStatement'
+);
+assert.exists(returnStatement, '`getHelloCount` should return');
+assert.equal(
+  returnStatement?.argument?.object?.name,
+  'greeting',
+  'You should return the `counter` property of `greeting`'
+);
+assert.equal(
+  returnStatement?.argument?.property?.name,
+  'counter',
+  'You should return the `counter` property of `greeting`'
+);
 ```
 
-## 51
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 52
 
 ### --description--
 
@@ -3521,22 +4045,80 @@ Within `main.js` in the `main` function, get the hello count, and store it in a 
 You should define a variable named `helloCount`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'helloCount' &&
+      v.scope.join() === 'global,main'
+  );
+assert.exists(
+  variableDeclaration,
+  'You should define a variable named `helloCount`'
+);
 ```
 
 You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(
+    v =>
+      v.declarations[0].id.name === 'helloCount' &&
+      v.scope.join() === 'global,main'
+  );
+const awaitExpression = variableDeclaration?.declarations[0]?.init;
+const callExpression = awaitExpression?.argument;
+assert.equal(
+  callExpression?.callee?.name,
+  'getHelloCount',
+  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+);
+assert.equal(
+  callExpression?.arguments[0]?.name,
+  'connection',
+  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+);
+assert.equal(
+  callExpression?.arguments[1]?.name,
+  'accountPubkey',
+  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+);
 ```
 
 You should import `getHelloCount` from `./hello-world.js`.
 
 ```js
-
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => i.source.value === './hello-world.js');
+const importSpecifier = importDeclaration?.specifiers?.find(
+  s => s.imported.name === 'getHelloCount'
+);
+assert.exists(
+  importSpecifier,
+  'You should import `getHelloCount` from `./hello-world.js`'
+);
 ```
 
-## 52
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 53
 
 ### --description--
 
@@ -3547,10 +4129,36 @@ Within `main`, log the `helloCount` variable value.
 You should log the `helloCount` variable value.
 
 ```js
-
+const expressionStatement = babelisedCode
+  .getExpressionStatements()
+  .find(
+    e =>
+      e.expression.callee.name === 'console.log' &&
+      e.expression.arguments[0].name === 'helloCount'
+  );
+assert.exists(
+  expressionStatement,
+  'You should log the `helloCount` variable value'
+);
 ```
 
-## 53
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 54
 
 ### --description--
 
