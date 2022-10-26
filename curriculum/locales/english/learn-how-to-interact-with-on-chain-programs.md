@@ -4048,7 +4048,7 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
     v =>
-      v.declarations[0].id.name === 'helloCount' &&
+      v.declarations?.[0]?.id?.name === 'helloCount' &&
       v.scope.join() === 'global,main'
   );
 assert.exists(
@@ -4064,7 +4064,7 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
     v =>
-      v.declarations[0].id.name === 'helloCount' &&
+      v.declarations?.[0]?.id?.name === 'helloCount' &&
       v.scope.join() === 'global,main'
   );
 const awaitExpression = variableDeclaration?.declarations[0]?.init;
@@ -4072,17 +4072,17 @@ const callExpression = awaitExpression?.argument;
 assert.equal(
   callExpression?.callee?.name,
   'getHelloCount',
-  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+  'You should assign `helloCount` the value of `await getHelloCount`'
 );
 assert.equal(
   callExpression?.arguments[0]?.name,
   'connection',
-  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+  'You should assign `helloCount` the value of `await getHelloCount(connection, ...)`'
 );
 assert.equal(
   callExpression?.arguments[1]?.name,
   'accountPubkey',
-  'You should assign `helloCount` the value of `await getHelloCount(connection, accountPubkey)`'
+  'You should assign `helloCount` the value of `await getHelloCount(..., accountPubkey)`'
 );
 ```
 
@@ -4128,13 +4128,21 @@ Within `main`, log the `helloCount` variable value.
 You should log the `helloCount` variable value.
 
 ```js
-const expressionStatement = babelisedCode
-  .getExpressionStatements()
-  .find(
-    e =>
-      e.expression.callee.name === 'console.log' &&
-      e.expression.arguments?.[0]?.name === 'helloCount'
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  const callExpression = e.expression;
+  const object = callExpression?.callee?.object;
+  const property = callExpression?.callee?.property;
+  const helloCountInArgs = callExpression?.arguments?.some(
+    a =>
+      a.name === 'helloCount' ||
+      a.expressions?.find(e => e.name === 'helloCount')
   );
+  return (
+    object?.name === 'console' &&
+    ['log', 'info', 'error', 'debug', 'table'].includes(property?.name) &&
+    helloCountInArgs
+  );
+});
 assert.exists(
   expressionStatement,
   'You should log the `helloCount` variable value'
