@@ -63,7 +63,7 @@ npm run build
 
 ### --description--
 
-Within the `src/client` directory, create a file named `main.js` which will be the entrypoint of your program.
+Within the `src/client` directory, create a file named `main.js` which will be the entrypoint of your script.
 
 ### --tests--
 
@@ -99,7 +99,9 @@ const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const mainFunctionDeclaration = babelisedCode.getFunctionDeclaration('main');
+const mainFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'main');
 assert.exists(
   mainFunctionDeclaration,
   'You should have a function named `main`'
@@ -176,9 +178,11 @@ assert.equal(
   'global.main',
   'The console.log should be within the main function'
 );
-assert.equal(
-  consoleLogExpressionStatement.expression?.arguments?.[0]?.value,
-  "Saying 'hello' to a Solana account",
+const arg = consoleLogExpressionStatement?.expression?.arguments?.[0];
+const code = babelisedCode.generateCode(arg);
+assert.match(
+  code,
+  /("|'|`)Saying ("|'|`)hello\2 to a Solana account\1/,
   'You should have `console.log("Saying \'hello\' to a Solana account")`'
 );
 ```
@@ -231,7 +235,7 @@ await main();
 
 ### --description--
 
-Within `hello-world.js`, export an asynchronous function named `establishConnection`.
+Within `hello-world.js`, export a function named `establishConnection`.
 
 ### --tests--
 
@@ -246,24 +250,6 @@ const establishConnectionFunctionDeclaration = babelisedCode
 assert.exists(
   establishConnectionFunctionDeclaration,
   'You should define a function named `establishConnection` in `src/client/hello-world.js`'
-);
-```
-
-You should define `establishConnection` as being asynchronous.
-
-```js
-const establishConnectionFunctionDeclaration = babelisedCode
-  .getFunctionDeclarations()
-  .find(f => {
-    return f.id.name === 'establishConnection';
-  });
-assert.exists(
-  establishConnectionFunctionDeclaration,
-  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
-);
-assert.isTrue(
-  establishConnectionFunctionDeclaration.async,
-  'establishConnection should be an asynchronous function'
 );
 ```
 
@@ -366,7 +352,7 @@ assert.isAtLeast(
 #### --"src/client/hello-world.js"--
 
 ```js
-export async function establishConnection() {}
+export function establishConnection() {}
 ```
 
 ## 10
@@ -429,26 +415,18 @@ assert.equal(
 Your `establishConnection` function should return the new connection.
 
 ```js
-const establishConnectionFunctionDeclaration = babelisedCode
-  .getFunctionDeclarations()
-  .find(f => {
-    return f.id.name === 'establishConnection';
-  });
-assert.exists(
-  establishConnectionFunctionDeclaration,
-  'You should define a function named `establishConnection` in `src/client/hello-world.js`'
+const { Connection } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/node_modules/@solana/web3.js/lib/index.cjs.js'
 );
-const returnStatement = establishConnectionFunctionDeclaration.body.body.find(
-  s => {
-    return s.type === 'ReturnStatement';
-  }
+const { establishConnection } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
-assert.exists(
-  returnStatement,
+const connection = await establishConnection();
+assert.instanceOf(
+  connection,
+  Connection,
   'Your `establishConnection` function should return the new connection'
 );
-
-// TODO: Can probably just run the function to see what it returns...
 ```
 
 ### --before-all--
@@ -483,7 +461,7 @@ Within the `main` function in `main.js`, make a call to `establishConnection`, a
 
 ### --tests--
 
-You should have `const connection = await establishConnection()` in `main.js`.
+You should have `const connection = establishConnection()` in `main.js`.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -504,15 +482,15 @@ assert.equal(
   'global,main',
   'You should declare the `connection` variable within the `main` function'
 );
-const awaitExpression = connectionVariableDeclaration?.declarations?.[0]?.init;
+const init = connectionVariableDeclaration?.declarations?.[0]?.init;
 assert.exists(
-  awaitExpression,
-  'You should give `connection` a value of `await establishConnection()`'
+  init,
+  'You should initialise the `connection` variable in `main.js`'
 );
 assert.equal(
-  awaitExpression?.argument?.callee?.name,
+  init?.callee?.name,
   'establishConnection',
-  'You should give `connection` a value of `await establishConnection()`'
+  'You should initialise the `connection` variable with `establishConnection()`'
 );
 ```
 
@@ -523,7 +501,7 @@ assert.equal(
 ```js
 import { Connection } from '@solana/web3.js';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 ```
@@ -534,7 +512,7 @@ export async function establishConnection() {
 
 Creating transactions takes compute power. So, an account has to pay for any transaction made.
 
-Within `hello-world.js`, export an asynchronous function named `establishPayer`.
+Within `hello-world.js`, export a function named `establishPayer`.
 
 ### --tests--
 
@@ -549,20 +527,6 @@ const establishPayerFunctionDeclaration = babelisedCode
 assert.exists(
   establishPayerFunctionDeclaration,
   'You should define a function named `establishPayer` in `src/client/hello-world.js`'
-);
-```
-
-You should define `establishPayer` as being asynchronous.
-
-```js
-const establishPayerFunctionDeclaration = babelisedCode
-  .getFunctionDeclarations()
-  .find(f => {
-    return f.id?.name === 'establishPayer';
-  });
-assert.isTrue(
-  establishPayerFunctionDeclaration.async,
-  'You should define `establishPayer` as being asynchronous'
 );
 ```
 
@@ -602,9 +566,11 @@ delete global.babelisedCode;
 #### --"src/client/main.js"--
 
 ```js
+import { establishConnection } from './hello-world.js';
+
 async function main() {
   console.log("Saying 'hello' to a Solana account");
-  const connection = await establishConnection();
+  const connection = establishConnection();
 }
 
 await main();
@@ -645,11 +611,11 @@ assert.instanceOf(
 ```js
 import { Connection } from '@solana/web3.js';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {}
+export function establishPayer() {}
 ```
 
 ## 14
@@ -728,11 +694,11 @@ delete global.babelisedCode;
 ```js
 import { Connection, Keypair } from '@solana/web3.js';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 ```
@@ -749,7 +715,7 @@ Within `getProgramId`, declare a variable `secretKeyString`, and assign it the v
 await readFile(<PATH_TO_KEYPAIR_JSON>, 'utf8');
 ```
 
-Where `<PATH_TO_KEYPAIR_JSON>` is the path to the keypair json file.
+Where `<PATH_TO_KEYPAIR_JSON>` is the keypair json file path (relative to this project's root) created when building the smart contract.
 
 ### --tests--
 
@@ -847,11 +813,11 @@ delete global.babelisedCode;
 ```js
 import { Connection, Keypair } from '@solana/web3.js';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
@@ -950,6 +916,30 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+}
+```
+
 ## 17
 
 ### --description--
@@ -1032,6 +1022,31 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+}
+```
+
 ## 18
 
 ### --description--
@@ -1076,6 +1091,32 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+}
 ```
 
 ## 19
@@ -1191,20 +1232,21 @@ delete global.babelisedCode;
 #### --"src/client/hello-world.js"--
 
 ```js
-import { Connection, Keypair, createKeypairFromFile } from '@solana/web3.js';
+import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
   const secretKeyString = await readFile(
     'dist/program/helloworld-keypair.json',
-    { encoding: 'utf8' }
+    'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
   const keypair = Keypair.fromSecretKey(secretKey);
@@ -1232,7 +1274,7 @@ You should import `PublicKey` from `@solana/web3.js`.
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source?.value === '@solana/web3.js';
 });
-const specifier = importDeclaration.specifiers.find(s => {
+const specifier = importDeclaration?.specifiers?.find(s => {
   return s.local?.name === 'PublicKey';
 });
 assert.exists(
@@ -1276,7 +1318,7 @@ const publicKeyCallExpression = babelisedCode
 const payerPropertyAccessExpression = publicKeyCallExpression?.arguments?.[0];
 assert.exists(
   payerPropertyAccessExpression,
-  'You should pass `payer.publicKey` as the first argument to `createWithSeed`'
+  'You should pass a the first argument to `createWithSeed`'
 );
 assert.equal(
   payerPropertyAccessExpression?.object?.name,
@@ -1284,7 +1326,7 @@ assert.equal(
   'You should pass `payer.publicKey` as the first argument to `createWithSeed`'
 );
 assert.equal(
-  payerPropertyAccessExpression.property.name,
+  payerPropertyAccessExpression?.property?.name,
   'publicKey',
   'You should call `publicKey` on `payer`'
 );
@@ -1301,7 +1343,7 @@ const createWithSeedCallExpression = babelisedCode
 const secondArgument = createWithSeedCallExpression?.arguments?.[1];
 assert.exists(
   secondArgument,
-  'You should pass a string as the second argument to `createWithSeed`'
+  'You should pass a second argument to `createWithSeed`'
 );
 assert.equal(
   secondArgument.type,
@@ -1319,10 +1361,10 @@ const createWithSeedCallExpression = babelisedCode
     return c.callee?.property?.name === 'createWithSeed';
   });
 const programIdPropertyAccessExpression =
-  publicKeyCallExpression?.arguments?.[2];
+  createWithSeedCallExpression?.arguments?.[2];
 assert.exists(
   programIdPropertyAccessExpression,
-  'You should pass `programId` as the third argument to `createWithSeed`'
+  'You should pass a third argument to `createWithSeed`'
 );
 assert.equal(
   programIdPropertyAccessExpression?.name,
@@ -1345,10 +1387,22 @@ const returnStatement = getAccountPubkeyFunctionDeclaration?.body?.body?.find(
   }
 );
 assert.exists(returnStatement, 'You should return within `getAccountPubkey`');
+const awaitExpression = returnStatement?.argument;
 assert.equal(
-  returnStatement?.argument?.callee?.property?.name,
+  awaitExpression?.type,
+  'AwaitExpression',
+  'You should await the result of `PublicKey.createWithSeed`'
+);
+const memberExpression = awaitExpression?.argument?.callee;
+assert.equal(
+  memberExpression?.object?.name,
+  'PublicKey',
+  'You should return `await PublicKey...`'
+);
+assert.equal(
+  memberExpression?.property?.name,
   'createWithSeed',
-  'You should return the result of `await PublicKey.createWithSeed`'
+  'You should return `PublicKey.createWithSeed(...)`'
 );
 ```
 
@@ -1373,20 +1427,25 @@ delete global.babelisedCode;
 #### --"src/client/hello-world.js"--
 
 ```js
-import { Connection, Keypair, createKeypairFromFile } from '@solana/web3.js';
+import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {}
@@ -1509,9 +1568,9 @@ You should define `checkProgram` to be a named export.
 
 ```js
 const exportNamedDeclaration = babelisedCode
-  .getFunctionDeclarations()
-  .find(e => {
-    return e.declaration?.id?.name === 'checkProgram';
+  .getType('ExportNamedDeclaration')
+  .find(d => {
+    return d.declaration?.id?.name === 'checkProgram';
   });
 assert.exists(
   exportNamedDeclaration,
@@ -1554,29 +1613,33 @@ delete global.babelisedCode;
 #### --"src/client/hello-world.js"--
 
 ```js
-import {
-  Connection,
-  Keypair,
-  createKeypairFromFile,
-  PublicKey
-} from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 ```
 
@@ -1596,16 +1659,26 @@ If the result is equal to `null`, throw an `Error` with a string message.
 const { checkProgram } = await __helpers.importSansCache(
   '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
-const connection = {
-  getAccountInfo: async () => null
-};
 const payer = {};
 const programId = {};
-const accountPubkey = {};
-assert.throws(
-  () => checkProgram(connection, payer, programId, accountPubkey),
-  Error
-);
+const accountPubkey = 'accountPubkey';
+const connection = {
+  getAccountInfo: async a =>
+    a === accountPubkey
+      ? assert.fail('incorrect parameter passed to `getAccountInfo`')
+      : null
+};
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+  assert.fail(
+    '`checkProgram` should throw an `Error` instance, if `await connection.getAccountInfo(programId)` returns `null`'
+  );
+} catch (e) {
+  if (e instanceof AssertionError) {
+    throw e;
+  }
+  assert.instanceOf(e, Error);
+}
 ```
 
 ### --seed--
@@ -1613,29 +1686,33 @@ assert.throws(
 #### --"src/client/hello-world.js"--
 
 ```js
-import {
-  Connection,
-  Keypair,
-  createKeypairFromFile,
-  PublicKey
-} from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 
 export async function checkProgram(
@@ -1662,16 +1739,35 @@ const { checkProgram } = await __helpers.importSansCache(
 );
 const connection = {
   getAccountInfo: async () => ({
-    executable: false
+    executable: true
   })
 };
 const payer = {};
 const programId = {};
 const accountPubkey = {};
-assert.throws(
-  () => checkProgram(connection, payer, programId, accountPubkey),
-  Error
-);
+// Should NOT throw if is executable
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+} catch (e) {
+  assert.fail(
+    '`checkProgram` should NOT throw an `Error` instance, if the program account `executable` property IS `true`'
+  );
+}
+// Should throw if is NOT executable
+connection.getAccountInfo = async () => ({
+  executable: false
+});
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+  assert.fail(
+    '`checkProgram` should throw an `Error` instance, if the program account `executable` property equals `false`'
+  );
+} catch (e) {
+  if (e instanceof AssertionError) {
+    throw e;
+  }
+  assert.instanceOf(e, Error);
+}
 ```
 
 ### --seed--
@@ -1679,29 +1775,33 @@ assert.throws(
 #### --"src/client/hello-world.js"--
 
 ```js
-import {
-  Connection,
-  Keypair,
-  createKeypairFromFile,
-  PublicKey
-} from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 
 export async function checkProgram(
@@ -1710,9 +1810,9 @@ export async function checkProgram(
   programId,
   accountPubkey
 ) {
-  const programInfo = await connection.getAccountInfo(programId);
-  if (programInfo === null) {
-    throw new Error('Program account does not exist');
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
   }
 }
 ```
@@ -1743,11 +1843,27 @@ const connection = {
 };
 const payer = {};
 const programId = false;
-const accountPubkey = true;
-assert.throws(
-  () => checkProgram(connection, payer, programId, accountPubkey),
-  Error
-);
+let accountPubkey = true;
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+  assert.fail(
+    '`checkProgram` should throw an `Error` instance, if the program data account does not exist'
+  );
+} catch (e) {
+  if (e instanceof AssertionError) {
+    throw e;
+  }
+  assert.instanceOf(e, Error);
+}
+// Should NOT throw if data account exists
+accountPubkey = false;
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+} catch (e) {
+  assert.fail(
+    '`checkProgram` should NOT throw an `Error` instance, if the program **data account** exists'
+  );
+}
 ```
 
 ### --seed--
@@ -1755,29 +1871,33 @@ assert.throws(
 #### --"src/client/hello-world.js"--
 
 ```js
-import {
-  Connection,
-  Keypair,
-  createKeypairFromFile,
-  PublicKey
-} from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 
 export async function checkProgram(
@@ -1786,11 +1906,11 @@ export async function checkProgram(
   programId,
   accountPubkey
 ) {
-  const programInfo = await connection.getAccountInfo(programId);
-  if (programInfo === null) {
-    throw new Error('Program account does not exist');
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
   }
-  if (!programInfo.executable) {
+  if (!programAccountInfo.executable) {
     throw new Error('Program account is not executable');
   }
 }
@@ -1805,7 +1925,12 @@ Instead of throwing when a program data account is not found, you can create the
 Within `hello-world.js`, define and export a function with the following signature:
 
 ```javascript
-function createAccount(connection: Connection, payer: Keypair, programId: PublicKey, accountPubkey: PublicKey): Promise<void>
+function createAccount(
+  connection: Connection,
+  payer: Keypair,
+  programId: PublicKey,
+  accountPubkey: PublicKey
+): Promise<void>
 ```
 
 ### --tests--
@@ -1941,29 +2066,33 @@ delete global.babelisedCode;
 #### --"src/client/hello-world.js"--
 
 ```js
-import {
-  Connection,
-  Keypair,
-  createKeypairFromFile,
-  PublicKey
-} from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  return createKeypairFromFile(
-    path.join(__dirname, '../../dist/program/helloworld-keypair.json')
-  ).publicKey;
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return PublicKey.createWithSeed(payer.publicKey, 'hello-world', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 
 export async function checkProgram(
@@ -1972,16 +2101,16 @@ export async function checkProgram(
   programId,
   accountPubkey
 ) {
-  const programInfo = await connection.getAccountInfo(programId);
-  if (programInfo === null) {
-    throw new Error('Program account does not exist');
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
   }
-  if (!programInfo.executable) {
+  if (!programAccountInfo.executable) {
     throw new Error('Program account is not executable');
   }
-  const accountInfo = await connection.getAccountInfo(accountPubkey);
-  if (accountInfo === null) {
-    throw new Error('Program data account does not exist');
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
   }
 }
 ```
@@ -2009,7 +2138,7 @@ assert.exists(
   callExpression,
   'You should call `connection.getMinimumBalanceForRentExemption`'
 );
-assert.equal(
+assert.include(
   callExpression?.scope?.join(),
   'global,createAccount',
   '`connection.getMinimumBalanceForRentExemption()` should be within `createAccount`'
@@ -2036,10 +2165,18 @@ You should await the result of `getMinimumBalanceForRentExemption`.
 
 ```js
 const awaitExpression = babelisedCode.getType('AwaitExpression').find(a => {
-  return a.argument?.callee?.object?.name === 'connection';
+  return (
+    a.argument?.callee?.object?.name === 'connection' &&
+    a.scope?.join().includes('global,createAccount')
+  );
 });
 assert.exists(
   awaitExpression,
+  'You should await the result of `connection.getMinimumBalanceForRentExemption(10000)`'
+);
+assert.equal(
+  awaitExpression.type,
+  'AwaitExpression',
   'You should await the result of `connection.getMinimumBalanceForRentExemption(10000)`'
 );
 ```
@@ -2059,7 +2196,7 @@ assert.equal(
   'global,createAccount',
   '`lamports` should be defined within `createAccount`'
 );
-const awaitExpression = variabledDeclaration?.declarations?.[0]?.init;
+const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(
   awaitExpression?.argument?.callee?.object?.name,
   'connection',
@@ -2083,6 +2220,67 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {}
+```
+
 ## 27
 
 ### --description--
@@ -2099,7 +2297,70 @@ You should run `solana rent 10000` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand, 'solana rent 10000');
+assert.equal(lastCommand?.trim(), 'solana rent 10000');
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(10000);
+}
 ```
 
 ## 28
@@ -2278,24 +2539,38 @@ const constructor = classDeclaration?.body?.body?.find(m => {
   return m.kind === 'constructor';
 });
 
-assert.fail('TODO: node-bug');
-// EXAMPLE node-bug
-// const nodeBug = new __helpers.NodeBug(codestring);
-// const constructorBlockStart = constructor.body.start;
-// const constructorBlockEnd = constructor.body.end;
-// nodeBug.debug(constructorBlockStart, 'console.log(fields);fields = undefined;');
-// nodeBug.debug(constructorBlockEnd - 1, 'console.log(this.counter);');
-// await nodeBug.inspect();
+const code = babelisedCode.generateCode(classDeclaration);
 
-// // Easier for this case:
-// const nodeBug = new __helpers.NodeBug(codestring);
-// const classDeclarationEnd = classDeclaration.end;
-// nodeBug.debug(
-//   classDeclarationEnd + 1,
-//   'const __test=new HelloWorldAccount({counter:1});console.log(__test.counter);'
-// );
-// const stdout = await node.inspect(); // Can get stdout from node.inspect() return
-// console.log(node.stdout); // Or can get stdout from node.stdout
+const testCode = `
+${code}
+const t = new HelloWorldAccount();
+`;
+
+try {
+  const res = eval(testCode);
+} catch (e) {
+  assert.fail(
+    `The constructor for \`HelloWorldAccount\` should not throw an error when called without any arguments.`
+  );
+}
+
+// assert.fail('TODO: node-bug');
+```
+
+You should declare `HelloWorldAccount` before `ACCOUNT_SIZE`.
+
+```js
+const classDeclaration = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'ACCOUNT_SIZE';
+});
+assert.isBelow(
+  classDeclaration?.end,
+  variableDeclaration?.start,
+  '`HelloWorldAccount` should be declared before `ACCOUNT_SIZE`'
+);
 ```
 
 ### --before-all--
@@ -2312,6 +2587,75 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(10000);
+}
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
 ```
 
 ## 30
@@ -2427,6 +2771,40 @@ assert.equal(
 );
 ```
 
+You should declare `HelloWorldSchema` before `ACCOUNT_SIZE`.
+
+```js
+const hello = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'HelloWorldSchema';
+});
+const account = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'ACCOUNT_SIZE';
+});
+
+assert.isBelow(
+  hello?.end,
+  account?.start,
+  '`HelloWorldSchema` should be declared before `ACCOUNT_SIZE`'
+);
+```
+
+You should declare `HelloWorldSchema` after `HelloWorldAccount`.
+
+```js
+const schema = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'HelloWorldSchema';
+});
+const clas = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+
+assert.isAbove(
+  schema?.start,
+  clas?.end,
+  '`HelloWorldSchema` should be declared after `HelloWorldAccount`'
+);
+```
+
 ### --before-all--
 
 ```js
@@ -2441,6 +2819,83 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```javascript
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(10000);
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
 ```
 
 ## 31
@@ -2472,6 +2927,30 @@ assert.equal(
 );
 ```
 
+You should declare `ACCOUNT_SIZE` before `createAccount`.
+
+```js
+const account = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'ACCOUNT_SIZE';
+});
+const createAccount = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'createAccount';
+});
+
+const { end } = account;
+const { start } = createAccount;
+
+const { line: accountLine } = babelisedCode.getLineAndColumnFromIndex(end);
+const { line: createAccountLine } =
+  babelisedCode.getLineAndColumnFromIndex(start);
+
+assert.isBelow(
+  accountLine,
+  createAccountLine,
+  `'ACCOUNT_SIZE' declared on line ${accountLine}, but should be declared before ${createAccountLine}`
+);
+```
+
 ### --before-all--
 
 ```js
@@ -2486,6 +2965,87 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```javascript
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(10000);
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
 ```
 
 ## 32

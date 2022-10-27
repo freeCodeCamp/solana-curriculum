@@ -11,9 +11,7 @@
   "dependencies": {
     "@babel/parser": "7.19.4",
     "@freecodecamp/freecodecamp-os": "^1.6.4",
-    "babeliser": "0.4.1"
-  },
-  "devDependencies": {
-    "clipboardy": "^3.0.0"
+    "babeliser": "0.6.0",
+    "node-bug": "github:ShaunSHamilton/node-bug"
   }
 }
