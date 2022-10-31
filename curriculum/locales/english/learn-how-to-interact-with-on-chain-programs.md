@@ -2553,8 +2553,6 @@ try {
     `The constructor for \`HelloWorldAccount\` should not throw an error when called without any arguments.`
   );
 }
-
-// assert.fail('TODO: node-bug');
 ```
 
 You should declare `HelloWorldAccount` before `ACCOUNT_SIZE`.
@@ -3287,15 +3285,63 @@ const instructionVariableDeclaration = babelisedCode
       v.scope?.join() === 'global,createAccount'
     );
   });
-const { end } = instructionVariableDeclaration;
 
-assert.fail('TODO: use node-bug');
+const instructionCode = babelisedCode.generateCode(
+  instructionVariableDeclaration
+);
+
+const testCode = `
+const ACCOUNT_SIZE = 1;
+const payer = { publicKey: 'payer-public-key' };
+const programId = 'program-id';
+const accountPubkey = 'account-pubkey';
+const lamports = 123;
+${instructionCode};
+return instruction;
+`;
+
+const instruction = new Function(testCode)();
+
+const expected = {
+  basePubkey: 'payer-public-key',
+  fromPubkey: 'payer-public-key',
+  lamports: 123,
+  newAccountPubkey: 'account-pubkey',
+  programId: 'program-id',
+  space: 1
+};
+assert.deepInclude(instruction, expected);
 ```
 
 You should use the same seed you used in the `getAccountPubkey` function.
 
 ```js
-assert.fail('TODO: use node-bug');
+const instructionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'instruction' &&
+      v.scope?.join() === 'global,createAccount'
+    );
+  });
+const instructionSeedValue =
+  instructionVariableDeclaration?.declarations?.[0]?.init?.properties?.find(
+    p => p.key?.name === 'seed'
+  )?.value?.value;
+
+const createWithSeedCall = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.object?.name === 'PublicKey' &&
+    c.callee?.property?.name === 'createWithSeed'
+  );
+});
+const seedValue = createWithSeedCall?.arguments?.[1]?.value;
+
+assert.equal(
+  instructionSeedValue,
+  seedValue,
+  'You should use the same seed you used in the `getAccountPubkey` function.'
+);
 ```
 
 ### --before-all--
@@ -3402,7 +3448,7 @@ export async function createAccount(
 
 ### --description--
 
-TODO: Describe the System Program
+Solana has a native program called the _System Program_. It provides functionality to create accounts, allocate account data, assign an account to programs, work with nonce accounts, and transfer lamports.
 
 Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Store the return in a variable named `tx`.
 
@@ -3438,7 +3484,7 @@ const callExpression = babelisedCode.getType('CallExpression').find(c => {
   );
 });
 assert.equal(
-  callExpression?.arguments?.[0]?.value,
+  callExpression?.arguments?.[0]?.name,
   'instruction',
   '`instruction` should be the first argument to `createAccountWithSeed`'
 );
@@ -3448,7 +3494,7 @@ You should assign the value to a variable named `tx`.
 
 ```js
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
-  return v.declarations?.[0]?.id?.name === 't';
+  return v.declarations?.[0]?.id?.name === 'tx';
 });
 assert.exists(variableDeclaration, 'A `tx` variable declaration should exist');
 assert.equal(
@@ -3458,7 +3504,7 @@ assert.equal(
 );
 const expression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(
-  expression?.argument?.callee?.object?.name,
+  expression?.callee?.object?.name,
   'SystemProgram',
   '`lamports` should be assigned the result of `SystemProgram.createAccountWithSeed(instruction)`'
 );
@@ -3608,7 +3654,11 @@ const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   );
 });
 const callExpression = expressionStatement?.expression?.arguments?.[0];
-assert.fail('TODO');
+assert.equal(
+  callExpression?.name,
+  'tx',
+  '`tx` should be the first argument to `transaction.add`'
+);
 ```
 
 ### --before-all--
@@ -4477,7 +4527,32 @@ assert.exists(
 You should give `transaction` a value of the above object literal.
 
 ```js
-assert.fail('TODO: test interpretted value');
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return (
+    v.declarations?.[0]?.id?.name === 'transaction' &&
+    v.scope.join() === 'global,sayHello'
+  );
+});
+
+const txCode = babelisedCode.generateCode(variableDeclaration);
+
+const testCode = `
+const accountPubkey = '123';
+const programId = '456';
+${txCode}
+return transaction;
+`;
+
+let transaction = new Function(testCode)();
+assert.deepEqual(
+  transaction,
+  {
+    keys: [{ pubkey: '123', isSigner: false, isWritable: true }],
+    programId: '456',
+    data: Buffer.alloc(0)
+  },
+  'You should give `transaction` a value of the above object literal'
+);
 ```
 
 ### --before-all--
@@ -4809,9 +4884,49 @@ assert.exists(
 Calling `sayHello` should send the correct transaction with `sendAndConfirmTransaction(connection, new Transaction().add(instruction), [payer])`.
 
 ```js
-assert.fail(
-  'TODO: use node-bug to test function. spy on sendAndConfirmTransaction'
-);
+const sayHelloDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id?.name === 'sayHello');
+
+const helloCode = babelisedCode.generateCode(sayHelloDeclaration);
+
+const testCode = `
+class TransactionInstruction {
+  constructor(transaction) {
+    this.transaction = '5';
+  }
+}
+class Transaction {
+  add(instruction) {
+    this.instruction = instruction;
+    return this;
+  }
+}
+let error;
+const sendAndConfirmTransaction = (a, b, c) => {
+  try {
+  assert.equal(a, '1', 'You should call sendAndConfirmTransaction with connection as the first argument');
+  assert.equal(b.instruction.transaction, '5', 'You should call sendAndConfirmTransaction with new Transaction().add(instruction) as the second argument');
+  assert.include(c, '2', 'You should call sendAndConfirmTransaction with [payer] as the third argument');
+  } catch (e) {
+    error = e;
+  }
+};
+${helloCode}
+sayHello('1', '2', '3', '4');
+return error;
+`;
+
+try {
+  const t = eval(`(() => {${testCode}})()`);
+  if (t) {
+    throw t;
+  }
+} catch (e) {
+  if (e instanceof AssertionError) {
+    throw e;
+  }
+}
 ```
 
 ### --before-all--
@@ -6535,9 +6650,9 @@ Use Nodejs to execute the `main.js` script.
 You should run `node src/client/main.js` in the terminal.
 
 ```js
-const lastCommand = __helpers.getLastCommand();
+const lastCommand = await __helpers.getLastCommand();
 assert.equal(
-  lastCommand.trim(),
+  lastCommand?.trim(),
   'node src/client/main.js',
   'You should run `node src/client/main.js` in the terminal'
 );
