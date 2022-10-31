@@ -2921,7 +2921,7 @@ const variableDeclaration = createAccountFunctionDeclaration?.body?.body?.find(
 );
 const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(
-  awaitExpression?.argument?.arguments?.[0]?.id?.name,
+  awaitExpression?.argument?.arguments?.[0]?.name,
   'ACCOUNT_SIZE',
   'You should replace the hard-coded value of `10000` with the `ACCOUNT_SIZE` constant'
 );
@@ -2948,6 +2948,31 @@ assert.isBelow(
   accountLine,
   createAccountLine,
   `'ACCOUNT_SIZE' declared on line ${accountLine}, but should be declared before ${createAccountLine}`
+);
+
+// Check HelloWorldSchema and HelloWorldAccount are declared before ACCOUNT_SIZE
+const schema = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'HelloWorldSchema';
+});
+const clas = babelisedCode.getType('ClassDeclaration').find(c => {
+  return c.id?.name === 'HelloWorldAccount';
+});
+
+assert.isBelow(
+  schema?.end,
+  account.start,
+  '`HelloWorldSchema` should be declared before `ACCOUNT_SIZE`'
+);
+assert.isBelow(
+  clas?.end,
+  account.start,
+  '`HelloWorldAccount` should be declared before `ACCOUNT_SIZE`'
+);
+// HelloWorldAccount should be declared before HelloWorldSchema
+assert.isBelow(
+  clas?.end,
+  schema?.start,
+  '`HelloWorldAccount` should be declared before `HelloWorldSchema`'
 );
 ```
 
@@ -3056,6 +3081,8 @@ In order to create the program data account, you need to define a `Transaction` 
 
 Within `createAccount`, create a new `Transaction` instance and store it in a variable named `transaction`.
 
+_Be sure to import the `Transaction` class from `@solana/web3.js`_
+
 ### --tests--
 
 You should create a new `Transaction` instance within `createAccount`.
@@ -3072,7 +3099,7 @@ assert.exists(
 );
 assert.equal(
   transactionNewExpression?.scope?.join(),
-  'global,createAccount',
+  'global,createAccount,transaction',
   'You should create a new `Transaction` instance within `createAccount`'
 );
 ```
@@ -3100,6 +3127,21 @@ assert.equal(
 );
 ```
 
+You should import `Transaction` from `@solana/web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(e => {
+  return (
+    e.source?.value === '@solana/web3.js' &&
+    e.specifiers?.find(s => s.imported?.name === 'Transaction')
+  );
+});
+assert.exists(
+  importDeclaration,
+  '`Transaction` should be imported from `@solana/web3.js`'
+);
+```
+
 ### --before-all--
 
 ```js
@@ -3114,6 +3156,89 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+}
 ```
 
 ## 33
@@ -3189,13 +3314,270 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+}
+```
+
 ## 34
 
 ### --description--
 
-Within `createAccount`, use the `add` method on `transaction` to add an instruction to create the program data account.
+TODO: Describe the System Program
 
-This instruction should be created using the `createAccountWithSeed` function on the `SystemProgram` class from `@solana/web3.js`.
+Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Store the return in a variable named `tx`.
+
+### --tests--
+
+You should call `SystemProgram.createAccountWithSeed` within `createAccount`.
+
+```js
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.object?.name === 'SystemProgram' &&
+    c.callee?.property?.name === 'createAccountWithSeed'
+  );
+});
+assert.exists(
+  callExpression,
+  'You should call `SystemProgram.createAccountWithSeed`'
+);
+assert.include(
+  callExpression?.scope?.join(),
+  'global,createAccount',
+  '`SystemProgram.CreateAccountWithSeed()` should be within `createAccount`'
+);
+```
+
+You should pass `instruction` as the first argument to `createAccountWithSeed`.
+
+```js
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.object?.name === 'SystemProgram' &&
+    c.callee?.property?.name === 'createAccountWithSeed'
+  );
+});
+assert.equal(
+  callExpression?.arguments?.[0]?.value,
+  'instruction',
+  '`instruction` should be the first argument to `createAccountWithSeed`'
+);
+```
+
+You should assign the value to a variable named `tx`.
+
+```js
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 't';
+});
+assert.exists(variableDeclaration, 'A `tx` variable declaration should exist');
+assert.equal(
+  variableDeclaration?.scope?.join(),
+  'global,createAccount',
+  '`tx` should be defined within `createAccount`'
+);
+const expression = variableDeclaration?.declarations?.[0]?.init;
+assert.equal(
+  expression?.argument?.callee?.object?.name,
+  'SystemProgram',
+  '`lamports` should be assigned the result of `SystemProgram.createAccountWithSeed(instruction)`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+}
+```
+
+## 35
+
+### --description--
+
+Within `createAccount`, use the `add` method on `transaction` to add the transaction with the instruction to create the program data account.
 
 ### --tests--
 
@@ -3215,7 +3597,7 @@ assert.exists(
 );
 ```
 
-You should call `SystemProgram.createAccountWithSeed` within `transaction.add`.
+You should pass `tx` as the first argument to `transaction.add`.
 
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
@@ -3226,16 +3608,7 @@ const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   );
 });
 const callExpression = expressionStatement?.expression?.arguments?.[0];
-assert.equal(
-  callExpression?.callee?.object?.name,
-  'SystemProgram',
-  'You should use `SystemProgram` within `transaction.add`'
-);
-assert.equal(
-  callExpression?.callee?.property?.name,
-  'createAccountWithSeed',
-  'You should call `SystemProgram.createAccountWithSeed` within `transaction.add`'
-);
+assert.fail('TODO');
 ```
 
 ### --before-all--
@@ -3254,56 +3627,104 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 35
+### --seed--
 
-### --description--
-
-Within `createAccount`, pass `transaction` as the argument to the `createAccountWithSeed` call.
-
-### --tests--
-
-You should have `SystemProgram.createAccountWithSeed(transaction)` within `transaction.add`.
+#### --"src/client/hello-world.js"--
 
 ```js
-const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
-  return (
-    e.expression?.callee?.property?.name === 'add' &&
-    e.expression?.callee?.object?.name === 'transaction' &&
-    e.scope?.join() === 'global,createAccount'
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
   );
-});
-const callExpression = expressionStatement?.expression?.arguments?.[0];
-assert.equal(
-  callExpression?.callee?.object?.name,
-  'SystemProgram',
-  'You should use `SystemProgram` within `transaction.add`'
-);
-assert.equal(
-  callExpression?.callee?.property?.name,
-  'createAccountWithSeed',
-  'You should call `SystemProgram.createAccountWithSeed` within `transaction.add`'
-);
-assert.equal(
-  callExpression?.arguments?.[0]?.name,
-  'transaction',
-  'You should pass `transaction` as the argument to `SystemProgram.createAccountWithSeed`'
-);
-```
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
 
-### --before-all--
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
 
-```js
-const codeString = await __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
-global.babelisedCode = babelisedCode;
-```
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
 
-### --after-all--
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
 
-```js
-delete global.babelisedCode;
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+}
 ```
 
 ## 36
@@ -3326,7 +3747,7 @@ You should call `sendAndConfirmTransaction` within `createAccount`.
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
     e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
-    e.scope?.join() === 'global,createAccount'
+    e.scope.join() === 'global,createAccount'
   );
 });
 assert.exists(
@@ -3442,29 +3863,36 @@ import {
   Connection,
   Keypair,
   PublicKey,
-  sendAndConfirmTransaction,
-  SystemProgram,
-  Transaction
+  Transaction,
+  SystemProgram
 } from '@solana/web3.js';
-import { createKeypairFromFile } from '../_answer/client/utils';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
 
-export async function establishConnection() {
+export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export async function establishPayer() {
+export function establishPayer() {
   return Keypair.generate();
 }
 
 export async function getProgramId() {
-  const keypair = await createKeypairFromFile(
-    '../../dist/program/helloworld-keypair.json'
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
   );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
   return keypair.publicKey;
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return await PublicKey.createWithSeed(payer.publicKey, 'hello', programId);
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
 }
 
 export async function checkProgram(
@@ -3473,22 +3901,24 @@ export async function checkProgram(
   programId,
   accountPubkey
 ) {
-  const accountInfo = await connection.getAccountInfo(programId);
-  if (!accountInfo === null) {
-    throw new Error('Program not found');
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
   }
-  if (!accountInfo.executable) {
-    throw new Error('Program not executable');
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
   }
-  const programDataInfo = await connection.getAccountInfo(accountPubkey);
-  if (!programDataInfo === null) {
-    throw new Error('Program data account not found');
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
   }
 }
 
 class HelloWorldAccount {
   constructor(fields) {
-    this.counter = fields.counter;
+    if (fields) {
+      this.counter = fields.counter;
+    }
   }
 }
 
@@ -3507,22 +3937,21 @@ export async function createAccount(
   programId,
   accountPubkey
 ) {
-  const lamports = await connection.getMinimunBalanceForRentExemption(
+  const lamports = await connection.getMinimumBalanceForRentExemption(
     ACCOUNT_SIZE
   );
   const transaction = new Transaction();
   const instruction = {
-    basPubkey: payer.publicKey,
+    basePubkey: payer.publicKey,
     fromPubkey: payer.publicKey,
     lamports,
     newAccountPubkey: accountPubkey,
     programId,
-    seed: 'hello',
+    seed: 'seed-string',
     space: ACCOUNT_SIZE
   };
-  transaction.add(SystemProgram.createAccountWithSeed(instruction));
-
-  await sendAndConfirmTransaction(connection, transaction, [payer]);
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
 }
 ```
 
@@ -3542,17 +3971,23 @@ const { checkProgram } = await __helpers.importSansCache(
 );
 
 const connection = {
-  getAccountInfo: a => (a === 'accountPubkey' ? null : { executable: true })
+  getAccountInfo: a => (a === 'accountPubkey' ? null : { executable: true }),
+  getMinimumBalanceForRentExemption: s => 10
 };
 const payer = {
   publicKey: 'payer'
 };
 const programId = 'programId';
 const accountPubkey = 'accountPubkey';
-assert.doesNotThrow(
-  () => checkProgram(connection, payer, programId, accountPubkey),
-  'You should no longer throw an error when the program data account is not found'
-);
+try {
+  await checkProgram(connection, payer, programId, accountPubkey);
+} catch (e) {
+  if (!(e instanceof TypeError)) {
+    assert.fail(
+      'You should no longer throw an error when the program data account is not found'
+    );
+  }
+}
 ```
 
 You should call `createAccount` within `checkProgram`.
@@ -3560,7 +3995,7 @@ You should call `createAccount` within `checkProgram`.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
@@ -3575,11 +4010,11 @@ You should pass `connection` as the first argument.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
-const callExpression = expressionStatement?.expression;
+const callExpression = expressionStatement?.expression?.argument;
 assert.equal(
   callExpression?.arguments?.[0]?.name,
   'connection',
@@ -3592,11 +4027,11 @@ You should pass `payer` as the second argument.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
-const callExpression = expressionStatement?.expression;
+const callExpression = expressionStatement?.expression?.argument;
 assert.equal(
   callExpression?.arguments?.[1]?.name,
   'payer',
@@ -3609,11 +4044,11 @@ You should pass `programId` as the third argument.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
-const callExpression = expressionStatement?.expression;
+const callExpression = expressionStatement?.expression?.argument;
 assert.equal(
   callExpression?.arguments?.[2]?.name,
   'programId',
@@ -3626,11 +4061,11 @@ You should pass `accountPubkey` as the fourth argument.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
-const callExpression = expressionStatement?.expression;
+const callExpression = expressionStatement?.expression?.argument;
 assert.equal(
   callExpression?.arguments?.[3]?.name,
   'accountPubkey',
@@ -3643,7 +4078,7 @@ You should await the result of `createAccount`.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'createAccount' &&
+    e.expression?.argument?.callee?.name === 'createAccount' &&
     e.scope?.join() === 'global,checkProgram'
   );
 });
@@ -3669,6 +4104,110 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    throw new Error('Data account info not found');
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
 ```
 
 ## 38
@@ -3796,6 +4335,110 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+```
+
 ## 39
 
 ### --description--
@@ -3819,11 +4462,12 @@ _The `data` field is empty because the program does not do anything with it._
 You should define a variable named `transaction`.
 
 ```js
-const variableDeclaration = babelisedCode
-  .getVariableDeclarations()
-  .find(
-    v => v.id.name === 'transaction' && v.scope?.join() === 'global,sayHello'
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return (
+    v.declarations?.[0]?.id?.name === 'transaction' &&
+    v.scope.join() === 'global,sayHello'
   );
+});
 assert.exists(
   variableDeclaration,
   'You should define a variable named `transaction`, within `sayHello`'
@@ -3834,6 +4478,128 @@ You should give `transaction` a value of the above object literal.
 
 ```js
 assert.fail('TODO: test interpretted value');
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {}
 ```
 
 ## 40
@@ -3850,7 +4616,9 @@ You should define a variable named `instruction`.
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
-    v => v.id.name === 'instruction' && v.scope?.join() === 'global,sayHello'
+    v =>
+      v.declarations?.[0]?.id?.name === 'instruction' &&
+      v.scope.join() === 'global,sayHello'
   );
 assert.exists(
   variableDeclaration,
@@ -3864,13 +4632,19 @@ You should give `instruction` a value of `new TransactionInstruction(transaction
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
-    v => v.id.name === 'instruction' && v.scope?.join() === 'global,sayHello'
+    v =>
+      v.declarations?.[0]?.id?.name === 'instruction' &&
+      v.scope.join() === 'global,sayHello'
   );
-const newExpression = variableDeclaration?.init;
+const newExpression = variableDeclaration?.declarations?.[0]?.init;
+assert.exists(
+  newExpression,
+  'You should give `instruction` a value of `new ...`'
+);
 assert.equal(
   newExpression?.callee?.name,
   'TransactionInstruction',
-  'You should give `instruction` a value of `new TransactionInstruction(transaction)`'
+  'You should give `instruction` a value of `new TransactionInstruction`'
 );
 
 const transactionArgument = newExpression?.arguments?.[0];
@@ -3897,6 +4671,118 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+}
+```
+
 ## 41
 
 ### --description--
@@ -3909,7 +4795,10 @@ You should call `sendAndConfirmTransaction` within `sayHello`.
 
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
-  return e.expression?.argument?.callee?.name === 'sendAndConfirmTransaction';
+  return (
+    e.expression?.argument?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope.join() === 'global,sayHello'
+  );
 });
 assert.exists(
   expressionStatement,
@@ -3941,6 +4830,120 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+}
+```
+
 ## 42
 
 ### --description--
@@ -3954,7 +4957,11 @@ You should define a variable named `programId`.
 ```js
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
-  .find(v => v.id.name === 'programId' && v.scope?.join() === 'global,main');
+  .find(
+    v =>
+      v.declarations?.[0]?.id?.name === 'programId' &&
+      v.scope.join() === 'global,main'
+  );
 assert.exists(
   variableDeclaration,
   'You should define a variable named `programId`, within `main`'
@@ -3966,8 +4973,12 @@ You should assign `programId` the value of `await getProgramId()`.
 ```js
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
-  .find(v => v.id.name === 'programId' && v.scope?.join() === 'global,main');
-const awaitExpression = variableDeclaration?.init;
+  .find(
+    v =>
+      v.declarations?.[0]?.id?.name === 'programId' &&
+      v.scope.join() === 'global,main'
+  );
+const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(awaitExpression?.type, 'AwaitExpression');
 assert.equal(
   awaitExpression?.argument?.callee?.name,
@@ -4008,6 +5019,125 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payer]
+  );
+}
+```
+
 ## 43
 
 ### --description--
@@ -4021,23 +5151,30 @@ You should define a variable named `payer`.
 ```js
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
-  .find(v => v.id.name === 'payer' && v.scope?.join() === 'global,main');
+  .find(
+    v =>
+      v.declarations?.[0]?.id?.name === 'payer' &&
+      v.scope.join() === 'global,main'
+  );
 assert.exists(
   variableDeclaration,
   'You should define a variable named `payer`, within `main`'
 );
 ```
 
-You should assign `payer` the value of `await establishPayer(connection)`.
+You should assign `payer` the value of `establishPayer()`.
 
 ```js
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
-  .find(v => v.id.name === 'payer' && v.scope?.join() === 'global,main');
-const awaitExpression = variableDeclaration?.init;
-assert.equal(awaitExpression?.type, 'AwaitExpression');
+  .find(
+    v =>
+      v.declarations?.[0]?.id?.name === 'payer' &&
+      v.scope.join() === 'global,main'
+  );
+const callExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(
-  awaitExpression?.argument?.callee?.name,
+  callExpression?.callee?.name,
   'establishPayer',
   'You should assign `payer` the value of `await establishPayer(connection)`'
 );
@@ -4075,6 +5212,22 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import { establishConnection, getProgramId } from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+}
+
+await main();
+```
+
 ## 44
 
 ### --description--
@@ -4089,7 +5242,9 @@ You should define a variable named `accountPubkey`.
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
-    v => v.id.name === 'accountPubkey' && v.scope?.join() === 'global,main'
+    v =>
+      v.declarations?.[0]?.id?.name === 'accountPubkey' &&
+      v.scope.join() === 'global,main'
   );
 assert.exists(
   variableDeclaration,
@@ -4103,9 +5258,11 @@ You should assign `accountPubkey` the value of `await getAccountPubkey(payer, pr
 const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
-    v => v.id.name === 'accountPubkey' && v.scope?.join() === 'global,main'
+    v =>
+      v.declarations?.[0]?.id?.name === 'accountPubkey' &&
+      v.scope.join() === 'global,main'
   );
-const awaitExpression = variableDeclaration?.init;
+const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(awaitExpression?.type, 'AwaitExpression');
 assert.equal(
   awaitExpression?.argument?.callee?.name,
@@ -4146,6 +5303,27 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  establishConnection,
+  establishPayer,
+  getProgramId
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+}
+
+await main();
+```
+
 ## 45
 
 ### --description--
@@ -4168,8 +5346,8 @@ assert.equal(
 );
 const awaitExpression = expressionStatement?.expression;
 assert.equal(awaitExpression?.type, 'AwaitExpression');
-const arguments = awaitExpression?.argument?.arguments;
-const [connection, payer, programId, accountPubkey] = arguments;
+const args = awaitExpression?.argument?.arguments;
+const [connection, payer, programId, accountPubkey] = args;
 assert.equal(
   connection?.name,
   'connection',
@@ -4220,6 +5398,29 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  establishConnection,
+  establishPayer,
+  getAccountPubkey,
+  getProgramId
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+  const accountPubkey = await getAccountPubkey(payer, programId);
+}
+
+await main();
+```
+
 ## 46
 
 ### --description--
@@ -4242,8 +5443,8 @@ assert.equal(
 );
 const awaitExpression = expressionStatement?.expression;
 assert.equal(awaitExpression?.type, 'AwaitExpression');
-const arguments = awaitExpression?.argument?.arguments;
-const [connection, payer, programId, accountPubkey] = arguments;
+const args = awaitExpression?.argument?.arguments;
+const [connection, payer, programId, accountPubkey] = args;
 assert.equal(
   connection?.name,
   'connection',
@@ -4294,6 +5495,31 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  checkProgram,
+  establishConnection,
+  establishPayer,
+  getAccountPubkey,
+  getProgramId
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+  const accountPubkey = await getAccountPubkey(payer, programId);
+  await checkProgram(connection, payer, programId, accountPubkey);
+}
+
+await main();
+```
+
 ## 47
 
 ### --description--
@@ -4313,11 +5539,38 @@ assert.equal(
 );
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  checkProgram,
+  establishConnection,
+  establishPayer,
+  getAccountPubkey,
+  getProgramId,
+  sayHello
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+  const accountPubkey = await getAccountPubkey(payer, programId);
+  await checkProgram(connection, payer, programId, accountPubkey);
+  await sayHello(connection, payer, programId, accountPubkey);
+}
+
+await main();
+```
+
 ## 48
 
 ### --description--
 
-Now that you can say hello to the program, you will want to find out how many times the program has been said hello to.
+Now that you can say hello to the program, you will want to find out how many times the program has been said "hello" to.
 
 Within `hello-world.js`, export an asynchronous function named `getHelloCount` with the following signature:
 
@@ -4425,7 +5678,7 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
     v =>
-      v.declarations[0].id.name === 'accountInfo' &&
+      v.declarations?.[0]?.id?.name === 'accountInfo' &&
       v.scope.join() === 'global,getHelloCount'
   );
 assert.exists(
@@ -4441,7 +5694,7 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(
     v =>
-      v.declarations[0].id.name === 'accountInfo' &&
+      v.declarations?.[0]?.id?.name === 'accountInfo' &&
       v.scope.join() === 'global,getHelloCount'
   );
 const awaitExpression = variableDeclaration?.declarations[0]?.init;
@@ -4457,10 +5710,147 @@ assert.equal(
   'You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`'
 );
 assert.equal(
-  callExpression?.arguments[0]?.name,
+  callExpression?.arguments?.[0]?.name,
   'accountPubkey',
   'You should assign `accountInfo` the value of `await connection.getAccountInfo(accountPubkey)`'
 );
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payer]
+  );
+}
+
+export async function getHelloCount(connection, accountPubkey) {}
 ```
 
 ## 50
@@ -4547,6 +5937,129 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payer]
+  );
+}
+
+export async function getHelloCount(connection, accountPubkey) {
+  const accountInfo = await connection.getAccountInfo(accountPubkey);
+}
+```
+
 ## 51
 
 ### --description--
@@ -4591,6 +6104,134 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payer]
+  );
+}
+
+export async function getHelloCount(connection, accountPubkey) {
+  const accountInfo = await connection.getAccountInfo(accountPubkey);
+  const greeting = borsh.deserialize(
+    HelloWorldSchema,
+    HelloWorldAccount,
+    accountInfo.data
+  );
+}
 ```
 
 ## 52
@@ -4677,6 +6318,135 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
+  TransactionInstruction
+} from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+import * as borsh from 'borsh';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export function establishPayer() {
+  return Keypair.generate();
+}
+
+export async function getProgramId() {
+  const secretKeyString = await readFile(
+    'dist/program/helloworld-keypair.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return keypair.publicKey;
+}
+
+export async function getAccountPubkey(payer, programId) {
+  return await PublicKey.createWithSeed(
+    payer.publicKey,
+    'seed-string',
+    programId
+  );
+}
+
+export async function checkProgram(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const programAccountInfo = await connection.getAccountInfo(programId);
+  if (programAccountInfo === null) {
+    throw new Error('Program account info not found');
+  }
+  if (!programAccountInfo.executable) {
+    throw new Error('Program account is not executable');
+  }
+  const dataAccountInfo = await connection.getAccountInfo(accountPubkey);
+  if (dataAccountInfo === null) {
+    await createAccount(connection, payer, programId, accountPubkey);
+  }
+}
+
+class HelloWorldAccount {
+  constructor(fields) {
+    if (fields) {
+      this.counter = fields.counter;
+    }
+  }
+}
+
+const HelloWorldSchema = new Map([
+  [HelloWorldAccount, { kind: 'struct', fields: [['counter', 'u32']] }]
+]);
+
+const ACCOUNT_SIZE = borsh.serialize(
+  HelloWorldSchema,
+  new HelloWorldAccount()
+).length;
+
+export async function createAccount(
+  connection,
+  payer,
+  programId,
+  accountPubkey
+) {
+  const lamports = await connection.getMinimumBalanceForRentExemption(
+    ACCOUNT_SIZE
+  );
+  const transaction = new Transaction();
+  const instruction = {
+    basePubkey: payer.publicKey,
+    fromPubkey: payer.publicKey,
+    lamports,
+    newAccountPubkey: accountPubkey,
+    programId,
+    seed: 'seed-string',
+    space: ACCOUNT_SIZE
+  };
+  const tx = SystemProgram.createAccountWithSeed(instruction);
+  transaction.add(tx);
+
+  await sendAndConfirmTransaction(connection, transaction, [payer]);
+}
+
+export async function sayHello(connection, payer, programId, accountPubkey) {
+  const transaction = {
+    keys: [{ pubkey: accountPubkey, isSigner: false, isWritable: true }],
+    programId,
+    data: Buffer.alloc(0)
+  };
+  const instruction = new TransactionInstruction(transaction);
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payer]
+  );
+}
+
+export async function getHelloCount(connection, accountPubkey) {
+  const accountInfo = await connection.getAccountInfo(accountPubkey);
+  const greeting = borsh.deserialize(
+    HelloWorldSchema,
+    HelloWorldAccount,
+    accountInfo.data
+  );
+  return greeting.counter;
+}
+```
+
 ## 53
 
 ### --description--
@@ -4725,6 +6495,35 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  checkProgram,
+  establishConnection,
+  establishPayer,
+  getAccountPubkey,
+  getHelloCount,
+  getProgramId,
+  sayHello
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+  const accountPubkey = await getAccountPubkey(payer, programId);
+  await checkProgram(connection, payer, programId, accountPubkey);
+  await sayHello(connection, payer, programId, accountPubkey);
+  const helloCount = await getHelloCount(connection, accountPubkey);
+}
+
+await main();
+```
+
 ## 54
 
 ### --description--
@@ -4742,6 +6541,36 @@ assert.equal(
   'node src/client/main.js',
   'You should run `node src/client/main.js` in the terminal'
 );
+```
+
+### --seed--
+
+#### --"src/client/main.js"--
+
+```js
+import {
+  checkProgram,
+  establishConnection,
+  establishPayer,
+  getAccountPubkey,
+  getHelloCount,
+  getProgramId,
+  sayHello
+} from './hello-world.js';
+
+async function main() {
+  console.log(`Saying 'hello' to a Solana account`);
+  const connection = establishConnection();
+  const programId = await getProgramId();
+  const payer = establishPayer();
+  const accountPubkey = await getAccountPubkey(payer, programId);
+  await checkProgram(connection, payer, programId, accountPubkey);
+  await sayHello(connection, payer, programId, accountPubkey);
+  const helloCount = await getHelloCount(connection, accountPubkey);
+  console.log(`Hello count: ${helloCount}`);
+}
+
+await main();
 ```
 
 ## 55
