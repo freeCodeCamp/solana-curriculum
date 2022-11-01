@@ -513,6 +513,22 @@ assert.exists(
 );
 ```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
 ### --seed--
 
 #### --"src/client/hello-world.js"--
@@ -616,7 +632,7 @@ await main();
 Within `establishPayer`, declare a variable `secretKeyString`, and assign it the value of your local account keypair:
 
 ```js
-await readFile('../../../.config/solana/id.json', 'utf8');
+await readFile('../../../root/.config/solana/id.json', 'utf8');
 ```
 
 ### --tests--
@@ -677,7 +693,7 @@ assert.equal(
 );
 ```
 
-You should pass `"../../../.config/solana/id.json"` as the first argument to `readFile`.
+You should pass `"../../../root/.config/solana/id.json"` as the first argument to `readFile`.
 
 ```js
 const readFileCallExpression = babelisedCode
@@ -689,14 +705,14 @@ const readFileCallExpression = babelisedCode
   });
 assert.exists(
   readFileCallExpression,
-  'You should pass `"../../../.config/solana/id.json"` as the first argument to `readFile`'
+  'You should pass `"../../../root/.config/solana/id.json"` as the first argument to `readFile`'
 );
 const firstArgument = readFileCallExpression.arguments?.[0]?.value;
 const urlToAssert = new URL(firstArgument, 'file://');
 assert.equal(
   readFileCallExpression?.arguments?.[0]?.value,
-  '../../../.config/solana/id.json',
-  'You should pass `dist/program/helloworld-keypair.json` as the first argument to `readFile`'
+  '../../../root/.config/solana/id.json',
+  'You should pass `../../../root/.config/solana/id.json` as the first argument to `readFile`'
 );
 ```
 
@@ -847,7 +863,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
 }
@@ -937,7 +953,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1027,7 +1043,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1145,7 +1161,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1261,7 +1277,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1372,7 +1388,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1448,7 +1464,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1587,7 +1603,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1787,7 +1803,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -1978,7 +1994,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2056,7 +2072,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2150,7 +2166,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2251,7 +2267,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2451,7 +2467,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2615,7 +2631,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2700,7 +2716,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -2993,7 +3009,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -3230,7 +3246,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -3406,7 +3422,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -3577,7 +3593,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -3786,7 +3802,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -3957,7 +3973,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -4119,7 +4135,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -4351,7 +4367,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -4609,7 +4625,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -4843,7 +4859,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -5034,7 +5050,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -5214,7 +5230,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -5419,7 +5435,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -5613,7 +5629,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -5738,7 +5754,7 @@ assert.exists(
 );
 ```
 
-You should assign `payer` the value of `establishPayer()`.
+You should assign `payer` the value of `await establishPayer()`.
 
 ```js
 const variableDeclaration = babelisedCode
@@ -5748,11 +5764,11 @@ const variableDeclaration = babelisedCode
       v.declarations?.[0]?.id?.name === 'payer' &&
       v.scope.join() === 'global,main'
   );
-const callExpression = variableDeclaration?.declarations?.[0]?.init;
+const awaitExpression = variableDeclaration?.declarations?.[0]?.init;
 assert.equal(
-  callExpression?.callee?.name,
+  awaitExpression?.argument?.callee?.name,
   'establishPayer',
-  'You should assign `payer` the value of `await establishPayer(connection)`'
+  'You should assign `payer` the value of `establishPayer()`'
 );
 ```
 
@@ -6155,7 +6171,7 @@ Test your script by using `node` to run it.
 You should run `node src/client/main.js` in the terminal.
 
 ```js
-const lastCommand = __helpers.getLastCommand();
+const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand.trim(),
   'node src/client/main.js',
@@ -6188,7 +6204,47 @@ try {
 
 ### --description--
 
-Notice your script failed to run. This is because the program has not been deployed to the cluster yet.
+Your script does not work as intended, because the program has not been deployed to the cluster. In order to deploy a program, you need to create an account.
+
+Use the terminal to create a new local keypair.
+
+### --tests--
+
+You should run `solana-keygen new` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'solana-keygen new',
+  'You should run `solana-keygen new` in the terminal'
+);
+```
+
+## 53
+
+### --description--
+
+Set your Solana config RPC URL to the local cluster.
+
+### --tests--
+
+You should run `solana config set --url localhost` in the terminal.
+
+```js
+const command = `solana config get`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+
+assert.include(
+  stdout,
+  'http://localhost:8899',
+  'You should run `solana config set --url localhost` in the terminal'
+);
+```
+
+## 51
+
+### --description--
 
 Deploy the program to the cluster.
 
@@ -6197,7 +6253,79 @@ Deploy the program to the cluster.
 You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
-const lastCommand = __helpers.getLastCommand();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'solana program deploy dist/program/helloworld.so',
+  'You should run `solana program deploy dist/program/helloworld.so` in the terminal'
+);
+```
+
+You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 52
+
+### --description--
+
+Your program might not have deployed, because you do not have enough SOL in your account. Airdrop some SOL to your account.
+
+### --tests--
+
+You should run `solana airdrop <NUMBER>` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'solana airdrop',
+  'You should run `solana airdrop 1` in the terminal'
+);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 51
+
+### --description--
+
+Deploy the program to the cluster.
+
+### --tests--
+
+You should run `solana program deploy dist/program/helloworld.so` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand.trim(),
   'solana program deploy dist/program/helloworld.so',
@@ -6237,7 +6365,7 @@ Test your script by using `node` to run it.
 You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
 
 ```js
-const lastCommand = __helpers.getLastCommand();
+const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand.trim(),
   'node src/client/main.js',
@@ -6455,7 +6583,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -6665,7 +6793,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -6839,7 +6967,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
@@ -7056,7 +7184,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
