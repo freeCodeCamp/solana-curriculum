@@ -491,6 +491,28 @@ assert.equal(
 );
 ```
 
+You should import `establishConnection` from `./hello-world.js`.
+
+```js
+const helloWorldImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './hello-world.js';
+  });
+assert.exists(
+  helloWorldImportDeclaration,
+  'You should import from `./hello-world.js`'
+);
+const establishConnectionImportSpecifier =
+  helloWorldImportDeclaration.specifiers.find(s => {
+    return s.imported.name === 'establishConnection';
+  });
+assert.exists(
+  establishConnectionImportSpecifier,
+  'You should import `establishConnection` from `./hello-world.js`'
+);
+```
+
 ### --seed--
 
 #### --"src/client/hello-world.js"--
@@ -4198,14 +4220,14 @@ Await the `sendAndConfirmTransaction` function from `@solana/web3.js` to send th
 You should call `sendAndConfirmTransaction` within `createAccount`.
 
 ```js
-const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+const callExpression = babelisedCode.getType('CallExpression').find(e => {
   return (
-    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e?.callee?.name === 'sendAndConfirmTransaction' &&
     e.scope.join() === 'global,createAccount'
   );
 });
 assert.exists(
-  expressionStatement,
+  callExpression,
   'You should call `sendAndConfirmTransaction` within `createAccount`'
 );
 ```
@@ -4213,51 +4235,51 @@ assert.exists(
 You should pass `connection` as the first argument.
 
 ```js
-const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+const callExpression = babelisedCode.getType('CallExpression').find(e => {
   return (
-    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
-    e.scope?.join() === 'global,createAccount'
+    e?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope.join() === 'global,createAccount'
   );
 });
-const callExpression = expressionStatement?.expression;
+const ident = callExpression?.arguments?.[0];
 assert.equal(
-  callExpression?.arguments?.[0]?.name,
+  ident?.name,
   'connection',
-  'You should pass `connection` as the first argument to `sendAndConfirmTransaction`'
+  '`connection` should be the first argument to `sendAndConfirmTransaction`'
 );
 ```
 
 You should pass `transaction` as the second argument.
 
 ```js
-const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+const callExpression = babelisedCode.getType('CallExpression').find(e => {
   return (
-    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
-    e.scope?.join() === 'global,createAccount'
+    e?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope.join() === 'global,createAccount'
   );
 });
-const callExpression = expressionStatement?.expression;
+const ident = callExpression?.arguments?.[1];
 assert.equal(
-  callExpression?.arguments?.[1]?.name,
+  ident?.name,
   'transaction',
-  'You should pass `transaction` as the second argument to `sendAndConfirmTransaction`'
+  '`transaction` should be the second argument to `sendAndConfirmTransaction`'
 );
 ```
 
 You should pass `[payer]` as the third argument.
 
 ```js
-const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+const callExpression = babelisedCode.getType('CallExpression').find(e => {
   return (
-    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
-    e.scope?.join() === 'global,createAccount'
+    e?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.scope.join() === 'global,createAccount'
   );
 });
-const callExpression = expressionStatement?.expression;
+const arrayExpression = callExpression?.arguments?.[2];
 assert.equal(
-  callExpression?.arguments?.[2]?.elements?.[0]?.name,
+  arrayExpression?.elements?.[0]?.name,
   'payer',
-  'You should pass `[payer]` as the third argument to `sendAndConfirmTransaction`'
+  '`[payer]` should be the third argument to `sendAndConfirmTransaction`'
 );
 ```
 
@@ -4266,13 +4288,13 @@ You should await the result of `sendAndConfirmTransaction`.
 ```js
 const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
   return (
-    e.expression?.callee?.name === 'sendAndConfirmTransaction' &&
+    e.expression?.argument?.callee?.name === 'sendAndConfirmTransaction' &&
     e.scope?.join() === 'global,createAccount'
   );
 });
 assert.equal(
-  expressionStatement?.expression?.await,
-  true,
+  expressionStatement?.expression?.type,
+  'AwaitExpression',
   'You should await the result of `sendAndConfirmTransaction`'
 );
 ```
