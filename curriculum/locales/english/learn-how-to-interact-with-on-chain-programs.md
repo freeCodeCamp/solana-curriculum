@@ -20,7 +20,7 @@ You should run `npm run build` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand, 'npm run build');
+assert.equal(lastCommand.trim(), 'npm run build');
 ```
 
 You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
@@ -28,10 +28,7 @@ You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
 ```js
 const cwdFile = await __helpers.getCWD();
 const cwd = cwdFile.split('\n').filter(Boolean).pop();
-assert.include(
-  cwd,
-  'learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract'
-);
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
 ```
 
 ## 2
