@@ -37,7 +37,7 @@ You will be using the Solana CLI to:
 Install the Solana CLI with:
 
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.14.2/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.14.7/install)"
 ```
 
 ### --tests--
@@ -49,7 +49,7 @@ const lastCommand = await __helpers.getLastCommand();
 
 assert.match(
   lastCommand,
-  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.14\.2\/install\)"/
+  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.14\.7\/install\)"/
 );
 ```
 
