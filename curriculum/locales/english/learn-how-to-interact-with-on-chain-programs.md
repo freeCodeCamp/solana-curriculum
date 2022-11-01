@@ -766,7 +766,7 @@ assert.equal(
 );
 ```
 
-You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`.
+You should pass `dist/program/helloworld-keypair.json` as the first argument to `readFile`.
 
 ```js
 const readFileCallExpression = babelisedCode
@@ -776,14 +776,14 @@ const readFileCallExpression = babelisedCode
   });
 assert.exists(
   readFileCallExpression,
-  'You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`'
+  'You should pass `dist/program/helloworld-keypair.json` as the first argument to `readFile`'
 );
 const firstArgument = readFileCallExpression.arguments?.[0]?.value;
 const urlToAssert = new URL(firstArgument, 'file://');
 assert.equal(
   readFileCallExpression?.arguments?.[0]?.value,
   'dist/program/helloworld-keypair.json',
-  'You should pass `dist/program/hello-world-keypair.json` as the first argument to `readFile`'
+  'You should pass `dist/program/helloworld-keypair.json` as the first argument to `readFile`'
 );
 ```
 
