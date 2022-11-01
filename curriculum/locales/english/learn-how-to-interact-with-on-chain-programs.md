@@ -232,7 +232,7 @@ await main();
 
 ### --description--
 
-Within `hello-world.js`, export a function named `establishConnection`.
+Within `hello-world.js`, export an async function named `establishConnection`.
 
 ### --tests--
 
@@ -516,28 +516,42 @@ Within `hello-world.js`, export a function named `establishPayer`.
 You should define a function with the handle `establishPayer`.
 
 ```js
-const establishPayerFunctionDeclaration = babelisedCode
+const getProgramIdFunctionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => {
-    return f.id?.name === 'establishPayer';
+    return f.id.name === 'establishPayer';
   });
 assert.exists(
-  establishPayerFunctionDeclaration,
+  getProgramIdFunctionDeclaration,
   'You should define a function named `establishPayer` in `src/client/hello-world.js`'
+);
+```
+
+You should define `establishPayer` as asynchronous.
+
+```js
+const getProgramIdFunctionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => {
+    return f.id.name === 'establishPayer';
+  });
+assert.isTrue(
+  getProgramIdFunctionDeclaration.async,
+  'You should define `establishPayer` as being asynchronous'
 );
 ```
 
 You should export `establishPayer` as a named export.
 
 ```js
-const establishPayerExportNamedDeclaration = babelisedCode
+const getProgramIdExportNamedDeclaration = babelisedCode
   .getType('ExportNamedDeclaration')
   .find(e => {
     const name = e.declaration?.id?.name;
     return name === 'establishPayer';
   });
 assert.exists(
-  establishPayerExportNamedDeclaration,
+  getProgramIdExportNamedDeclaration,
   'You should export `establishPayer` as a named export'
 );
 ```
@@ -577,28 +591,107 @@ await main();
 
 ### --description--
 
-Within `establishPayer`, generate a new keypair, using the `Keypair` class from `@solana/web3.js`.
+Within `establishPayer`, declare a variable `secretKeyString`, and assign it the value of your local account keypair:
 
-Return this keypair.
+```js
+await readFile('../../../.config/solana/id.json', 'utf8');
+```
 
 ### --tests--
 
-You should return the result of `Keypair.generate()`.
+You should import `readFile` from `fs/promises`.
 
 ```js
-const { Keypair } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/node_modules/@solana/web3.js/lib/index.cjs.js'
+const readFileImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === 'fs/promises';
+  });
+assert.exists(
+  readFileImportDeclaration,
+  'You should import `readFile` from `fs/promises`'
 );
-const { establishPayer } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+```
+
+You should define a variable named `secretKeyString` within `establishPayer`.
+
+```js
+const secretKeyStringVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKeyString' &&
+      v.scope.join() === 'global,establishPayer'
+    );
+  });
+assert.exists(
+  secretKeyStringVariableDeclaration,
+  'You should define a variable named `secretKeyString`'
 );
-const keypair = await establishPayer();
-assert.exists(keypair, 'You should return the result of `Keypair.generate()`');
-assert.instanceOf(
-  keypair,
-  Keypair,
-  'You should return the result of `Keypair.generate()`'
+```
+
+`secretKeyString` should be assigned the result of `readFile`.
+
+```js
+const secretKeyStringVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKeyString' &&
+      v.scope.join() === 'global,establishPayer'
+    );
+  });
+const awaitExpression =
+  secretKeyStringVariableDeclaration?.declarations?.[0]?.init;
+assert.exists(
+  awaitExpression,
+  '`secretKeyString` should be assigned the result of awaiting `readFile`'
 );
+const readFileCallExpression = awaitExpression?.argument;
+assert.equal(
+  readFileCallExpression?.callee?.name,
+  'readFile',
+  '`secretKeyString` should be assigned the result of awaiting `readFile`'
+);
+```
+
+You should pass `"../../../.config/solana/id.json"` as the first argument to `readFile`.
+
+```js
+const readFileCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return (
+      c.callee.name === 'readFile' && c.scope.join() === 'global,establishPayer'
+    );
+  });
+assert.exists(
+  readFileCallExpression,
+  'You should pass `"../../../.config/solana/id.json"` as the first argument to `readFile`'
+);
+const firstArgument = readFileCallExpression.arguments?.[0]?.value;
+const urlToAssert = new URL(firstArgument, 'file://');
+assert.equal(
+  readFileCallExpression?.arguments?.[0]?.value,
+  '../../../.config/solana/id.json',
+  'You should pass `dist/program/helloworld-keypair.json` as the first argument to `readFile`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -612,7 +705,221 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {}
+export async function establishPayer() {}
+```
+
+## 14
+
+### --description--
+
+The payer keypair needs to be constructed from an array of 8-bit unsigned integers.
+
+Within `establishPayer`, define a variable `secretKey`, and assign it the value of:
+
+```js
+Uint8Array.from(JSON.parse(secretKeyString));
+```
+
+### --tests--
+
+You should define a variable named `secretKey` within `establishPayer`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKey' &&
+      v.scope.join() === 'global,establishPayer'
+    );
+  });
+assert.exists(
+  secretKeyVariableDeclaration,
+  'You should define a variable named `secretKey`'
+);
+```
+
+`secretKey` should be assigned the result of `Uint8Array.from`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKey' &&
+      v.scope.join() === 'global,establishPayer'
+    );
+  });
+const callExpression = secretKeyVariableDeclaration?.declarations?.[0]?.init;
+const uintMemberExpression = callExpression?.callee;
+assert.equal(
+  uintMemberExpression?.object?.name,
+  'Uint8Array',
+  '`secretKey` should be assigned the result of `Uint8Array.from`'
+);
+assert.equal(
+  uintMemberExpression?.property?.name,
+  'from',
+  '`secretKey` should be assigned the result of `Uint8Array.from`'
+);
+```
+
+You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`.
+
+```js
+const secretKeyVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKey' &&
+      v.scope.join() === 'global,establishPayer'
+    );
+  });
+const callExpression = secretKeyVariableDeclaration?.declarations?.[0]?.init;
+const jsonCallExpression = callExpression?.arguments?.[0];
+const jsonMemberExpression = jsonCallExpression?.callee;
+assert.equal(
+  jsonMemberExpression?.object?.name,
+  'JSON',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+assert.equal(
+  jsonMemberExpression?.property?.name,
+  'parse',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+assert.equal(
+  jsonCallExpression?.arguments?.[0]?.name,
+  'secretKeyString',
+  'You should pass the result of `JSON.parse(secretKeyString)` as the first argument to `Uint8Array.from`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+}
+```
+
+## 17
+
+### --description--
+
+Within `establishPayer`, return the value of calling the `fromSecretKey` method on `Keypair`, passing `secretKey` as the first argument.
+
+### --tests--
+
+You should return the result of calling the `fromSecretKey` method on `Keypair`.
+
+```js
+const returnStatement = babelisedCode.getType('ReturnStatement').find(r => {
+  return r.scope.join() === 'global,establishPayer';
+});
+assert.exists(returnStatement, 'No return statement found');
+const callExpression = returnStatement?.argument;
+assert.equal(
+  callExpression?.callee?.object?.name,
+  'Keypair',
+  'You should return the result of calling `Keypair.`'
+);
+assert.equal(
+  callExpression?.callee?.property?.name,
+  'fromSecretKey',
+  'You should return the result of calling `Keypair.fromSecretKey`'
+);
+```
+
+You should pass `secretKey` as the first argument to `fromSecretKey`.
+
+```js
+const returnStatement = babelisedCode.getType('ReturnStatement').find(r => {
+  return r.scope.join() === 'global,establishPayer';
+});
+const callExpression = returnStatement?.argument;
+assert.equal(
+  callExpression?.arguments?.[0]?.name,
+  'secretKey',
+  'You should pass `secretKey` as the first argument to `fromSecretKey`'
+);
+```
+
+You should import `Keypair` from `@solana/web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+const specifier = importDeclaration?.specifiers?.find(s => {
+  return s.imported.name === 'Keypair';
+});
+assert.exists(specifier, 'You should import `Keypair` from `@solana/web3.js`');
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+### --seed--
+
+#### --"src/client/hello-world.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
+
+export function establishConnection() {
+  return new Connection('http://localhost:8899');
+}
+
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+}
 ```
 
 ## 14
@@ -690,13 +997,19 @@ delete global.babelisedCode;
 
 ```js
 import { Connection, Keypair } from '@solana/web3.js';
+import { readFile } from 'fs/promises';
 
 export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 ```
 
@@ -716,27 +1029,16 @@ Where `<PATH_TO_KEYPAIR_JSON>` is the keypair json file path (relative to this p
 
 ### --tests--
 
-You should import `readFile` from `fs/promises`.
-
-```js
-const readFileImportDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === 'fs/promises';
-  });
-assert.exists(
-  readFileImportDeclaration,
-  'You should import `readFile` from `fs/promises`'
-);
-```
-
-You should define a variable named `secretKeyString`.
+You should define a variable named `secretKeyString` within `getProgramId`.
 
 ```js
 const secretKeyStringVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.declarations?.[0]?.id?.name === 'secretKeyString';
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKeyString' &&
+      v.scope.join() === 'global,getProgramId'
+    );
   });
 assert.exists(
   secretKeyStringVariableDeclaration,
@@ -750,7 +1052,10 @@ assert.exists(
 const secretKeyStringVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.declarations?.[0]?.id?.name === 'secretKeyString';
+    return (
+      v.declarations?.[0]?.id?.name === 'secretKeyString' &&
+      v.scope.join() === 'global,getProgramId'
+    );
   });
 const awaitExpression =
   secretKeyStringVariableDeclaration?.declarations?.[0]?.init;
@@ -772,7 +1077,9 @@ You should pass `dist/program/helloworld-keypair.json` as the first argument to 
 const readFileCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
-    return c.callee.name === 'readFile';
+    return (
+      c.callee.name === 'readFile' && c.scope.join() === 'global,getProgramId'
+    );
   });
 assert.exists(
   readFileCallExpression,
@@ -814,8 +1121,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {}
@@ -925,8 +1237,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1031,8 +1348,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1102,8 +1424,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1236,8 +1563,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1431,8 +1763,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1617,8 +1954,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1690,8 +2032,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1779,8 +2126,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -1875,8 +2227,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -2070,8 +2427,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -2229,8 +2591,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -2309,8 +2676,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -2597,8 +2969,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -2829,8 +3206,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3000,8 +3382,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3166,8 +3553,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3370,8 +3762,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3536,8 +3933,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3693,8 +4095,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -3920,8 +4327,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -4173,8 +4585,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -4402,8 +4819,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -4588,8 +5010,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -4763,8 +5190,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -4963,8 +5395,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -5152,8 +5589,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -5865,8 +6307,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -6070,8 +6517,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -6239,8 +6691,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
@@ -6451,8 +6908,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {

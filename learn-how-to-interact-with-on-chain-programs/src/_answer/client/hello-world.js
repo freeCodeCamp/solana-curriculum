@@ -14,8 +14,13 @@ export function establishConnection() {
   return new Connection('http://localhost:8899');
 }
 
-export function establishPayer() {
-  return Keypair.generate();
+export async function establishPayer() {
+  const secretKeyString = await readFile(
+    '../../../.config/solana/id.json',
+    'utf8'
+  );
+  const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+  return Keypair.fromSecretKey(secretKey);
 }
 
 export async function getProgramId() {
