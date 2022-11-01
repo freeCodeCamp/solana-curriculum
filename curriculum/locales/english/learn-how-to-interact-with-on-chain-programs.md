@@ -6152,7 +6152,7 @@ Test your script by using `node` to run it.
 
 ### --tests--
 
-You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
+You should run `node src/client/main.js` in the terminal.
 
 ```js
 const lastCommand = __helpers.getLastCommand();
