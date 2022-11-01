@@ -853,7 +853,7 @@ export async function establishPayer() {
 }
 ```
 
-## 17
+## 15
 
 ### --description--
 
@@ -944,7 +944,7 @@ export async function establishPayer() {
 }
 ```
 
-## 14
+## 16
 
 ### --description--
 
@@ -1035,7 +1035,7 @@ export async function establishPayer() {
 }
 ```
 
-## 15
+## 17
 
 ### --description--
 
@@ -1155,7 +1155,7 @@ export async function establishPayer() {
 export async function getProgramId() {}
 ```
 
-## 16
+## 18
 
 ### --description--
 
@@ -1276,7 +1276,7 @@ export async function getProgramId() {
 }
 ```
 
-## 17
+## 19
 
 ### --description--
 
@@ -1388,7 +1388,7 @@ export async function getProgramId() {
 }
 ```
 
-## 18
+## 20
 
 ### --description--
 
@@ -1465,7 +1465,7 @@ export async function getProgramId() {
 }
 ```
 
-## 19
+## 21
 
 ### --description--
 
@@ -1605,7 +1605,7 @@ export async function getProgramId() {
 }
 ```
 
-## 20
+## 22
 
 ### --description--
 
@@ -1807,7 +1807,7 @@ export async function getProgramId() {
 export async function getAccountPubkey(payer, programId) {}
 ```
 
-## 21
+## 23
 
 ### --description--
 
@@ -2004,7 +2004,7 @@ export async function getAccountPubkey(payer, programId) {
 }
 ```
 
-## 22
+## 24
 
 ### --description--
 
@@ -2089,7 +2089,7 @@ export async function checkProgram(
 ) {}
 ```
 
-## 23
+## 25
 
 ### --description--
 
@@ -2188,7 +2188,7 @@ export async function checkProgram(
 }
 ```
 
-## 24
+## 26
 
 ### --description--
 
@@ -2292,7 +2292,7 @@ export async function checkProgram(
 }
 ```
 
-## 25
+## 27
 
 ### --description--
 
@@ -2496,7 +2496,7 @@ export async function checkProgram(
 }
 ```
 
-## 26
+## 28
 
 ### --description--
 
@@ -2667,7 +2667,7 @@ export async function createAccount(
 ) {}
 ```
 
-## 27
+## 29
 
 ### --description--
 
@@ -2754,7 +2754,7 @@ export async function createAccount(
 }
 ```
 
-## 28
+## 30
 
 ### --description--
 
@@ -2868,7 +2868,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 29
+## 31
 
 ### --description--
 
@@ -3052,7 +3052,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 30
+## 32
 
 ### --description--
 
@@ -3297,7 +3297,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 31
+## 33
 
 ### --description--
 
@@ -3477,7 +3477,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 32
+## 34
 
 ### --description--
 
@@ -3650,7 +3650,7 @@ export async function createAccount(
 }
 ```
 
-## 33
+## 35
 
 ### --description--
 
@@ -3860,7 +3860,7 @@ export async function createAccount(
 }
 ```
 
-## 34
+## 36
 
 ### --description--
 
@@ -4040,7 +4040,7 @@ export async function createAccount(
 }
 ```
 
-## 35
+## 37
 
 ### --description--
 
@@ -4203,7 +4203,7 @@ export async function createAccount(
 }
 ```
 
-## 36
+## 38
 
 ### --description--
 
@@ -4436,7 +4436,7 @@ export async function createAccount(
 }
 ```
 
-## 37
+## 39
 
 ### --description--
 
@@ -4696,7 +4696,7 @@ export async function createAccount(
 }
 ```
 
-## 38
+## 40
 
 ### --description--
 
@@ -4930,7 +4930,7 @@ export async function createAccount(
 }
 ```
 
-## 39
+## 41
 
 ### --description--
 
@@ -5123,7 +5123,7 @@ export async function createAccount(
 export async function sayHello(connection, payer, programId, accountPubkey) {}
 ```
 
-## 40
+## 42
 
 ### --description--
 
@@ -5309,7 +5309,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 41
+## 43
 
 ### --description--
 
@@ -5515,7 +5515,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 42
+## 44
 
 ### --description--
 
@@ -5714,7 +5714,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 43
+## 45
 
 ### --description--
 
@@ -5804,7 +5804,7 @@ async function main() {
 await main();
 ```
 
-## 44
+## 46
 
 ### --description--
 
@@ -5894,13 +5894,13 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
 }
 
 await main();
 ```
 
-## 45
+## 47
 
 ### --description--
 
@@ -5990,14 +5990,14 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
 }
 
 await main();
 ```
 
-## 46
+## 48
 
 ### --description--
 
@@ -6088,7 +6088,7 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
   await checkProgram(connection, payer, programId, accountPubkey);
 }
@@ -6096,23 +6096,25 @@ async function main() {
 await main();
 ```
 
-## 47
+## 49
 
 ### --description--
 
-Test your script by using `node` to run it.
+Start a local Solana cluster, if you do not already have one running.
 
 ### --tests--
 
-You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
+The validator should be running at `http://localhost:8899`.
 
 ```js
-const lastCommand = __helpers.getLastCommand();
-assert.equal(
-  lastCommand.trim(),
-  'node src/client/main.js',
-  'You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory'
-);
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
 ```
 
 ### --seed--
@@ -6133,7 +6135,7 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
   await checkProgram(connection, payer, programId, accountPubkey);
   await sayHello(connection, payer, programId, accountPubkey);
@@ -6142,7 +6144,121 @@ async function main() {
 await main();
 ```
 
-## 48
+## 50
+
+### --description--
+
+Test your script by using `node` to run it.
+
+### --tests--
+
+You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const lastCommand = __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'node src/client/main.js',
+  'You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory'
+);
+```
+
+You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 51
+
+### --description--
+
+Notice your script failed to run. This is because the program has not been deployed to the cluster yet.
+
+Deploy the program to the cluster.
+
+### --tests--
+
+You should run `solana program deploy dist/program/hello_world.so` from the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const lastCommand = __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'solana program deploy dist/program/hello_world.so',
+  'You should run `solana program deploy dist/program/hello_world.so` from the `learn-how-to-interact-with-on-chain-programs` directory'
+);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 52
+
+### --description--
+
+Test your script by using `node` to run it.
+
+### --tests--
+
+You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const lastCommand = __helpers.getLastCommand();
+assert.equal(
+  lastCommand.trim(),
+  'node src/client/main.js',
+  'You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory'
+);
+```
+
+You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 53
 
 ### --description--
 
@@ -6239,7 +6355,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 49
+## 54
 
 ### --description--
 
@@ -6434,7 +6550,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 export async function getHelloCount(connection, accountPubkey) {}
 ```
 
-## 50
+## 55
 
 ### --description--
 
@@ -6646,7 +6762,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 51
+## 56
 
 ### --description--
 
@@ -6825,7 +6941,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 52
+## 57
 
 ### --description--
 
@@ -7043,7 +7159,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 53
+## 58
 
 ### --description--
 
@@ -7110,7 +7226,7 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
   await checkProgram(connection, payer, programId, accountPubkey);
   await sayHello(connection, payer, programId, accountPubkey);
@@ -7120,7 +7236,7 @@ async function main() {
 await main();
 ```
 
-## 54
+## 59
 
 ### --description--
 
@@ -7158,7 +7274,7 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
   await checkProgram(connection, payer, programId, accountPubkey);
   await sayHello(connection, payer, programId, accountPubkey);
@@ -7169,7 +7285,7 @@ async function main() {
 await main();
 ```
 
-## 55
+## 60
 
 ### --description--
 

@@ -12,7 +12,7 @@ async function main() {
   console.log(`Saying 'hello' to a Solana account`);
   const connection = establishConnection();
   const programId = await getProgramId();
-  const payer = establishPayer();
+  const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
   await checkProgram(connection, payer, programId, accountPubkey);
   await sayHello(connection, payer, programId, accountPubkey);
