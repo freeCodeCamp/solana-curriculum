@@ -16,7 +16,7 @@ export function establishConnection() {
 
 export async function establishPayer() {
   const secretKeyString = await readFile(
-    '../../../.config/solana/id.json',
+    '../../../root/.config/solana/id.json',
     'utf8'
   );
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
