@@ -9,6 +9,9 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@freecodecamp/freecodecamp-os": "1.6.5"
+    "@babel/parser": "7.19.4",
+    "@freecodecamp/freecodecamp-os": "1.6.5",
+    "babeliser": "0.6.0",
+    "node-bug": "github:ShaunSHamilton/node-bug"
   }
 }

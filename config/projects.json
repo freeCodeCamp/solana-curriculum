@@ -7,15 +7,27 @@
     "description": "In this course, you will learn how to set up Solana by building a simple hello world contract.",
     "isPublic": true,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 58
   },
   {
     "id": 1,
+    "title": "Learn How to Interact with On-Chain Programs",
+    "dashedName": "learn-how-to-interact-with-on-chain-programs",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to write the client code to interact with your previously deployed hello world smart contract.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true
+  },
+  {
+    "id": 2,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,
     "description": "",
     "isPublic": false,
-    "currentLesson": 1
+    "currentLesson": 1,
+    "numberOfLessons": 1
   }
 ]

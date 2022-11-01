@@ -1,0 +1,22 @@
+{
+  "name": "learn-how-to-interact-with-on-chain-programs",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "cargo build-sbf --manifest-path=./src/program-rust/Cargo.toml --sbf-out-dir=dist/program",
+    "call:hello-world": "node src/client/main.js",
+    "clean": "npm run clean:program-rust",
+    "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist",
+    "deploy": "solana program deploy dist/program/helloworld.so"
+  },
+  "dependencies": {
+    "@solana/web3.js": "1.63.1",
+    "borsh": "0.7.0",
+    "yaml": "2.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "type": "module"
+}
