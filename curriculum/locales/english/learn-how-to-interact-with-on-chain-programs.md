@@ -6159,7 +6159,7 @@ const lastCommand = __helpers.getLastCommand();
 assert.equal(
   lastCommand.trim(),
   'node src/client/main.js',
-  'You should run `node src/client/main.js` from the `learn-how-to-interact-with-on-chain-programs` directory'
+  'You should run `node src/client/main.js` in the terminal'
 );
 ```
 
@@ -6194,15 +6194,23 @@ Deploy the program to the cluster.
 
 ### --tests--
 
-You should run `solana program deploy dist/program/hello_world.so` from the `learn-how-to-interact-with-on-chain-programs` directory.
+You should run `solana program deploy dist/program/helloworld.so` in the terminal.
 
 ```js
 const lastCommand = __helpers.getLastCommand();
 assert.equal(
   lastCommand.trim(),
-  'solana program deploy dist/program/hello_world.so',
-  'You should run `solana program deploy dist/program/hello_world.so` from the `learn-how-to-interact-with-on-chain-programs` directory'
+  'solana program deploy dist/program/helloworld.so',
+  'You should run `solana program deploy dist/program/helloworld.so` in the terminal'
 );
+```
+
+You should be in the `learn-how-to-interact-with-on-chain-programs` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
 ```
 
 The validator should be running at `http://localhost:8899`.
