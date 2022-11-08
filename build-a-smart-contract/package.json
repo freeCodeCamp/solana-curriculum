@@ -1,0 +1,8 @@
+{
+  "name": "build-a-smart-contract",
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "1.66.2",
+    "borsh": "0.7.0"
+  }
+}
