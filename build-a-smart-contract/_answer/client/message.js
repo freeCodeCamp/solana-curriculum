@@ -31,11 +31,7 @@ export async function getProgramId() {
 }
 
 export async function getAccountPubkey(payer, programId) {
-  return await PublicKey.createWithSeed(
-    payer.publicKey,
-    'seed-string',
-    programId
-  );
+  return await PublicKey.createWithSeed(payer.publicKey, 'fcc-seed', programId);
 }
 
 export async function checkProgram(
@@ -88,7 +84,7 @@ export async function createAccount(
     lamports,
     newAccountPubkey: accountPubkey,
     programId,
-    seed: 'seed-string',
+    seed: 'fcc-seed',
     space: ACCOUNT_SIZE
   };
   const tx = SystemProgram.createAccountWithSeed(instruction);

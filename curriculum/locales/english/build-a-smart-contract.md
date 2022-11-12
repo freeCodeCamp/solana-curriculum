@@ -13,7 +13,6 @@ You need to create a smart contract in Rust, deploy the contract to your localne
   - The keypair should be used to deploy the program account
   - The keypair should **not** use a BIP39 passphrase
 - You should write a smart contract in Rust
-  - The program should be named `message`
   - The program should return the `IncorrectProgramId` variant of `ProgramError` if the account owner does not match the program id
   - The program should own a data account for storing a text message of 280 characters
   - The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account
@@ -28,7 +27,9 @@ You need to create a smart contract in Rust, deploy the contract to your localne
     - If no argument is provided, the script should throw an error with the message `"No message provided"`
     - The string should be sent as the instruction data when calling the smart contract
   - The script should use the account stored in `wallet.json` to pay for transactions
+  - The script should use the `dist/program/` keypair file to get the program id
   - The script should create a program data account, if one does not already exist
+    - The program data account public key should be created using `"fcc-seed"` as the seed
 - You should have a local Solana cluster running at port `8899`
   - The program should be deployed to the local cluster
   - The program data account should be created on the local cluster
@@ -118,6 +119,12 @@ The program should own a data account for storing a text message of 280 characte
 
 ```
 
+The data account should be created using the `wallet.json` public key, `"fcc-seed"` as the seed, and the program id as the owner.
+
+```js
+
+```
+
 The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account.
 
 ```js
@@ -142,7 +149,7 @@ The `InstructionData` should be padded with space characters to 280 characters.
 
 ```
 
-You should write `client/main.js` script interacting with the smart contract.
+You should write a `client/main.js` script interacting with the smart contract.
 
 ```js
 
