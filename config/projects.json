@@ -18,7 +18,8 @@
     "description": "In this course, you will learn how to write the client code to interact with your previously deployed hello world smart contract.",
     "isPublic": true,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 64
   },
   {
     "id": 2,
