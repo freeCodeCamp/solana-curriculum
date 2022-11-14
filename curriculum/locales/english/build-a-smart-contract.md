@@ -15,6 +15,12 @@ You need to create a smart contract in Rust, deploy the contract to your localne
 - You should write a smart contract in Rust
   - The program should return the `IncorrectProgramId` variant of `ProgramError` if the account owner does not match the program id
   - The program should own a data account for storing a text message of 280 characters
+    - The program data account should hold data in the form of:
+    - ```rust
+      struct Message {
+        message: String,
+      }
+      ```
   - The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account
     - If the `InstructionData` is not deserializable into a `String`, the program should return the `InvalidInstructionData` variant of `ProgramError`
     - If the `String` length is greater than 280 characters, the program should return the `InvalidInstructionData` variant of `ProgramError`
@@ -98,19 +104,55 @@ assert.exists(keypair, 'dist/program/ should have a .json file');
 You should deploy the `.so` file as an executable program to the local net.
 
 ```js
-
+const programKeypair = await __helpers.getProgramKeypair();
+assert.exists(programKeypair, 'dist/program/ does not have a .json file');
+const programId = programKeypair.publicKey;
+const connection = __helpers.establishConnection();
+assert.exists(connection, 'unable to establish connection to localnet');
+const programAccountInfo = await connection.getAccountInfo(programId);
+assert.exists(programAccountInfo, 'Program not deployed to the local net');
+assert.equal(
+  programAccountInfo.executable,
+  true,
+  'Program is not deployed as an executable'
+);
 ```
 
 The owner of the program account should be the associated account of the `wallet.json` keypair.
 
 ```js
+const camperKeypair = await __helpers.getCamperKeypair();
+assert.exists(camperKeypair, 'wallet.json does not exist');
+const camperAccount = await connection.getAccountInfo(camperKeypair.publicKey);
+assert.exists(camperAccount, 'wallet.json does not have an associated account');
 
+const programKeypair = await __helpers.getProgramKeypair();
+assert.exists(programKeypair, 'dist/program/ does not have a .json file');
+const programId = programKeypair.publicKey;
+const connection = __helpers.establishConnection();
+assert.exists(connection, 'unable to establish connection to localnet');
+const programAccountInfo = await connection.getAccountInfo(programId);
+assert.exists(programAccountInfo, 'Program not deployed to the local net');
+assert.equal(
+  programAccountInfo.executable,
+  true,
+  'Program is not deployed as an executable'
+);
+assert.equal(
+  programAccountInfo.owner.toBase58(),
+  camperAccount.owner.toBase58(),
+  'Program account owner does not match the wallet.json account owner'
+);
 ```
 
 The program should return the `IncorrectProgramId` variant of `ProgramError` if the account owner does not match the program id.
 
 ```js
-
+// Should pass `owner_not_program_id` test
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `cargo test owner_not_program_id`
+);
+assert.include(stdout, 'test tests::owner_not_program_id ... ok');
 ```
 
 The program should own a data account for storing a text message of 280 characters.

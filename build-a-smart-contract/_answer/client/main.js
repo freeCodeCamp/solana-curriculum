@@ -23,6 +23,7 @@ async function main() {
   const programId = await getProgramId();
   const payer = await establishPayer();
   const accountPubkey = await getAccountPubkey(payer, programId);
+  console.log(`Program Data Account: ${accountPubkey.toBase58()}`);
   await checkProgram(connection, payer, programId, accountPubkey);
   await setMessage(connection, payer, programId, accountPubkey, MESSAGE);
   const message = await getMessage(connection, accountPubkey);
