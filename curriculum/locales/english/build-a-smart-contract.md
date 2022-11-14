@@ -190,7 +190,11 @@ assert.equal(
 The data account should be created using the `wallet.json` public key, `"fcc-seed"` as the seed, and the program id as the owner.
 
 ```js
-
+const expectedDataAccountPublicKey = await __helpers.getDataAccountPublicKey();
+assert.exists(
+  expectedDataAccountPublicKey,
+  'Unable to get data account public key'
+);
 ```
 
 The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account.
@@ -222,31 +226,50 @@ assert.include(stdout, 'test tests::instruction_too_long ... ok');
 The `InstructionData` should be padded with space characters to 280 characters.
 
 ```js
-
+// Should pass `instruction_data_padded` test
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `cargo test instruction_data_padded`
+);
+assert.include(stdout, 'test tests::instruction_data_padded ... ok');
 ```
 
 You should write a `client/main.js` script interacting with the smart contract.
 
 ```js
-
+const clientExists = await __helpers.fileExists(join(__loc, 'client'));
+assert.exists(clientExists, 'client/ does not exist');
+const mainExists = await __helpers.fileExists(join(__loc, 'client', 'main.js'));
+assert.exists(mainExists, 'client/main.js does not exist');
 ```
 
 Calling `node client/main.js` should throw an error with the message `"No message provided"`.
 
 ```js
-
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `node client/main.js`
+);
+assert.include(stderr, 'No message provided');
 ```
 
 Calling `node client/main.js "Hello, World"` should not throw an error.
 
 ```js
-
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `node client/main.js "Hello, World"`
+);
+assert.isEmpty(stderr, 'STDERR should be empty');
 ```
 
 Calling `node client/main.js "Test string"` should change the message stored in the program data account.
 
 ```js
-
+const connection = __helpers.establishConnection();
+assert.exists(connection, 'unable to establish connection to localnet');
+const dataAccountPublicKey = await __helpers.getDataAccountPublicKey();
+assert.exists(dataAccountPublicKey, 'Unable to get data account public key');
+const message = await __helpers.getMessage(connection, dataAccountPublicKey);
+assert.include(message, 'Test string');
+assert.equal(message, 'Test string'.padEnd(280, ' '));
 ```
 
 ### --before-all--
