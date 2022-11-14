@@ -13,11 +13,14 @@ You need to create a smart contract in Rust, deploy the contract to your localne
   - The keypair should be used to deploy the program account
   - The keypair should **not** use a BIP39 passphrase
 - You should write a smart contract in Rust
+  - The program should be written in `program/src/lib.rs`
+  - The program should exort a `process_instruction` function with the `solana_program::entrypoint` parameter signature
+  - The program should return the `NotEnoughAccountKeys` variant of `ProgramError` if the number of accounts is less than 1
   - The program should return the `IncorrectProgramId` variant of `ProgramError` if the account owner does not match the program id
   - The program should own a data account for storing a text message of 280 characters
     - The program data account should hold data in the form of:
-    - ```rust
-      struct Message {
+      ```rust
+      struct MessageAccount {
         message: String,
       }
       ```
@@ -155,10 +158,33 @@ const { stdout, stderr } = await __helpers.getCommandOutput(
 assert.include(stdout, 'test tests::owner_not_program_id ... ok');
 ```
 
+The program should return the `NotEnoughAccountKeys` variant of `ProgramError` if the number of account keys is less than 1.
+
+```js
+// Should pass `no_accounts` test
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `cargo test no_accounts`
+);
+assert.include(stdout, 'test tests::no_accounts ... ok');
+```
+
 The program should own a data account for storing a text message of 280 characters.
 
 ```js
-
+const programKeypair = await __helpers.getProgramKeypair();
+assert.exists(programKeypair, 'dist/program/ does not have a .json file');
+const programId = programKeypair.publicKey;
+const connection = __helpers.establishConnection();
+assert.exists(connection, 'unable to establish connection to localnet');
+const dataAccountPublicKey = await __helpers.getDataAccountPublicKey();
+assert.exists(dataAccountPublicKey, 'Unable to get data account public key');
+const dataAccountInfo = await connection.getAccountInfo(dataAccountPublicKey);
+assert.exists(dataAccountInfo, 'Data account does not exist');
+assert.equal(
+  dataAccountInfo.owner.toBase58(),
+  programId.toBase58(),
+  'Data account owner does not match program id'
+);
 ```
 
 The data account should be created using the `wallet.json` public key, `"fcc-seed"` as the seed, and the program id as the owner.
@@ -176,13 +202,21 @@ The program should deserialize the `InstructionData` into a `String`, and store 
 If the `InstructionData` is not deserializable into a `String`, the program should return the `InvalidInstructionData` variant of `ProgramError`.
 
 ```js
-
+// Should pass `instruction_not_string` test
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `cargo test instruction_not_string`
+);
+assert.include(stdout, 'test tests::instruction_not_string ... ok');
 ```
 
 If the `String` length is greater than 280 characters, the program should return the `InvalidInstructionData` variant of `ProgramError`.
 
 ```js
-
+// Should pass `instruction_too_long` test
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `cargo test instruction_too_long`
+);
+assert.include(stdout, 'test tests::instruction_too_long ... ok');
 ```
 
 The `InstructionData` should be padded with space characters to 280 characters.
