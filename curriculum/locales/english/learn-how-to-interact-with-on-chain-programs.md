@@ -7417,12 +7417,22 @@ Use Nodejs to execute the `main.js` script.
 You should run `node src/client/main.js` in the terminal.
 
 ```js
+await new Promise(res => setTimeout(res, 1000));
 const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand?.trim(),
   'node src/client/main.js',
   'You should run `node src/client/main.js` in the terminal'
 );
+```
+
+Your terminal should print `Hello count: <number>`
+
+```js
+const output = await __helpers.getTerminalOutput();
+const splitOutput = output.split('node src/client/main.js');
+const lastOutput = splitOutput[splitOutput.length - 1];
+assert.match(lastOutput, /Hello count: \d+/);
 ```
 
 ### --seed--
