@@ -2044,7 +2044,7 @@ If the result is equal to `null`, throw an `Error` with a string message.
 
 ### --tests--
 
-`checkProgram` should throw an `Error` instance, with the message `Program account info not found`, if `await connection.getAccountInfo(programId)` returns `null`.
+`checkProgram` should throw an `Error` instance, if `await connection.getAccountInfo(programId)` returns `null`.
 
 ```js
 const { checkProgram } = await __helpers.importSansCache(
