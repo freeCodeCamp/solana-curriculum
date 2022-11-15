@@ -5886,8 +5886,8 @@ assert.equal(
   'getAccountPubkey',
   'You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`'
 );
-assert.equal(awaitExpression?.argument?.arguments[0].name, 'payer');
-assert.equal(awaitExpression?.argument?.arguments[1].name, 'programId');
+assert.equal(awaitExpression?.argument?.arguments[0]?.name, 'payer');
+assert.equal(awaitExpression?.argument?.arguments[1]?.name, 'programId');
 ```
 
 You should import `getAccountPubkey` from `./hello-world.js`.
