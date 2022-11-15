@@ -2796,6 +2796,8 @@ Within `hello-world.js`, define an `ACCOUNT_SIZE` constant, and set its value to
 borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length;
 ```
 
+Then, at the top of the file import `*` as `borsh` from the `borsh` module.
+
 ### --tests--
 
 You should define a constant named `ACCOUNT_SIZE` in the `hello-world.js` file.
@@ -2861,7 +2863,7 @@ assert.equal(
 );
 ```
 
-You should import `borsh` from `borsh`.
+You should `import * as borsh from borsh`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
@@ -3896,7 +3898,7 @@ export async function createAccount(
 
 Solana has a native program called the _System Program_. It provides functionality to create accounts, allocate account data, assign an account to programs, work with nonce accounts, and transfer lamports.
 
-Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Store the return in a variable named `tx`.
+Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Pass it your `instruction` variable and store the return value in a variable named `tx`.
 
 ### --tests--
 
@@ -4470,7 +4472,7 @@ export async function createAccount(
 
 ### --description--
 
-Within `checkProgram`, instead of throwing an error when the program data account is not found, create the program data account.
+Within `checkProgram`, instead of throwing an error when the program data account is not found, use `createAccount` to create the program data account.
 
 ### --tests--
 
@@ -4966,7 +4968,7 @@ export async function createAccount(
 
 To say hello to your smart contract, you need to send a transaction with some data.
 
-Within `sayHello`, create an `transaction` variable with a value of:
+Within `sayHello`, create a `transaction` variable with a value of:
 
 ```javascript
 {
@@ -5408,6 +5410,15 @@ try {
     throw e;
   }
 }
+```
+
+Your `sayHello` function should create a new `Transaction` instance
+
+```js
+const { sayHello } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+assert.match(sayHello.toString(), /new\s+Transaction\s*\(/);
 ```
 
 ### --before-all--
@@ -5875,6 +5886,8 @@ assert.equal(
   'getAccountPubkey',
   'You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`'
 );
+assert.equal(awaitExpression?.argument?.arguments[0].name, 'payer');
+assert.equal(awaitExpression?.argument?.arguments[1].name, 'programId');
 ```
 
 You should import `getAccountPubkey` from `./hello-world.js`.
@@ -6130,7 +6143,7 @@ await main();
 
 ### --description--
 
-Start a local Solana cluster, if you do not already have one running.
+Run `solana-test-validator` to start a local Solana cluster if you do not already have one running.
 
 ### --tests--
 
@@ -6178,7 +6191,7 @@ await main();
 
 ### --description--
 
-Test your script by using `node` to run it.
+Test your script by using `node` to run it. It should produce an error.
 
 ### --tests--
 
@@ -6233,6 +6246,13 @@ assert.equal(
   'solana-keygen new',
   'You should run `solana-keygen new` in the terminal'
 );
+```
+
+You should have an `id.json` file in the `/root/.config/solana/` directory as a result of generating a key
+
+```js
+const solanaDir = await __helpers.getDirectory('../../root/.config/solana')
+assert.exists(solanaDir, 'id.json');
 ```
 
 ## 53
