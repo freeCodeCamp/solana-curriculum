@@ -736,7 +736,7 @@ assert.equal(
 const codeString = await __helpers.getFile(
   'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
-const babelisedCode = new __helpers.Babeliser(codeString, { maxScopeDepth: 10 });
+const babelisedCode = new __helpers.Babeliser(codeString);
 global.babelisedCode = babelisedCode;
 ```
 
@@ -2038,9 +2038,9 @@ export async function getAccountPubkey(payer, programId) {
 
 ### --description--
 
-Within, `checkProgram`, use the `getAccountInfo` method on `connection` to get the **program account** information, _if any exists_. The `getAccountInfo` method expects a `PublicKey` as an argument.
+Within, `checkProgram`, use the `getAccountInfo` method on `connection` to get the **program account** information _if any exists_. The `getAccountInfo` method expects a `PublicKey` as an argument.
 
-If the result is equal to null, throw an Error with a string message.
+If the result is equal to `null`, throw an `Error` with a string message.
 
 ### --tests--
 
