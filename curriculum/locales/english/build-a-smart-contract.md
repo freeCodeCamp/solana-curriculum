@@ -81,7 +81,7 @@ assert.isTrue(programExists, 'dist/program/ should exist');
 You should have a `.so` file in the `dist/program/` directory.
 
 ```js
-const dir = await __helpers.getDirector(join(__loc, 'dist', 'program'));
+const dir = await __helpers.getDirectory(join(__loc, 'dist', 'program'));
 let program;
 for (const file of dir) {
   if (file.endsWith('.so')) {
@@ -94,7 +94,7 @@ assert.exists(program, 'dist/program/ should have a .so file');
 You should have a `.json` file in the `dist/program/` directory.
 
 ```js
-const dir = await __helpers.getDirector(join(__loc, 'dist', 'program'));
+const dir = await __helpers.getDirectory(join(__loc, 'dist', 'program'));
 let keypair;
 for (const file of dir) {
   if (file.endsWith('.json')) {
@@ -126,14 +126,13 @@ The owner of the program account should be the associated account of the `wallet
 ```js
 const camperKeypair = await __helpers.getCamperKeypair();
 assert.exists(camperKeypair, 'wallet.json does not exist');
+const connection = __helpers.establishConnection();
+assert.exists(connection, 'unable to establish connection to localnet');
 const camperAccount = await connection.getAccountInfo(camperKeypair.publicKey);
 assert.exists(camperAccount, 'wallet.json does not have an associated account');
-
 const programKeypair = await __helpers.getProgramKeypair();
 assert.exists(programKeypair, 'dist/program/ does not have a .json file');
 const programId = programKeypair.publicKey;
-const connection = __helpers.establishConnection();
-assert.exists(connection, 'unable to establish connection to localnet');
 const programAccountInfo = await connection.getAccountInfo(programId);
 assert.exists(programAccountInfo, 'Program not deployed to the local net');
 assert.equal(
@@ -237,32 +236,26 @@ You should write a `client/main.js` script interacting with the smart contract.
 
 ```js
 const clientExists = await __helpers.fileExists(join(__loc, 'client'));
-assert.exists(clientExists, 'client/ does not exist');
+assert.isTrue(clientExists, 'client/ does not exist');
 const mainExists = await __helpers.fileExists(join(__loc, 'client', 'main.js'));
-assert.exists(mainExists, 'client/main.js does not exist');
+assert.isTrue(mainExists, 'client/main.js does not exist');
 ```
 
 Calling `node client/main.js` should throw an error with the message `"No message provided"`.
 
 ```js
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `node client/main.js`
+  `node client/main.js`, __loc
 );
-assert.include(stderr, 'No message provided');
-```
-
-Calling `node client/main.js "Hello, World"` should not throw an error.
-
-```js
-const { stdout, stderr } = await __helpers.getCommandOutput(
-  `node client/main.js "Hello, World"`
-);
-assert.isEmpty(stderr, 'STDERR should be empty');
+assert.match(stderr, /No message provided/);
 ```
 
 Calling `node client/main.js "Test string"` should change the message stored in the program data account.
 
 ```js
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `node client/main.js "Test string"`, __loc
+);
 const connection = __helpers.establishConnection();
 assert.exists(connection, 'unable to establish connection to localnet');
 const dataAccountPublicKey = await __helpers.getDataAccountPublicKey();

@@ -45,7 +45,8 @@ export async function importSansCache(p) {
 export async function getCamperKeypair() {
   const secretKeyString = await __helpers.getFile(join(__loc, 'wallet.json'));
   const secretKey = JSON.parse(secretKeyString);
-  return web3.Keypair.fromSecretKey(secretKey);
+  const int8secretKey = new Uint8Array(secretKey);
+  return web3.Keypair.fromSecretKey(int8secretKey);
 }
 
 export async function getSOFile() {
@@ -70,7 +71,8 @@ export async function getProgramKeypair() {
     join(__loc, 'dist', 'program', jsonFile)
   );
   const keypair = JSON.parse(json);
-  return web3.Keypair.fromSecretKey(keypair);
+  const int8keypair = new Uint8Array(keypair);
+  return web3.Keypair.fromSecretKey(int8keypair);
 }
 export async function getDataAccountPublicKey() {
   const keypair = await getCamperKeypair();
