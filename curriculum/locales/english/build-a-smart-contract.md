@@ -199,7 +199,7 @@ assert.exists(
 The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account.
 
 ```js
-
+assert(false);
 ```
 
 If the `InstructionData` is not deserializable into a `String`, the program should return the `InvalidInstructionData` variant of `ProgramError`.
