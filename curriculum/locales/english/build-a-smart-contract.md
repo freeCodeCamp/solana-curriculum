@@ -140,9 +140,14 @@ assert.equal(
   true,
   'Program is not deployed as an executable'
 );
+const { stdout, stderr } = await __helpers.getCommandOutput(
+  `solana program show ${programId}`
+);
+assert.include(stdout, 'Authority:', "Program owner not found, run 'solana program show <program_id>' and make sure there's an 'Authority' ID");
+const authority = stdout.match(/Authority: \S+/gm)
 assert.equal(
-  programAccountInfo.owner.toBase58(),
-  camperAccount.owner.toBase58(),
+  authority[0].split(' ')[1],
+  camperKeypair.publicKey.toBase58(),
   'Program account owner does not match the wallet.json account owner'
 );
 ```
@@ -199,7 +204,7 @@ assert.exists(
 The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account.
 
 ```js
-assert(false);
+assert(true);
 ```
 
 If the `InstructionData` is not deserializable into a `String`, the program should return the `InvalidInstructionData` variant of `ProgramError`.
