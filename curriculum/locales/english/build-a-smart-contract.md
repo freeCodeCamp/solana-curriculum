@@ -152,7 +152,7 @@ The program should return the `IncorrectProgramId` variant of `ProgramError` if 
 ```js
 // Should pass `owner_not_program_id` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test owner_not_program_id`
+  `cargo test owner_not_program_id`, __loc
 );
 assert.include(stdout, 'test tests::owner_not_program_id ... ok');
 ```
@@ -162,7 +162,7 @@ The program should return the `NotEnoughAccountKeys` variant of `ProgramError` i
 ```js
 // Should pass `no_accounts` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test no_accounts`
+  `cargo test no_accounts`, __loc
 );
 assert.include(stdout, 'test tests::no_accounts ... ok');
 ```
@@ -207,9 +207,9 @@ If the `InstructionData` is not deserializable into a `String`, the program shou
 ```js
 // Should pass `instruction_not_string` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test instruction_not_string`
+  `cargo test instruction_not_string`, `${__loc}/program`
 );
-assert.include(stdout, 'test tests::instruction_not_string ... ok');
+assert.include(stdout, 'test instruction_not_string ... ok');
 ```
 
 If the `String` length is greater than 280 characters, the program should return the `InvalidInstructionData` variant of `ProgramError`.
@@ -217,9 +217,9 @@ If the `String` length is greater than 280 characters, the program should return
 ```js
 // Should pass `instruction_too_long` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test instruction_too_long`
+  `cargo test instruction_too_long`, `${__loc}/program`
 );
-assert.include(stdout, 'test tests::instruction_too_long ... ok');
+assert.include(stdout, 'test instruction_too_long ... ok');
 ```
 
 The `InstructionData` should be padded with space characters to 280 characters.
@@ -227,9 +227,9 @@ The `InstructionData` should be padded with space characters to 280 characters.
 ```js
 // Should pass `instruction_data_padded` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test instruction_data_padded`
+  `cargo test instruction_data_padded`, `${__loc}/program`
 );
-assert.include(stdout, 'test tests::instruction_data_padded ... ok');
+assert.include(stdout, 'test instruction_data_padded ... ok');
 ```
 
 You should write a `client/main.js` script interacting with the smart contract.
@@ -247,7 +247,7 @@ Calling `node client/main.js` should throw an error with the message `"No messag
 const { stdout, stderr } = await __helpers.getCommandOutput(
   `node client/main.js`, __loc
 );
-assert.match(stderr, /No message provided/);
+assert.include(stderr, 'No message provided');
 ```
 
 Calling `node client/main.js "Test string"` should change the message stored in the program data account.
