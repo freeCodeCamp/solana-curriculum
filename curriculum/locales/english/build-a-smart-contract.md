@@ -152,9 +152,9 @@ The program should return the `IncorrectProgramId` variant of `ProgramError` if 
 ```js
 // Should pass `owner_not_program_id` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test owner_not_program_id`, __loc
+  `cargo test owner_not_program_id`, `${__loc}/program`
 );
-assert.include(stdout, 'test tests::owner_not_program_id ... ok');
+assert.include(stdout, 'test owner_not_program_id ... ok');
 ```
 
 The program should return the `NotEnoughAccountKeys` variant of `ProgramError` if the number of account keys is less than 1.
@@ -162,9 +162,9 @@ The program should return the `NotEnoughAccountKeys` variant of `ProgramError` i
 ```js
 // Should pass `no_accounts` test
 const { stdout, stderr } = await __helpers.getCommandOutput(
-  `cargo test no_accounts`, __loc
+  `cargo test no_accounts`, `${__loc}/program`
 );
-assert.include(stdout, 'test tests::no_accounts ... ok');
+assert.include(stdout, 'test no_accounts ... ok');
 ```
 
 The program should own a data account for storing a text message of 280 characters.
