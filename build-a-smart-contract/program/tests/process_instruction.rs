@@ -25,6 +25,27 @@ fn owner_not_program_id() {
     assert_eq!(result, Err(ProgramError::IncorrectProgramId));
 }
 
+// #[test]
+// fn instruction_is_deserialized() {
+//     let program_id = Pubkey::new_unique();
+//     let mut data = vec![0; 284];
+//     let mut lam = 2;
+//     let account_info = AccountInfo::new(
+//         &program_id,
+//         false,
+//         true,
+//         &mut lam,
+//         &mut data,
+//         &program_id,
+//         false,
+//         2,
+//     );
+//     let accounts = vec![account_info];
+//     let instruction_data = "Hello World!".as_bytes();
+//     let result = process_instruction(&program_id, &accounts, &instruction_data);
+//     assert_eq!(result, Ok(()));
+// }
+
 #[test]
 fn instruction_not_string() {
     let program_id = Pubkey::new_unique();

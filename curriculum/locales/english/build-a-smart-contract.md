@@ -204,6 +204,11 @@ assert.exists(
 The program should deserialize the `InstructionData` into a `String`, and store the string in the program data account.
 
 ```js
+// Should pass `instruction_is_deserialized` test
+//const { stdout, stderr } = await __helpers.getCommandOutput(
+  //`cargo test instruction_is_deserialized`, `${__loc}/program`
+//);
+//assert.include(stdout, 'test instruction_is_deserialized ... ok');
 assert(true);
 ```
 
