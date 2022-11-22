@@ -327,7 +327,7 @@ touch src/client/hello-world.js
 
 The `web3.js` module from Solana provides all the functionality you will need to interact with the Solana blockchain.
 
-In your `package.json` file, the `@solana/web3.js` is included as a dependency, along with a few others you need. Run `npm install` to install them.
+In your `package.json` file, `@solana/web3.js` is included as a dependency, along with `borsh`. Run `npm install` to install them.
 
 ### --tests--
 
@@ -353,14 +353,6 @@ You should have a `node_modules/borsh` folder as a result of installing the depe
 const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules')
 
 assert.include(dir, 'borsh');
-```
-
-You should have a `node_modules/yaml` folder as a result of installing the dependencies
-
-```js
-const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules/@solana')
-
-assert.include(dir, 'web3.js');
 ```
 
 ### --seed--
