@@ -26,7 +26,9 @@
     "README.md": true,
     "renovate.json": true,
     "build-x-using-y": true,
-    "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract": true
+    "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract": true,
+    "learn-how-to-interact-with-on-chain-programs": true,
+    "build-a-smart-contract": true
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
@@ -36,7 +38,9 @@
     }
   },
   "rust-analyzer.linkedProjects": [
-    "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml"
+    "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml",
+    "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml",
+    "build-a-smart-contract/_answer/program/Cargo.toml"
   ],
   "workbench.colorTheme": "freeCodeCamp Dark Theme"
 }

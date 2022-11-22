@@ -1,10 +1,7 @@
 {
   "name": "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract",
   "version": "0.0.1",
-  "description": "",
-  "license": "MIT",
   "scripts": {
-    "increment": "ts-node src/client/increment/main.ts",
     "call:hello-world": "ts-node src/client/main.ts",
     "clean": "npm run clean:program-rust",
     "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist"
@@ -18,7 +15,6 @@
     "@tsconfig/recommended": "1.0.1",
     "@types/node": "18.11.9",
     "@types/yaml": "1.9.7",
-    "start-server-and-test": "1.14.0",
     "ts-node": "10.9.1",
     "typescript": "4.9.3"
   },
