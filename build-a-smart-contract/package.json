@@ -6,7 +6,7 @@
     "borsh": "0.7.0"
   },
   "scripts": {
-    "build": "cargo build-sbf --manifest-path _answer/program/Cargo.toml --sbf-out-dir=dist/program",
+    "build": "cargo build-sbf --manifest-path program/Cargo.toml --sbf-out-dir=dist/program",
     "deploy": "solana program deploy --keypair wallet.json dist/program/message.so"
   }
 }
