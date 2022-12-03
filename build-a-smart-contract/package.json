@@ -2,7 +2,7 @@
   "name": "build-a-smart-contract",
   "type": "module",
   "dependencies": {
-    "@solana/web3.js": "1.66.2",
+    "@solana/web3.js": "1.69.0",
     "borsh": "0.7.0"
   },
   "scripts": {
