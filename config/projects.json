@@ -18,10 +18,21 @@
     "description": "In this course, you will learn how to write the client code to interact with your previously deployed hello world smart contract.",
     "isPublic": true,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 65
   },
   {
     "id": 2,
+    "title": "Build a Smart Contract",
+    "dashedName": "build-a-smart-contract",
+    "isIntegrated": true,
+    "description": "In this integrated project, you will use what you previously learnt to build a smart contract, and interact with it.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "numberOfLessons": 1
+  },
+  {
+    "id": 3,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,

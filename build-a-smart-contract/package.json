@@ -1,0 +1,12 @@
+{
+  "name": "build-a-smart-contract",
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "1.70.1",
+    "borsh": "0.7.0"
+  },
+  "scripts": {
+    "build": "cargo build-sbf --manifest-path program/Cargo.toml --sbf-out-dir=dist/program",
+    "deploy": "solana program deploy --keypair wallet.json dist/program/message.so"
+  }
+}

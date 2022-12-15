@@ -4,21 +4,43 @@
 
 ### --description--
 
+Welcome to the second Solana project! For the duration of this project, you will be working in the `learn-how-to-interact-with-on-chain-programs/` directory.
+
+Change into the above directory in your bash terminal.
+
+### --tests--
+
+You should use `cd` to change into the `learn-how-to-interact-with-on-chain-programs/` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(
+  cwd,
+  'learn-how-to-interact-with-on-chain-programs'
+);
+```
+
+## 2
+
+### --description--
+
 Previously, you developed a smart contract that kept count of the number of times it was invoked.
 
-Now, you will develop a client to call your smart contract.
-
-Start by building your smart contract with:
+Now, you will develop a client to call your smart contract. Start by building your smart contract with:
 
 ```bash
 npm run build
 ```
+
+It will take a moment.
 
 ### --tests--
 
 You should run `npm run build` in the terminal.
 
 ```js
+await new Promise(res => setTimeout(res, 1000));
 const lastCommand = await __helpers.getLastCommand();
 assert.equal(lastCommand.trim(), 'npm run build');
 ```
@@ -31,7 +53,7 @@ const cwd = cwdFile.split('\n').filter(Boolean).pop();
 assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -56,7 +78,7 @@ assert.isTrue(pathExists, 'You should have a `src/client` directory.');
 npm run build
 ```
 
-## 3
+## 4
 
 ### --description--
 
@@ -81,7 +103,7 @@ assert.isTrue(pathExists, 'You should have a `src/client/main.js` file.');
 mkdir src/client
 ```
 
-## 4
+## 5
 
 ### --description--
 
@@ -117,7 +139,7 @@ assert(
 touch src/client/main.js
 ```
 
-## 5
+## 6
 
 ### --description--
 
@@ -149,7 +171,7 @@ assert.equal(
 async function main() {}
 ```
 
-## 6
+## 7
 
 ### --description--
 
@@ -194,7 +216,7 @@ async function main() {}
 await main();
 ```
 
-## 7
+## 8
 
 ### --description--
 
@@ -228,7 +250,7 @@ async function main() {
 await main();
 ```
 
-## 8
+## 9
 
 ### --description--
 
@@ -299,49 +321,38 @@ delete global.babelisedCode;
 touch src/client/hello-world.js
 ```
 
-## 9
+## 10
 
 ### --description--
 
 The `web3.js` module from Solana provides all the functionality you will need to interact with the Solana blockchain.
 
-Install the `@solana/web3.js` module.
+In your `package.json` file, `@solana/web3.js` is included as a dependency, along with `borsh`. Run `npm install` to install them.
 
 ### --tests--
 
-You should have `@solana/web3.js` in your `package.json` dependencies field.
+You should run `npm install` in your project folder to install the modules
 
 ```js
-const packageJsonFile = await __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/package.json'
-);
-const packageJson = JSON.parse(packageJsonFile);
-assert.exists(
-  packageJson.dependencies?.['@solana/web3.js'],
-  'You should have `@solana/web3.js` in your `package.json` dependencies field.'
-);
+await new Promise(res => setTimeout(res, 1000));
+const lastCommand = await __helpers.getLastCommand();
+assert.match(lastCommand.trim(), /npm\s+(i|install)/);
 ```
 
-You should install at least version `1.63`.
+You should have a `node_modules/@solana/web3.js` folder as a result of installing the dependencies
 
 ```js
-const packageJsonFile = await __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/package.json'
-);
-const packageJson = JSON.parse(packageJsonFile);
-assert.exists(
-  packageJson.dependencies?.['@solana/web3.js'],
-  'You should have `@solana/web3.js` in your `package.json` dependencies field.'
-);
-const version = packageJson.dependencies?.['@solana/web3.js'];
-const versionSansRange = version.replace(/[\^\*\~]/g, '');
-const versionSansPatch = versionSansRange.replace(/(?<=\.\d+)\.\d+$/, '');
-const numberVersion = Number(versionSansPatch);
-assert.isAtLeast(
-  numberVersion,
-  1.63,
-  'You should install at least version `1.63`'
-);
+const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules/@solana')
+
+assert.include(dir, 'web3.js');
+```
+
+You should have a `node_modules/borsh` folder as a result of installing the dependencies
+
+```js
+const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules')
+
+assert.include(dir, 'borsh');
 ```
 
 ### --seed--
@@ -352,7 +363,7 @@ assert.isAtLeast(
 export function establishConnection() {}
 ```
 
-## 10
+## 11
 
 ### --description--
 
@@ -450,7 +461,7 @@ delete global.babelisedCode;
 npm install @solana/web3.js
 ```
 
-## 11
+## 12
 
 ### --description--
 
@@ -461,10 +472,6 @@ Within the `main` function in `main.js`, make a call to `establishConnection`, a
 You should have `const connection = establishConnection()` in `main.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const connectionVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
@@ -517,7 +524,7 @@ assert.exists(
 
 ```js
 const codeString = await __helpers.getFile(
-  'learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  'learn-how-to-interact-with-on-chain-programs/src/client/main.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
 global.babelisedCode = babelisedCode;
@@ -541,7 +548,7 @@ export function establishConnection() {
 }
 ```
 
-## 12
+## 13
 
 ### --description--
 
@@ -625,7 +632,7 @@ async function main() {
 await main();
 ```
 
-## 13
+## 14
 
 ### --description--
 
@@ -700,7 +707,7 @@ const readFileCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.name === 'readFile' && c.scope.join() === 'global,establishPayer'
+      c.callee.name === 'readFile' && c.scope.includes('global') && c.scope.includes('establishPayer')
     );
   });
 assert.exists(
@@ -708,7 +715,6 @@ assert.exists(
   'You should pass `"../../../root/.config/solana/id.json"` as the first argument to `readFile`'
 );
 const firstArgument = readFileCallExpression.arguments?.[0]?.value;
-const urlToAssert = new URL(firstArgument, 'file://');
 assert.equal(
   readFileCallExpression?.arguments?.[0]?.value,
   '../../../root/.config/solana/id.json',
@@ -746,7 +752,7 @@ export function establishConnection() {
 export async function establishPayer() {}
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -869,7 +875,7 @@ export async function establishPayer() {
 }
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -960,7 +966,7 @@ export async function establishPayer() {
 }
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -1051,7 +1057,7 @@ export async function establishPayer() {
 }
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -1116,7 +1122,7 @@ const readFileCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.name === 'readFile' && c.scope.join() === 'global,getProgramId'
+      c.callee.name === 'readFile' && c.scope.includes('global') && c.scope.includes('getProgramId')
     );
   });
 assert.exists(
@@ -1171,7 +1177,7 @@ export async function establishPayer() {
 export async function getProgramId() {}
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -1292,7 +1298,7 @@ export async function getProgramId() {
 }
 ```
 
-## 19
+## 20
 
 ### --description--
 
@@ -1404,7 +1410,7 @@ export async function getProgramId() {
 }
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -1481,7 +1487,7 @@ export async function getProgramId() {
 }
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -1621,7 +1627,7 @@ export async function getProgramId() {
 }
 ```
 
-## 22
+## 23
 
 ### --description--
 
@@ -1823,7 +1829,7 @@ export async function getProgramId() {
 export async function getAccountPubkey(payer, programId) {}
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -2020,7 +2026,7 @@ export async function getAccountPubkey(payer, programId) {
 }
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -2037,11 +2043,11 @@ const { checkProgram } = await __helpers.importSansCache(
   '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const payer = {};
-const programId = {};
+const programId = 'programId';
 const accountPubkey = 'accountPubkey';
 const connection = {
   getAccountInfo: async a =>
-    a === accountPubkey
+    a !== programId
       ? assert.fail('incorrect parameter passed to `getAccountInfo`')
       : null
 };
@@ -2105,11 +2111,11 @@ export async function checkProgram(
 ) {}
 ```
 
-## 25
+## 26
 
 ### --description--
 
-Within `checkProgram`, make use of the `executable` property of the `AccountInfo` result to throw an `Error` if the program account is not executable.
+Within `checkProgram`, make use of the `executable` (boolean) property of the `getAccountInfo` result to throw an `Error` if the program account is not executable.
 
 ### --tests--
 
@@ -2204,13 +2210,13 @@ export async function checkProgram(
 }
 ```
 
-## 26
+## 27
 
 ### --description--
 
 If this is the first time the program account is being invoked, it will not own a _data account_ to store any state.
 
-Within `checkProgram`, get the account info of the program **data** account, _if any exists_. If the result is equal to `null`, throw an `Error` with a string message.
+Within `checkProgram`, get the account info of the program **data** account (`accountPubkey`), _if any exists_. If the result is equal to `null`, throw an `Error` with a string message.
 
 ### --tests--
 
@@ -2308,7 +2314,7 @@ export async function checkProgram(
 }
 ```
 
-## 27
+## 28
 
 ### --description--
 
@@ -2512,7 +2518,7 @@ export async function checkProgram(
 }
 ```
 
-## 28
+## 29
 
 ### --description--
 
@@ -2683,7 +2689,7 @@ export async function createAccount(
 ) {}
 ```
 
-## 29
+## 30
 
 ### --description--
 
@@ -2770,7 +2776,7 @@ export async function createAccount(
 }
 ```
 
-## 30
+## 31
 
 ### --description--
 
@@ -2781,6 +2787,8 @@ Within `hello-world.js`, define an `ACCOUNT_SIZE` constant, and set its value to
 ```javascript
 borsh.serialize(HelloWorldSchema, new HelloWorldAccount()).length;
 ```
+
+Then, at the top of the file import `*` as `borsh` from the `borsh` module.
 
 ### --tests--
 
@@ -2847,7 +2855,7 @@ assert.equal(
 );
 ```
 
-You should import `borsh` from `borsh`.
+You should `import * as borsh from borsh`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
@@ -2884,7 +2892,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 31
+## 32
 
 ### --description--
 
@@ -3068,7 +3076,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 32
+## 33
 
 ### --description--
 
@@ -3313,7 +3321,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 33
+## 34
 
 ### --description--
 
@@ -3493,7 +3501,7 @@ const ACCOUNT_SIZE = borsh.serialize(
 ).length;
 ```
 
-## 34
+## 35
 
 ### --description--
 
@@ -3666,7 +3674,7 @@ export async function createAccount(
 }
 ```
 
-## 35
+## 36
 
 ### --description--
 
@@ -3876,13 +3884,13 @@ export async function createAccount(
 }
 ```
 
-## 36
+## 37
 
 ### --description--
 
 Solana has a native program called the _System Program_. It provides functionality to create accounts, allocate account data, assign an account to programs, work with nonce accounts, and transfer lamports.
 
-Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Store the return in a variable named `tx`.
+Within `createAccount`, use the `createAccountWithSeed` method on the `SystemProgram` class from `@solana/web3.js`. Pass it your `instruction` variable and store the return value in a variable named `tx`.
 
 ### --tests--
 
@@ -4056,7 +4064,7 @@ export async function createAccount(
 }
 ```
 
-## 37
+## 38
 
 ### --description--
 
@@ -4219,7 +4227,7 @@ export async function createAccount(
 }
 ```
 
-## 38
+## 39
 
 ### --description--
 
@@ -4452,11 +4460,11 @@ export async function createAccount(
 }
 ```
 
-## 39
+## 40
 
 ### --description--
 
-Within `checkProgram`, instead of throwing an error when the program data account is not found, create the program data account.
+Within `checkProgram`, instead of throwing an error when the program data account is not found, use `createAccount` to create the program data account.
 
 ### --tests--
 
@@ -4712,7 +4720,7 @@ export async function createAccount(
 }
 ```
 
-## 40
+## 41
 
 ### --description--
 
@@ -4946,13 +4954,13 @@ export async function createAccount(
 }
 ```
 
-## 41
+## 42
 
 ### --description--
 
 To say hello to your smart contract, you need to send a transaction with some data.
 
-Within `sayHello`, create an `transaction` variable with a value of:
+Within `sayHello`, create a `transaction` variable with a value of:
 
 ```javascript
 {
@@ -5139,7 +5147,7 @@ export async function createAccount(
 export async function sayHello(connection, payer, programId, accountPubkey) {}
 ```
 
-## 42
+## 43
 
 ### --description--
 
@@ -5325,7 +5333,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 43
+## 44
 
 ### --description--
 
@@ -5394,6 +5402,15 @@ try {
     throw e;
   }
 }
+```
+
+Your `sayHello` function should create a new `Transaction` instance
+
+```js
+const { sayHello } = await __helpers.importSansCache(
+  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+);
+assert.match(sayHello.toString(), /new\s+Transaction\s*\(/);
 ```
 
 ### --before-all--
@@ -5531,7 +5548,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -5730,7 +5747,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 }
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -5820,7 +5837,7 @@ async function main() {
 await main();
 ```
 
-## 46
+## 47
 
 ### --description--
 
@@ -5861,6 +5878,8 @@ assert.equal(
   'getAccountPubkey',
   'You should assign `accountPubkey` the value of `await getAccountPubkey(payer, programId)`'
 );
+assert.equal(awaitExpression?.argument?.arguments[0]?.name, 'payer');
+assert.equal(awaitExpression?.argument?.arguments[1]?.name, 'programId');
 ```
 
 You should import `getAccountPubkey` from `./hello-world.js`.
@@ -5916,7 +5935,7 @@ async function main() {
 await main();
 ```
 
-## 47
+## 48
 
 ### --description--
 
@@ -6013,7 +6032,7 @@ async function main() {
 await main();
 ```
 
-## 48
+## 49
 
 ### --description--
 
@@ -6112,11 +6131,11 @@ async function main() {
 await main();
 ```
 
-## 49
+## 50
 
 ### --description--
 
-Start a local Solana cluster, if you do not already have one running.
+Run `solana-test-validator` to start a local Solana cluster if you do not already have one running.
 
 ### --tests--
 
@@ -6160,11 +6179,11 @@ async function main() {
 await main();
 ```
 
-## 50
+## 51
 
 ### --description--
 
-Test your script by using `node` to run it.
+Test your script by using `node` to run it. It should produce an error.
 
 ### --tests--
 
@@ -6200,7 +6219,7 @@ try {
 }
 ```
 
-## 51
+## 52
 
 ### --description--
 
@@ -6221,7 +6240,14 @@ assert.equal(
 );
 ```
 
-## 52
+You should have an `id.json` file in the `/root/.config/solana/` directory as a result of generating a key
+
+```js
+const solanaDir = await __helpers.getDirectory('../../root/.config/solana')
+assert.exists(solanaDir, 'id.json');
+```
+
+## 53
 
 ### --description--
 
@@ -6242,7 +6268,7 @@ assert.include(
 );
 ```
 
-## 53
+## 54
 
 ### --description--
 
@@ -6282,7 +6308,7 @@ try {
 }
 ```
 
-## 54
+## 55
 
 ### --description--
 
@@ -6314,7 +6340,7 @@ try {
 }
 ```
 
-## 55
+## 56
 
 ### --description--
 
@@ -6354,7 +6380,7 @@ try {
 }
 ```
 
-## 56
+## 57
 
 ### --description--
 
@@ -6394,7 +6420,7 @@ try {
 }
 ```
 
-## 57
+## 58
 
 ### --description--
 
@@ -6491,7 +6517,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 58
+## 59
 
 ### --description--
 
@@ -6686,7 +6712,7 @@ export async function sayHello(connection, payer, programId, accountPubkey) {
 export async function getHelloCount(connection, accountPubkey) {}
 ```
 
-## 59
+## 60
 
 ### --description--
 
@@ -6898,7 +6924,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 60
+## 61
 
 ### --description--
 
@@ -7077,7 +7103,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 61
+## 62
 
 ### --description--
 
@@ -7295,7 +7321,7 @@ export async function getHelloCount(connection, accountPubkey) {
 }
 ```
 
-## 62
+## 63
 
 ### --description--
 
@@ -7372,7 +7398,7 @@ async function main() {
 await main();
 ```
 
-## 63
+## 64
 
 ### --description--
 
@@ -7383,12 +7409,22 @@ Use Nodejs to execute the `main.js` script.
 You should run `node src/client/main.js` in the terminal.
 
 ```js
+await new Promise(res => setTimeout(res, 1000));
 const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand?.trim(),
   'node src/client/main.js',
   'You should run `node src/client/main.js` in the terminal'
 );
+```
+
+Your terminal should print `Hello count: <number>`
+
+```js
+const output = await __helpers.getTerminalOutput();
+const splitOutput = output.split('node src/client/main.js');
+const lastOutput = splitOutput[splitOutput.length - 1];
+assert.match(lastOutput, /Hello count: \d+/);
 ```
 
 ### --seed--
@@ -7421,7 +7457,7 @@ async function main() {
 await main();
 ```
 
-## 64
+## 65
 
 ### --description--
 

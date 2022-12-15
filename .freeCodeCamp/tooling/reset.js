@@ -1,12 +1,13 @@
 // Handles all the resetting of the projects
 
 import { join } from 'path';
+import { updateError } from './client-socks.js';
 import { getConfig, getProjectConfig, getState, ROOT } from './env.js';
 import { logover } from './logger.js';
 import { getLessonFromFile, getLessonSeed } from './parser.js';
 import { runCommand, runLessonSeed } from './seed.js';
 
-export async function resetProject() {
+export async function resetProject(ws) {
   // Get commands and handle file setting
   const { currentProject } = await getState();
   const freeCodeCampConfig = await getConfig();
@@ -19,18 +20,21 @@ export async function resetProject() {
   );
 
   let lessonNumber = 1;
-  let lesson = await getLessonFromFile(FILE, lessonNumber);
-  if (!lesson) {
-    return new Error(`No lesson found for ${currentProject}`);
-  }
-  await gitResetCurrentProjectDir();
-  while (lessonNumber <= currentLesson) {
-    const seed = getLessonSeed(lesson);
-    if (seed) {
-      await runLessonSeed(seed, currentProject, lessonNumber);
+  try {
+    let lesson = await getLessonFromFile(FILE, lessonNumber);
+
+    await gitResetCurrentProjectDir();
+    while (lessonNumber <= currentLesson) {
+      const seed = getLessonSeed(lesson);
+      if (seed) {
+        await runLessonSeed(seed, currentProject, lessonNumber);
+      }
+      lessonNumber++;
+      lesson = await getLessonFromFile(FILE, lessonNumber);
     }
-    lessonNumber++;
-    lesson = await getLessonFromFile(FILE, lessonNumber);
+  } catch (err) {
+    updateError(ws, err);
+    logover.error(err);
   }
 }
 
