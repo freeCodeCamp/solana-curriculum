@@ -4,16 +4,56 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="icon" href="data:," />
     <title>freeCodeCamp: Solana Fungi</title>
   </head>
   <body>
-    <script>
-      /*
-      Input for minter address
-      Input for payer address
-      Input to create a new token account
-      Inputs to transfer tokens
-    */
-    </script>
+    <h1>freeCodeCamp: Solana Fungi</h1>
+    <div id="mint">
+      <h2>Mint</h2>
+      <fieldset>
+        <label for="payer"
+          >Payer Address: <input type="text" id="payer"
+        /></label>
+        <label for="mint">Mint Address: <input type="text" id="mint" /></label>
+        <label for="destination"
+          >Destination Address: <input type="text" id="destination"
+        /></label>
+        <label for="authority"
+          >Authority Address: <input type="text" id="authority"
+        /></label>
+
+        <label for="amount">Amount: <input type="number" id="amount" /></label>
+      </fieldset>
+      <button id="mint-button">Mint</button>
+    </div>
+    <div id="transfer">
+      <h2>Transfer</h2>
+      <fieldset>
+        <label for="transfer-address"
+          >From Address: <input type="text" id="transfer-address"
+        /></label>
+        <label for="transfer-recipient"
+          >To Address: <input type="text" id="transfer-recipient"
+        /></label>
+        <label for="transfer-amount"
+          >Amount: <input type="number" id="transfer-amount"
+        /></label>
+      </fieldset>
+      <button id="transfer-button">Transfer</button>
+      <div id="transfer-output"></div>
+    </div>
+    <div id="balance">
+      <h2>Balance</h2>
+      <fieldset>
+        <label for="balance-address"
+          >Address: <input type="text" id="balance-address"
+        /></label>
+      </fieldset>
+      <button id="balance-button">Balance</button>
+      <div id="balance-output"></div>
+    </div>
+    <script></script>
   </body>
 </html>

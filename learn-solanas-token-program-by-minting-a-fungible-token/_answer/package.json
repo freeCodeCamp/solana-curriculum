@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A fungible token on Solana",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "npx serve client"
   },
   "author": "",
   "license": "ISC",
