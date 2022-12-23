@@ -1,18 +1,16 @@
-import { mintTo } from "@solana/spl-token";
-import { Connection } from "@solana/web3.js";
+import { mintTo } from '@solana/spl-token';
+import { Connection } from '@solana/web3.js';
+import { getPayer, mintAddress, mintAuthority, tokenAccount } from './utils.js';
 
-const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+const connection = new Connection('http://localhost:8899', 'confirmed');
 
-const payer = ;
-const mint = ;
-const tokenAccount = ;
-const mintAuthority = ;
+const payer = await getPayer();
 
 await mintTo(
   connection,
   payer,
-  mint,
-  tokenAccount.address,
+  mintAddress,
+  tokenAccount,
   mintAuthority,
-  100000000000 // Has to do with the decimals of the mint
+  100_000_000_000
 );
