@@ -11,7 +11,7 @@
   "dependencies": {
     "@babel/parser": "7.20.7",
     "@freecodecamp/freecodecamp-os": "1.6.9",
-    "@solana/web3.js": "1.70.1",
+    "@solana/web3.js": "1.70.3",
     "babeliser": "0.6.0",
     "borsh": "0.7.0",
     "node-bug": "github:ShaunSHamilton/node-bug"

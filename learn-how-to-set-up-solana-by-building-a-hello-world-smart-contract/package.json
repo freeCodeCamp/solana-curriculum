@@ -7,7 +7,7 @@
     "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist"
   },
   "dependencies": {
-    "@solana/web3.js": "1.70.1",
+    "@solana/web3.js": "1.70.3",
     "borsh": "0.7.0",
     "yaml": "2.1.3"
   },
