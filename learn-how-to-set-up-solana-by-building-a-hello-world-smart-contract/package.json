@@ -9,7 +9,7 @@
   "dependencies": {
     "@solana/web3.js": "1.72.0",
     "borsh": "0.7.0",
-    "yaml": "2.2.0"
+    "yaml": "2.2.1"
   },
   "devDependencies": {
     "@tsconfig/recommended": "1.0.1",
