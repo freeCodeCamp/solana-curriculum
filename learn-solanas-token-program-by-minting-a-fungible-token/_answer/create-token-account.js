@@ -3,15 +3,11 @@ import {
   getMint,
   getOrCreateAssociatedTokenAccount
 } from '@solana/spl-token';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { getPayer } from './utils.js';
+import { Connection } from '@solana/web3.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899', 'confirmed');
-const payer = await getPayer();
 
-const mintAddress = new PublicKey(
-  '98NDWqjUTudLQY2kbiEcH8ZWRH8RpHiqkEHUU3CsHJdq'
-);
 const mint = await getMint(connection, mintAddress);
 
 console.log('mint:', mint);

@@ -12,7 +12,7 @@ Change into the above directory in a new bash terminal.
 
 ### --tests--
 
-You should use `cd` to change into the `learn-solanas-token-program-by-minting-a-fungible-token/` directory.
+You can use `cd` to change into the `learn-solanas-token-program-by-minting-a-fungible-token/` directory.
 
 ```js
 const cwdFile = await __helpers.getCWD();
@@ -31,6 +31,21 @@ Creating a <dfn title="A digitally transferable asset whose supply is alterable.
 1. Creating a _Mint_ account
 2. Creating a _Token_ account
 3. Minting tokens
+
+Create a file named `create-mint-account.js`.
+
+### --tests--
+
+You can use `touch` to create a file named `create-mint-account.js`.
+
+```js
+const fileExists = await __helpers.fileExists('create-mint-account.js');
+assert.isTrue(fileExists);
+```
+
+## 3
+
+### --description--
 
 ### --tests--
 

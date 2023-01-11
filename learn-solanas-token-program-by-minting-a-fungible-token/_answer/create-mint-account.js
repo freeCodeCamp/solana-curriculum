@@ -1,19 +1,16 @@
 import { createMint, getMint } from '@solana/spl-token';
-import { getPayer } from './utils.js';
-import { clusterApiUrl, Connection, Keypair } from '@solana/web3.js';
+import { payer, mintAuthority } from './utils.js';
+import { Connection } from '@solana/web3.js';
 
-const payer = await getPayer();
-
-const mintAuthority = payer;
-const freezeAuthority = payer;
+const freezeAuthority = payer.publicKey;
 
 const connection = new Connection('http://localhost:8899', 'confirmed');
 
 const mint = await createMint(
   connection,
   payer,
-  mintAuthority.publicKey,
-  freezeAuthority.publicKey,
+  mintAuthority,
+  freezeAuthority,
   9
 );
 

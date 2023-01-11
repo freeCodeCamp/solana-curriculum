@@ -4,10 +4,10 @@ import {
   transfer
 } from '@solana/spl-token';
 import { Connection, Keypair } from '@solana/web3.js';
-import { getPayer, mintAddress } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899', 'confirmed');
-const fromWallet = await getPayer();
+const fromWallet = payer;
 const fromPublicKey = fromWallet.publicKey;
 
 const fromTokenAccount = await getAssociatedTokenAddress(
@@ -28,13 +28,13 @@ const toTokenAccount = await getOrCreateAssociatedTokenAccount(
 const amount = 50;
 
 // Transfer the new token to `toTokenAccount`
-const signature = await transfer(
+await transfer(
   connection,
   fromWallet,
   fromTokenAccount,
   toTokenAccount.address,
-  fromWallet.publicKey,
+  fromWallet,
   amount
 );
 
-console.log('Signature:', signature);
+console.log(`Transfered ${amount} tokens to ${toWallet.publicKey.toBase58()}`);
