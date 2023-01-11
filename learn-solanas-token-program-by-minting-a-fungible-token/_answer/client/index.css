@@ -1,0 +1,67 @@
+body {
+  background-color: #2c2c2c;
+  color: #ffffff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+h1,
+h2 {
+  text-align: center;
+  color: #ffffff;
+}
+
+fieldset {
+  border: none;
+  margin: 20px 0;
+  padding: 0;
+}
+
+label {
+  display: block;
+  margin: 10px;
+}
+
+input[type='text'],
+input[type='number'] {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  background-color: #4a4a4a;
+  color: #ffffff;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #00cc00;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+#mint-button,
+#transfer-button,
+#balance-button {
+  width: 80%;
+}
+
+#transfer-output,
+#balance-output {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #333333;
+  color: #ffffff;
+}
+
+button:hover {
+  background-color: #009900;
+  border: 1px solid #ffffff;
+  color: #cccccc;
+}
