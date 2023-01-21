@@ -12,7 +12,7 @@
     "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@tsconfig/recommended": "1.0.1",
+    "@tsconfig/recommended": "1.0.2",
     "@types/node": "18.11.18",
     "@types/yaml": "1.9.7",
     "ts-node": "10.9.1",
