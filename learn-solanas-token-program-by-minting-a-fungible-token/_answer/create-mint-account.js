@@ -1,10 +1,11 @@
-import { createMint, getMint } from '@solana/spl-token';
-import { payer, mintAuthority } from './utils.js';
+import { createMint } from '@solana/spl-token';
+import { payer } from './utils.js';
 import { Connection } from '@solana/web3.js';
 
-const freezeAuthority = payer.publicKey;
+const connection = new Connection('http://localhost:8899');
 
-const connection = new Connection('http://localhost:8899', 'confirmed');
+const mintAuthority = payer.publicKey;
+const freezeAuthority = payer.publicKey;
 
 const mint = await createMint(
   connection,
@@ -16,6 +17,6 @@ const mint = await createMint(
 
 console.log('Token Unique Identifier:', mint.toBase58());
 
-const mintInfo = await getMint(connection, mint);
+// const mintInfo = await getMint(connection, mint);
 
-console.log(mintInfo.supply); // 0
+// console.log(mintInfo);

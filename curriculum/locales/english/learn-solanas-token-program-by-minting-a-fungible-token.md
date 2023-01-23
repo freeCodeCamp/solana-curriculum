@@ -47,6 +47,1329 @@ assert.isTrue(fileExists);
 
 ### --description--
 
+Within `create-mint-account.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
 ### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `create-mint-account.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch create-mint-account.js
+```
+
+## 4
+
+### --description--
+
+You will need the `@solana/spl-token` package, as well as the `@solana/web3.js` package to interact with the _Token Program_.
+
+Install both packages using `npm`.
+
+### --tests--
+
+You should have at least version `1.70.0` of `@solana/web3.js` added to the `package.json` dependencies.
+
+```js
+
+```
+
+You should have at least version `0.3.6` of `@solana/spl-token` added to the `package.json` dependencies.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 5
+
+### --description--
+
+Creating a Mint Account requires another account to pay the fees.
+
+Import the `payer` variable from `utils.js`.
+
+### --tests--
+
+You should have `import { payer } from './utils.js';` in `create-mint-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+npm install @solana/web3.js @solana/spl-token
+```
+
+## 6
+
+### --description--
+
+The `payer` variable is a `Keypair` constructed from a `wallet.json` file.
+
+Use `solana-keygen` to create a new keypair, and save it to a file named `wallet.json`. You will be prompted to enter a passphrase. You can leave this blank.
+
+### --tests--
+
+You should have a `wallet.json` file in the `learn-solanas-token-program-by-minting-a-fungible-token/` directory.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 7
+
+### --description--
+
+A Mint Account also requires a _mint authority_ which is an account that controls the minting of the token. You will set the payer to be the mint authority.
+
+Within `create-mint-account.js`, declare a variable `mintAuthority`, and set it equal to the `payer` public key.
+
+### --tests--
+
+You should have `const mintAuthority = payer.publicKey;` in `create-mint-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+solana-keygen new --no-bip39-passphrase --silent --outfile wallet.json
+```
+
+## 8
+
+### --description--
+
+A Mint Account requires a _freeze authority_ which is an account that controls the <dfn title="Freezing a token account prevents that account from receiving/transfering the associated token.">freezing of token accounts</dfn>. You will set the payer to be the freeze authority.
+
+Within `create-mint-account.js`, declare a variable `freezeAuthority`, and set it equal to the `payer` public key.
+
+### --tests--
+
+You should have `const freezeAuthority = payer.publicKey;` in `create-mint-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const mintAuthority = payer.publicKey;
+```
+
+## 9
+
+### --description--
+
+Import the `createMint` function from `@solana/spl-token`, to create and initialize a new Mint Account:
+
+```typescript
+createMint(
+  connection: Connection,
+  payer: Signer,
+  mintAuthority: PublicKey,
+  freezeAuthority: PublicKey | null,
+  decimals: number
+): Promise<PublicKey>
+```
+
+Call the `createMint` function, passing in logical arguments. Store the awaited result in a variable named `mint`.
+
+The _decimals_ value is the number of decimal places the token will have. Set the decimals to `9` - the same as the native SOL token:
+
+| Decimals | Smallest Token Unit |
+| -------- | ------------------- |
+| 0        | 1                   |
+| 1        | 0.1                 |
+| ...      | ...                 |
+| 9        | 0.000000001         |
+
+### --tests--
+
+You should have `const mint = await createMint(connection, payer, mintAuthority, freezeAuthority, 9);` in `create-mint-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const mintAuthority = payer.publicKey;
+const freezeAuthority = payer.publicKey;
+```
+
+## 10
+
+### --description--
+
+The `createMint` function returns the public key of the newly created Mint Account.
+
+Log the base-58 representation of `mint` to the console.
+
+### --tests--
+
+You should use the `toBase58` method on `mint`.
+
+```js
+
+```
+
+You should have `console.log(mint.toBase58());` in `create-mint-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer } from './utils.js';
+import { createMint } from '@solana/spl-token';
+
+const connection = new Connection('http://localhost:8899');
+
+const mintAuthority = payer.publicKey;
+const freezeAuthority = payer.publicKey;
+
+const mint = await createMint(
+  connection,
+  payer,
+  mintAuthority,
+  freezeAuthority,
+  9
+);
+```
+
+## 11
+
+### --description--
+
+Start a local Solana cluster. Ensure the RPC URL is set to `http://localhost:8899`.
+
+### --tests--
+
+You should run `solana-test-validator` in a separate terminal.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"create-mint-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer } from './utils.js';
+import { createMint } from '@solana/spl-token';
+
+const connection = new Connection('http://localhost:8899');
+
+const mintAuthority = payer.publicKey;
+const freezeAuthority = payer.publicKey;
+
+const mint = await createMint(
+  connection,
+  payer,
+  mintAuthority,
+  freezeAuthority,
+  9
+);
+
+console.log('Token Unique Identifier:', mint.toBase58());
+```
+
+## 12
+
+### --description--
+
+Airdrop some SOL to the payer account to pay for the transaction fees:
+
+```bash
+solana airdrop <amount_of_sol> ./wallet.json
+```
+
+### --tests--
+
+The `wallet.json` account should have at least 2 SOL.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 13
+
+### --description--
+
+Run the `create-mint-account.js` script:
+
+```bash
+node create-mint-account.js
+```
+
+### --tests--
+
+You should run `node create-mint-account.js` in a terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 14
+
+### --description--
+
+The output should include the base-58 representation of the Mint Account. In other words, the mint account's public key address.
+
+Copy this address, and paste it into the `MINT_ADDRESS_58` variable in `utils.js`.
+
+### --tests--
+
+You should have `const MINT_ADDRESS_58 = '...';` in `utils.js`.
+
+```js
+// TODO: Note that seed cannot add this...
+```
+
+## 15
+
+### --description--
+
+Now that you have created a _Mint Account_, you need to create a _Token Account_.
+
+A _Token Account_ is owned by another account, and holds tokens of a specific mint.
+
+Create a new file named `create-token-account.js`.
+
+### --tests--
+
+You can use `touch` to create a file named `create-token-account.js`.
+
+```js
+const fileExists = await __helpers.fileExists('create-token-account.js');
+assert.isTrue(fileExists);
+```
+
+## 16
+
+### --description--
+
+Within `create-token-account.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
+### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `create-token-account.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch create-token-account.js
+```
+
+## 17
+
+### --description--
+
+Within `create-token-account.js`, import `payer` and `mintAddress` from `utils.js`.
+
+### --tests--
+
+You should import `payer` from `utils.js`.
+
+```js
+
+```
+
+You should import `mintAddress` from `utils.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-token-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 18
+
+### --description--
+
+Import the `getOrCreateAssociatedTokenAccount` function from `@solana/spl-token`, to retrieve an associated token account, or create it if it does not exist:
+
+```typescript
+getOrCreateAssociatedTokenAccount(
+  connection: Connection,
+  payer: Signer, // Payer for this transaction
+  mint: PublicKey, // Address of the associated token mint
+  owner: PublicKey // Address of the account to own the token account
+): Promise<Account>
+```
+
+Call the `getOrCreateAssociatedTokenAccount` function, passing in logical arguments. Store the awaited result in a variable named `tokenAccount`.
+
+Use the `payer` account as the owner of the token account.
+
+### --tests--
+
+You should have `const tokenAccount = await getOrCreateAssociatedTokenAccount(...);` in `create-token-account.js`.
+
+```js
+
+```
+
+You should import `getOrCreateAssociatedTokenAccount` from `@solana/spl-token`.
+
+```js
+
+```
+
+You should pass in order: `connection`, `payer`, `mintAddress`, and `payer.publicKey` as arguments to `getOrCreateAssociatedTokenAccount`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-token-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer, mintAddress } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 19
+
+### --description--
+
+Within `create-token-account.js`, log the base-58 representation of the `tokenAccount` address to the console.
+
+### --tests--
+
+You should have `console.log(tokenAccount.publicKey.toBase58());` in `create-token-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"create-token-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer, mintAddress } from './utils.js';
+import { getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
+
+const connection = new Connection('http://localhost:8899');
+
+const tokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintAddress,
+  payer.publicKey
+);
+```
+
+## 20
+
+### --description--
+
+Run the `create-token-account.js` script:
+
+```bash
+node create-token-account.js
+```
+
+### --tests--
+
+You should run `node create-token-account.js` in a terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"create-token-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { payer, mintAddress } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const tokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintAddress,
+  payer.publicKey
+);
+
+console.log('Token Account Address:', tokenAccount.publicKey.toBase58());
+```
+
+## 21
+
+### --description--
+
+The output should include the base-58 representation of the Token Account. In other words, the token account's public key address.
+
+Copy this address, and paste it into the `TOKEN_ACCOUNT_58` variable in `utils.js`.
+
+### --tests--
+
+You should have `const TOKEN_ACCOUNT_58 = '...';` in `utils.js`.
+
+```js
+
+```
+
+## 22
+
+### --description--
+
+Run the `create-token-account.js` script again:
+
+```bash
+node create-token-account.js
+```
+
+### --tests--
+
+You should run `node create-token-account.js` in a terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 23
+
+### --description--
+
+Seeing as there is already an associated token account for the `payer` account, the `getOrCreateAssociatedTokenAccount` function will return the existing token account.
+
+To see what a token account looks like, create a new file called `get-token-account.js`:
+
+### --tests--
+
+You should have a `get-token-account.js` file.
+
+```js
+const fileExists = await __helpers.fileExists('get-token-account.js');
+assert.isTrue(fileExists);
+```
+
+## 24
+
+### --description--
+
+Within `get-token-account.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
+### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `get-token-account.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch get-token-account.js
+```
+
+## 25
+
+### --description--
+
+Within `get-token-account.js`, create a new `PublicKey` from the first command-line argument, and assign it to a variable called `userPublicKey`.
+
+### --tests--
+
+You should have `const userPublicKey = new PublicKey(process.argv[2]);` in `get-token-account.js`.
+
+```js
+
+```
+
+You should import `PublicKey` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-account.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 26
+
+### --description--
+
+Import the `getAssociatedTokenAddress` function from `@solana/spl-token`, to get the address of the associated token account for a given mint and owner:
+
+```typescript
+getAssociatedTokenAddress(
+  mint: PublicKey,
+  owner: PublicKey
+): Promise<PublicKey>;
+```
+
+Call the `getAssociatedTokenAddress` function, passing in the `mintAddress` (from `utils.js`) and `userPublicKey` variables as arguments. Assign the result to a variable called `tokenAddress`.
+
+### --tests--
+
+You should have `const tokenAddress = await getAssociatedTokenAddress(mintAddress, userPublicKey);` in `get-token-account.js`.
+
+```js
+
+```
+
+You should import `getAssociatedTokenAddress` from `@solana/spl-token`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-account.js"--
+
+```js
+import { Connection, PublicKey } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const tokenAccountPublicKey = new PublicKey(process.argv[2]);
+```
+
+## 27
+
+### --description--
+
+Import the `getAccount` function from `@solana/spl-token`, to get the account information for a given token account:
+
+```typescript
+getAccount(
+  connection: Connection,
+  address: PublicKey
+): Promise<Account>;
+```
+
+Call the `getAccount` function, passing in the `connection` and `tokenAddress` variables as arguments. Assign the result to a variable called `tokenAccount`.
+
+### --tests--
+
+You should have `const tokenAccount = await getAccount(connection, tokenAddress);` in `get-token-account.js`.
+
+```js
+
+```
+
+You should import `getAccount` from `@solana/spl-token`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-account.js"--
+
+```js
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { mintAddress } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const userPublicKey = new PublicKey(process.argv[2]);
+
+const tokenAddress = await getAssociatedTokenAddress(
+  mintAddress,
+  userPublicKey
+);
+```
+
+## 28
+
+### --description--
+
+Print the `tokenAccount` variable to the console.
+
+### --tests--
+
+You should have `console.log(tokenAccount);` in `get-token-account.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-account.js"--
+
+```js
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
+import { mintAddress } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const userPublicKey = new PublicKey(process.argv[2]);
+
+const tokenAddress = await getAssociatedTokenAddress(
+  mintAddress,
+  userPublicKey
+);
+
+const tokenAccount = await getAccount(connection, tokenAddress);
+```
+
+## 29
+
+### --description--
+
+Run the `get-token-account.js` script, passing in the public key of the `payer` account as the first argument:
+
+```bash
+solana address -k ./wallet.json # to get the public key
+node get-token-account.js <public_key>
+```
+
+### --tests--
+
+You should run `node get-token-account.js <public_key>` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"get-token-account.js"--
+
+```js
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
+import { mintAddress } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const userPublicKey = new PublicKey(process.argv[2]);
+
+const tokenAddress = await getAssociatedTokenAddress(
+  mintAddress,
+  userPublicKey
+);
+
+const tokenAccount = await getAccount(connection, tokenAddress);
+
+console.log('Token Account:', tokenAccount);
+```
+
+## 30
+
+### --description--
+
+The `tokenAccount` variable should have a `amount` property, which is the number of tokens held by the account.
+
+Currently, the token account has no tokens, because none have been minted into the account.
+
+Create a file named `mint.js`.
+
+### --tests--
+
+You should have a file named `mint.js`.
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Within `mint.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
+### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `mint.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch mint.js
+```
+
+## 32
+
+### --description--
+
+Import the `mintTo` function from `@solana/spl-token`, to mint tokens into a token account:
+
+```typescript
+mintTo(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  destination: PublicKey,
+  authority: PublicKey | Signer,
+  amount: number | bigint
+): Promise
+```
+
+Call the `mintTo` function, passing in the `connection`, `payer`, `mintPublicKey`, `tokenAccountPublicKey`, `mintAuthorityPublicKey`, and `1_000_000_000` variables as arguments.
+
+### --tests--
+
+You should have `await mintTo(connection, payer, mintPublicKey, tokenAccountPublicKey, mintAuthorityPublicKey, 1_000_000_000);` in `mint.js`.
+
+```js
+
+```
+
+You should import `mintTo` from `@solana/spl-token`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"mint.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 33
+
+### --description--
+
+Run the `mint.js` script:
+
+```bash
+node mint.js
+```
+
+### --tests--
+
+You should run `node mint.js` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"mint.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { mintTo } from '@solana/spl-token';
+import {
+  payer,
+  mintPublicKey,
+  tokenAccountPublicKey,
+  mintAuthorityPublicKey
+} from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+await mintTo(
+  connection,
+  payer,
+  mintPublicKey,
+  tokenAccountPublicKey,
+  mintAuthorityPublicKey,
+  1_000_000_000
+);
+```
+
+## 34
+
+### --description--
+
+Run the `get-token-account.js` script again, passing in the public key of the `payer` account as the first argument.
+
+### --tests--
+
+You should run `node get-token-account.js <public_key>` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 35
+
+### --description--
+
+The token account should have an `amount` of `1000000000n`. Note that this means the account has a total of 1 token, because the token has 9 decimals - the same way an account with `1_000_000_000 lamports` means it has `1 SOL`.
+
+To see the total number of tokens minted, create a file named `get-token-info.js`.
+
+### --tests--
+
+You should have a file named `get-token-info.js`.
+
+```js
+
+```
+
+## 36
+
+### --description--
+
+Within `get-token-info.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
+### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `get-token-info.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch get-token-info.js
+```
+
+## 37
+
+### --description--
+
+Import the `getMint` function from `@solana/spl-token`, to get the token information:
+
+```typescript
+getMint(
+  connection: Connection,
+  address: PublicKey
+): Promise<Mint>
+```
+
+Call the `getMint` function, passing in the `connection` and `mintPublicKey` variables as arguments, and assign the awaited result to a variable `mint`.
+
+### --tests--
+
+You should have `const mint = await getMint(connection, mintPublicKey);` in `get-token-info.js`.
+
+```js
+
+```
+
+You should import `getMint` from `@solana/spl-token`.
+
+```js
+
+```
+
+You should import `mintPublicKey` from `./utils.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-info.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 38
+
+### --description--
+
+Log the `mint` variable to the console.
+
+### --tests--
+
+You should have `console.log(mint);` in `get-token-info.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"get-token-info.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { getMint } from '@solana/spl-token';
+
+const connection = new Connection('http://localhost:8899');
+
+const mint = await getMint(connection, mintPublicKey);
+```
+
+## 39
+
+### --description--
+
+Run the `get-token-info.js` script:
+
+```bash
+node get-token-info.js
+```
+
+### --tests--
+
+You should run `node get-token-info.js` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"get-token-info.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+import { getMint } from '@solana/spl-token';
+import { mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const mint = await getMint(connection, mintPublicKey);
+
+console.log(mint);
+```
+
+## 40
+
+### --description--
+
+The output should show a `supply` property of `1000000000n`, which means the total number of tokens minted is `1_000_000_000 / 9 = 1`.
+
+Mint 2 more tokens to the `payer` account.
+
+### --tests--
+
+You should run `node mint.js` in the terminal.
+
+```js
+
+```
+
+The `payer` account should have a balance of at least `3_000_000_000`.
+
+```js
+
+```
+
+The total supply of tokens should be `3_000_000_000`.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 41
+
+### --description--
+
+Now that your token has been minted and is in circulation, you can transfer tokens from one account to another.
+
+Create a file named `transfer.js`.
+
+### --tests--
+
+You should have a file named `transfer.js`.
+
+```js
+
+```
+
+## 42
+
+### --description--
+
+Within `transfer.js`, declare a variable `connection`, and assign it a new instance of the `Connection` class. Pass in your local Solana RPC URL as the first argument.
+
+### --tests--
+
+You should have `const connection = new Connection('http://localhost:8899');` in `transfer.js`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch transfer.js
+```
+
+## 43
+
+### --description--
+
+## 200
+
+### --description--
+
+**Summary**
+
+- A _Mint Account_ is an account typically owned by an organisation who commissions the token, and keeps track of the supply of tokens
+- A _Token Account_ is an account typically owned by an individual, and keeps track of the tokens held by that individual
+- Minting tokens involves the _minting authority_ authorising a payer to create tokens and transfer them to a _Token Account_
 
 ## --fcc-end--
