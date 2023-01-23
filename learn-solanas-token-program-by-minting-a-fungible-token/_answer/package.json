@@ -8,8 +8,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@solana/spl-token": "0.3.6",
-    "@solana/web3.js": "1.70.1"
+    "@solana/spl-token": "0.3.7",
+    "@solana/web3.js": "1.73.0"
   },
   "type": "module"
 }
