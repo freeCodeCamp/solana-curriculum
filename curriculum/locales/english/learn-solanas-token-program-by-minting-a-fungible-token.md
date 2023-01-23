@@ -1362,14 +1362,433 @@ touch transfer.js
 
 ### --description--
 
+From the first command-line argument, create a new `PublicKey` instance, and assign it to a variable `fromTokenAccountPublicKey`.
+
+### --tests--
+
+You should have `const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);` in `transfer.js`.
+
+```js
+
+```
+
+You should import `PublicKey` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+```
+
+## 44
+
+### --description--
+
+Generate a new keypair, and assign it to a variable `toWallet`.
+
+### --tests--
+
+You should have `const toWallet = Keypair.generate();` in `transfer.js`.
+
+```js
+
+```
+
+You should import `Keypair` from `@solana/web3.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+```
+
+## 45
+
+### --description--
+
+Import the `getOrCreateAssociatedTokenAccount` function from `@solana/spl-token`, to get (create) the token account of the `toWallet` address:
+
+```typescript
+getOrCreateAssociatedTokenAccount(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  owner: PublicKey
+): Promise<Account>
+```
+
+Call the function, passing in order: `connection`, `payer`, `mintPublicKey`, and the public key of `toWallet` as arguments. Assign the awaited result to a variable `toTokenAccount`.
+
+### --tests--
+
+You should have `const toTokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, mintPublicKey, toWallet.publicKey);` in `transfer.js`.
+
+```js
+
+```
+
+You should import `getOrCreateAssociatedTokenAccount` from `@solana/spl-token`.
+
+```js
+
+```
+
+You should import `payer` from `./utils.js`.
+
+```js
+
+```
+
+You should import `mintPublicKey` from `./utils.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+```
+
+## 46
+
+### --description--
+
+Import the `getAccount` function from `@solana/spl-token`, to get the owner of the `fromTokenAccountPublicKey` account:
+
+```typescript
+getAccount(
+  connection: Connection,
+  address: PublicKey
+): Promise<Account>
+```
+
+Call the function, passing in order: `connection`, and `fromTokenAccountPublicKey` as arguments. Assign the awaited result to a variable `fromWallet`.
+
+### --tests--
+
+You should have `const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);` in `transfer.js`.
+
+```js
+
+```
+
+You should import `getAccount` from `@solana/spl-token`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import { getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
+import { payer, mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+
+const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintPublicKey,
+  toWallet.publicKey
+);
+```
+
+## 47
+
+### --description--
+
+Assign the `owner` property of `fromWallet` to a variable `owner`.
+
+### --tests--
+
+You should have `const owner = fromWallet.owner;` in `transfer.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import {
+  getOrCreateAssociatedTokenAccount,
+  getAccount
+} from '@solana/spl-token';
+import { payer, mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+
+const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintPublicKey,
+  toWallet.publicKey
+);
+
+const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);
+```
+
+## 48
+
+### --description--
+
+Cast the second command-line argument to a number, and assign it to a variable `amount`. This will be used as the amount of tokens to transfer.
+
+### --tests--
+
+You should have `const amount = Number(process.argv[3]);` in `transfer.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import {
+  getOrCreateAssociatedTokenAccount,
+  getAccount
+} from '@solana/spl-token';
+import { payer, mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+
+const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintPublicKey,
+  toWallet.publicKey
+);
+
+const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);
+
+const owner = fromWallet.owner;
+```
+
+## 49
+
+### --description--
+
+Import the `transfer` function from `@solana/spl-token`, to transfer tokens from the `fromTokenAccountPublicKey` account to the `toTokenAccount` account:
+
+```typescript
+transfer(
+  connection: Connection,
+  payer: Signer,
+  source: PublicKey,
+  destination: PublicKey,
+  owner: PublicKey | Signer,
+  amount: number | bigint
+): Promise
+```
+
+Call the function, passing in order: `connection`, `payer`, `fromTokenAccountPublicKey`, the `address` of `toTokenAccount`, `owner`, and `amount` as arguments.
+
+### --tests--
+
+You should have `await transfer(connection, payer, fromTokenAccountPublicKey, toTokenAccount.address, owner, amount);` in `transfer.js`.
+
+```js
+
+```
+
+You should import `transfer` from `@solana/spl-token`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import {
+  getOrCreateAssociatedTokenAccount,
+  getAccount
+} from '@solana/spl-token';
+import { payer, mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+
+const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintPublicKey,
+  toWallet.publicKey
+);
+
+const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);
+
+const owner = fromWallet.owner;
+
+const amount = Number(process.argv[3]);
+```
+
+## 50
+
+### --description--
+
+Add the following to the end of the file, to log the result of the transfer:
+
+```js
+console.log(
+  `Transferred ${amount} tokens from ${fromTokenAccountPublicKey.toBase58()} to ${toTokenAccount.address.toBase58()}`
+);
+```
+
+### --tests--
+
+You should add the above code to the end of `transfer.js`.
+
+```js
+
+```
+
+### --seed--
+
+#### --"transfer.js"--
+
+```js
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import {
+  getOrCreateAssociatedTokenAccount,
+  getAccount,
+  transfer
+} from '@solana/spl-token';
+import { payer, mintPublicKey } from './utils.js';
+
+const connection = new Connection('http://localhost:8899');
+
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
+
+const toWallet = Keypair.generate();
+
+const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mintPublicKey,
+  toWallet.publicKey
+);
+
+const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);
+
+const owner = fromWallet.owner;
+
+const amount = Number(process.argv[3]);
+
+await transfer(
+  connection,
+  payer,
+  fromTokenAccountPublicKey,
+  toTokenAccount.address,
+  owner,
+  amount
+);
+```
+
+## 51
+
+### --description--
+
+Run the `transfer.js` script passing in the `wallet.json` public key and any amount of tokens to transfer:
+
+```bash
+$ node transfer.js <wallet.json_public_key> <amount>
+```
+
+### --tests--
+
+You should run the `transfer.js` script.
+
+```js
+
+```
+
+The associated token account of `wallet.json` should have a lower balance than before.
+
+```js
+
+```
+
 ## 200
 
 ### --description--
+
+Contratulations on finishing this project! Feel free to play with your code.
 
 **Summary**
 
 - A _Mint Account_ is an account typically owned by an organisation who commissions the token, and keeps track of the supply of tokens
 - A _Token Account_ is an account typically owned by an individual, and keeps track of the tokens held by that individual
 - Minting tokens involves the _minting authority_ authorising a payer to create tokens and transfer them to a _Token Account_
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
+```
 
 ## --fcc-end--

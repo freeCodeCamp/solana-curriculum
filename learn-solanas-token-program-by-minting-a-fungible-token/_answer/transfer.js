@@ -1,11 +1,14 @@
-import { getOrCreateAssociatedTokenAccount, transfer } from '@solana/spl-token';
+import {
+  getAccount,
+  getOrCreateAssociatedTokenAccount,
+  transfer
+} from '@solana/spl-token';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { payer, mintPublicKey } from './utils.js';
 
 const connection = new Connection('http://localhost:8899', 'confirmed');
-const fromWallet = payer;
 
-const fromTokenAccount = new PublicKey(process.argv[2]);
+const fromTokenAccountPublicKey = new PublicKey(process.argv[2]);
 
 // Generate a random new wallet to transfer to
 const toWallet = Keypair.generate();
@@ -18,15 +21,19 @@ const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   toWallet.publicKey
 );
 
-const amount = 50;
+const fromWallet = await getAccount(connection, fromTokenAccountPublicKey);
+
+const owner = fromWallet.owner;
+
+const amount = Number(process.argv[3]);
 
 // Transfer the new token to `toTokenAccount`
 await transfer(
   connection,
   payer,
-  fromTokenAccount,
+  fromTokenAccountPublicKey,
   toTokenAccount.address,
-  fromWallet,
+  owner,
   amount
 );
 
