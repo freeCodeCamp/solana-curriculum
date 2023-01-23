@@ -227,12 +227,16 @@ Call the `createMint` function, passing in logical arguments. Store the awaited 
 
 The _decimals_ value is the number of decimal places the token will have. Set the decimals to `9` - the same as the native SOL token:
 
+<div style="margin:auto;display:table;">
+
 | Decimals | Smallest Token Unit |
-| -------- | ------------------- |
-| 0        | 1                   |
-| 1        | 0.1                 |
-| ...      | ...                 |
-| 9        | 0.000000001         |
+| :------: | :-----------------: |
+|    0     |          1          |
+|    1     |         0.1         |
+|   ...    |         ...         |
+|    9     |     0.000000001     |
+
+</div>
 
 ### --tests--
 
@@ -260,7 +264,7 @@ const freezeAuthority = payer.publicKey;
 
 ### --description--
 
-The `createMint` function returns the public key of the newly created Mint Account.
+The `createMint` function returns the public key of the newly-created Mint Account.
 
 Log the base-58 representation of `mint` to the console.
 
@@ -1764,6 +1768,19 @@ The associated token account of `wallet.json` should have a lower balance than b
 
 ```js
 
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
 ```
 
 ### --seed--
