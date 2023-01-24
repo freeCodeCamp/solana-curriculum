@@ -36,10 +36,12 @@ Create a file named `create-mint-account.js`.
 
 ### --tests--
 
-You can use `touch` to create a file named `create-mint-account.js`.
+You should have a `create-mint-account.js` file.
 
 ```js
-const fileExists = await __helpers.fileExists('create-mint-account.js');
+const fileExists = __helpers.fileExists(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
 assert.isTrue(fileExists);
 ```
 
@@ -54,13 +56,63 @@ Within `create-mint-account.js`, declare a variable `connection`, and assign it 
 You should have `const connection = new Connection('http://localhost:8899');` in `create-mint-account.js`.
 
 ```js
-
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'connection');
+assert.exists(
+  connectionVariableDeclaration,
+  'You should declare a variable named `connection`'
+);
+const newExpression = connectionVariableDeclaration.declarations[0].init;
+assert.equal(
+  newExpression.callee.name,
+  'Connection',
+  'You should initialise `connection` with a new `Connection`'
+);
+assert.equal(
+  newExpression.arguments[0].value,
+  'http://localhost:8899',
+  "You should create a new connection with `new Connection('http://localhost:8899')`"
+);
 ```
 
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
+const solanaWeb3ImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === '@solana/web3.js';
+  });
+assert.exists(
+  solanaWeb3ImportDeclaration,
+  'You should import from `@solana/web3.js`'
+);
+const connectionImportSpecifier = solanaWeb3ImportDeclaration.specifiers.find(
+  s => {
+    return s.imported.name === 'Connection';
+  }
+);
+assert.exists(
+  connectionImportSpecifier,
+  'You should import `Connection` from `@solana/web3.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -84,13 +136,60 @@ Install both packages using `npm`.
 You should have at least version `1.70.0` of `@solana/web3.js` added to the `package.json` dependencies.
 
 ```js
-
+const packageJson = await import(
+  'learn-solanas-token-program-by-minting-a-fungible-token/package.json'
+);
+const web3Version = packageJson.dependencies['@solana/web3.js'];
+assert.exists(
+  web3Version,
+  'You should have `@solana/web3.js` in your dependencies'
+);
+// Manually check SemVer is at least 1.70.0
+const web3VersionParts = web3Version.split('.').map(p => p.replace(/\D/g, ''));
+assert.isAtLeast(
+  parseInt(web3VersionParts[0]),
+  1,
+  '`@solana/web3.js` should have a major version of at least 1'
+);
+assert.isAtLeast(
+  parseInt(web3VersionParts[1]),
+  70,
+  '`@solana/web3.js` should have a minor version of at least 70'
+);
+assert.isAtLeast(
+  parseInt(web3VersionParts[2]),
+  0,
+  '`@solana/web3.js` should have a patch version of at least 0'
+);
 ```
 
 You should have at least version `0.3.6` of `@solana/spl-token` added to the `package.json` dependencies.
 
 ```js
-
+const splTokenVersion = packageJson.dependencies['@solana/spl-token'];
+assert.exists(
+  splTokenVersion,
+  'You should have `@solana/spl-token` in your dependencies'
+);
+// Manually check SemVer is at least 0.3.6
+const splTokenVersionParts = splTokenVersion
+  .split('.')
+  .map(p => p.replace(/\D/g, ''));
+assert.isAtLeast(
+  parseInt(splTokenVersionParts[0]),
+  0,
+  '`@solana/spl-token` should have a major version of at least 0'
+);
+assert.isAtLeast(
+  parseInt(splTokenVersionParts[1]),
+  3,
+  '`@solana/spl-token` should have a minor version of at least 3'
+);
+assert.isAtLeast(
+  parseInt(splTokenVersionParts[2]),
+  6,
+  '`@solana/spl-token` should have a patch version of at least 6'
+);
 ```
 
 ### --seed--
@@ -116,7 +215,33 @@ Import the `payer` variable from `utils.js`.
 You should have `import { payer } from './utils.js';` in `create-mint-account.js`.
 
 ```js
+const utilsImportDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(utilsImportDeclaration, 'You should import from `./utils.js`');
+const payerImportSpecifier = utilsImportDeclaration.specifiers.find(s => {
+  return s.imported.name === 'payer';
+});
+assert.exists(
+  payerImportSpecifier,
+  'You should import `payer` from `./utils.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -140,7 +265,10 @@ Use `solana-keygen` to create a new keypair, and save it to a file named `wallet
 You should have a `wallet.json` file in the `learn-solanas-token-program-by-minting-a-fungible-token/` directory.
 
 ```js
-
+const walletJsonExists = __helpers.fileExists(
+  'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
+);
+assert.isTrue(walletJsonExists, 'The `wallet.json` file should exist');
 ```
 
 ### --seed--
@@ -167,7 +295,46 @@ Within `create-mint-account.js`, declare a variable `mintAuthority`, and set it 
 You should have `const mintAuthority = payer.publicKey;` in `create-mint-account.js`.
 
 ```js
+const mintAuthorityDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.id.name === 'mintAuthority';
+  });
+assert.exists(
+  mintAuthorityDeclaration,
+  'A variable named `mintAuthority` should exist'
+);
+const mintAuthorityMemberExpression = mintAuthorityDeclaration.init;
+assert.exists(
+  mintAuthorityMemberExpression,
+  'The `mintAuthority` variable should have an initialiser'
+);
+assert.equal(
+  mintAuthorityMemberExpression.object.name,
+  'payer',
+  'The `mintAuthority` variable should be initialised with `payer.publicKey`'
+);
+assert.equal(
+  mintAuthorityMemberExpression.property.name,
+  'publicKey',
+  'The `mintAuthority` variable should be initialised with `payer.publicKey`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -191,7 +358,46 @@ Within `create-mint-account.js`, declare a variable `freezeAuthority`, and set i
 You should have `const freezeAuthority = payer.publicKey;` in `create-mint-account.js`.
 
 ```js
+const freezeAuthorityDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.id.name === 'freezeAuthority';
+  });
+assert.exists(
+  freezeAuthorityDeclaration,
+  'A variable named `freezeAuthority` should exist'
+);
+const freezeAuthorityMemberExpression = freezeAuthorityDeclaration.init;
+assert.exists(
+  freezeAuthorityMemberExpression,
+  'The `freezeAuthority` variable should have an initialiser'
+);
+assert.equal(
+  freezeAuthorityMemberExpression.object.name,
+  'payer',
+  'The `freezeAuthority` variable should be initialised with `payer.publicKey`'
+);
+assert.equal(
+  freezeAuthorityMemberExpression.property.name,
+  'publicKey',
+  'The `freezeAuthority` variable should be initialised with `payer.publicKey`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -243,7 +449,72 @@ The _decimals_ value is the number of decimal places the token will have. Set th
 You should have `const mint = await createMint(connection, payer, mintAuthority, freezeAuthority, 9);` in `create-mint-account.js`.
 
 ```js
+const mintDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.id.name === 'mint';
+});
+assert.exists(mintDeclaration, 'A variable named `mint` should exist');
+const mintAwaitExpression = mintDeclaration.init;
+assert.exists(mintAwaitExpression, 'The `createMint` call should be awaited');
+const createMintCallExpression = mintAwaitExpression.argument;
+assert.equal(
+  createMintCallExpression.callee.name,
+  'createMint',
+  'The `mint` variable should be initialised with the `createMint` function'
+);
+const createMintArguments = createMintCallExpression.arguments;
+assert.equal(
+  createMintArguments.length,
+  5,
+  'The `createMint` function should be called with 5 arguments'
+);
+const [
+  connectionArgument,
+  payerArgument,
+  mintAuthorityArgument,
+  freezeAuthorityArgument,
+  decimalsArgument
+] = createMintArguments;
+assert.equal(
+  connectionArgument.name,
+  'connection',
+  'The first argument to `createMint` should be `connection`'
+);
+assert.equal(
+  payerArgument.name,
+  'payer',
+  'The second argument to `createMint` should be `payer`'
+);
+assert.equal(
+  mintAuthorityArgument.name,
+  'mintAuthority',
+  'The third argument to `createMint` should be `mintAuthority`'
+);
+assert.equal(
+  freezeAuthorityArgument.name,
+  'freezeAuthority',
+  'The fourth argument to `createMint` should be `freezeAuthority`'
+);
+assert.equal(
+  decimalsArgument.value,
+  9,
+  'The fifth argument to `createMint` should be `9`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -273,13 +544,57 @@ Log the base-58 representation of `mint` to the console.
 You should use the `toBase58` method on `mint`.
 
 ```js
-
+const mintMemberExpression = babelisedCode
+  .getType('MemberExpression')
+  .find(m => {
+    return m.object.name === 'mint' && m.property.name === 'toBase58';
+  });
+assert.exists(
+  mintMemberExpression,
+  'The `mint` variable should have a `toBase58` method called on it'
+);
 ```
 
-You should have `console.log(mint.toBase58());` in `create-mint-account.js`.
+You can have `console.log(mint.toBase58());` in `create-mint-account.js`.
 
 ```js
+const consoleLogCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return (
+      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+    );
+  });
+assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
+const consoleLogArguments = consoleLogCallExpression.arguments;
+// Assert one of the arguments is the `mint.toBase58()` call
+const mintToBase58CallExpression = consoleLogArguments.find(a => {
+  return (
+    a.type === 'CallExpression' &&
+    a.callee.object.name === 'mint' &&
+    a.callee.property.name === 'toBase58'
+  );
+});
+assert.exists(
+  mintToBase58CallExpression,
+  'One of the arguments to `console.log` should be `mint.toBase58()`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
