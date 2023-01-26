@@ -681,7 +681,15 @@ solana airdrop <amount_of_sol> ./wallet.json
 The `wallet.json` account should have at least 2 SOL.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ./learn-solanas-token-program-by-minting-a-fungible-token/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  2,
+  'The `wallet.json` account should have at least 2 SOL'
+);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -712,7 +720,12 @@ node create-mint-account.js
 You should run `node create-mint-account.js` in a terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'node create-mint-account.js',
+  'You should run `node create-mint-account.js` in a terminal'
+);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -742,6 +755,32 @@ You should have `const MINT_ADDRESS_58 = '...';` in `utils.js`.
 
 ```js
 // TODO: Note that seed cannot add this...
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'MINT_ADDRESS_58');
+assert.exists(
+  variableDeclaration,
+  'The `MINT_ADDRESS_58` variable is should exist'
+);
+const value = variableDeclaration.declarations?.[0]?.init?.value;
+assert.isString(value, 'The `MINT_ADDRESS_58` value should be a string');
+assert.isNotEmpty(value, 'The `MINT_ADDRESS_58` value should not be empty');
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 15
@@ -774,13 +813,63 @@ Within `create-token-account.js`, declare a variable `connection`, and assign it
 You should have `const connection = new Connection('http://localhost:8899');` in `create-token-account.js`.
 
 ```js
-
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'connection');
+assert.exists(
+  connectionVariableDeclaration,
+  'A `connection` variable should be declared'
+);
+const newExpression = connectionVariableDeclaration.declarations[0].init;
+assert.equal(
+  newExpression.callee.name,
+  'Connection',
+  '`connection` should be initialised with a new `Connection`'
+);
+assert.equal(
+  newExpression.arguments[0].value,
+  'http://localhost:8899',
+  "A new connection should be created with `new Connection('http://localhost:8899')`"
+);
 ```
 
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
+const solanaWeb3ImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === '@solana/web3.js';
+  });
+assert.exists(
+  solanaWeb3ImportDeclaration,
+  'An import from `@solana/web3.js` should exist'
+);
+const connectionImportSpecifier = solanaWeb3ImportDeclaration.specifiers.find(
+  s => {
+    return s.imported.name === 'Connection';
+  }
+);
+assert.exists(
+  connectionImportSpecifier,
+  '`Connection` should be imported from `@solana/web3.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-token-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -802,13 +891,57 @@ Within `create-token-account.js`, import `payer` and `mintAddress` from `utils.j
 You should import `payer` from `utils.js`.
 
 ```js
-
+const utilsImportDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(
+  utilsImportDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const payerImportSpecifiers = utilsImportDeclaration.specifiers.map(s => {
+  return s.imported.name;
+});
+assert.include(
+  payerImportSpecifiers,
+  'payer',
+  '`payer` should be imported from `./utils.js`'
+);
 ```
 
 You should import `mintAddress` from `utils.js`.
 
 ```js
+const utilsImportDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(
+  utilsImportDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const mintAddressImportSpecifiers = utilsImportDeclaration.specifiers.map(s => {
+  return s.imported.name;
+});
+assert.include(
+  mintAddressImportSpecifiers,
+  'mintAddress',
+  '`mintAddress` should be imported from `./utils.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-token-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -845,19 +978,99 @@ Use the `payer` account as the owner of the token account.
 You should have `const tokenAccount = await getOrCreateAssociatedTokenAccount(...);` in `create-token-account.js`.
 
 ```js
-
+const tokenAccountVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'tokenAccount');
+assert.exists(
+  tokenAccountVariableDeclaration,
+  'A `tokenAccount` variable should be declared'
+);
+const awaitExpression = tokenAccountVariableDeclaration.declarations[0].init;
+assert.exists(
+  awaitExpression,
+  'The `tokenAccount` variable should be initialised with an `await` expression'
+);
+const callExpression = awaitExpression.argument;
+assert.exists(
+  callExpression,
+  'The `tokenAccount` variable should be initialised with a call expression'
+);
+const callee = callExpression.callee;
+assert.equal(
+  callee.name,
+  'getOrCreateAssociatedTokenAccount',
+  'The `tokenAccount` variable should be initialised with a call expression to `getOrCreateAssociatedTokenAccount`'
+);
 ```
 
 You should import `getOrCreateAssociatedTokenAccount` from `@solana/spl-token`.
 
 ```js
-
+const splTokenImportDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === '@solana/spl-token';
+  });
+assert.exists(
+  splTokenImportDeclaration,
+  'An import from `@solana/spl-token` should exist'
+);
+const getOrCreateAssociatedTokenAccountImportSpecifiers =
+  splTokenImportDeclaration.specifiers.map(s => {
+    return s.imported.name;
+  });
+assert.include(
+  getOrCreateAssociatedTokenAccountImportSpecifiers,
+  'getOrCreateAssociatedTokenAccount',
+  '`getOrCreateAssociatedTokenAccount` should be imported from `@solana/spl-token`'
+);
 ```
 
 You should pass in order: `connection`, `payer`, `mintAddress`, and `payer.publicKey` as arguments to `getOrCreateAssociatedTokenAccount`.
 
 ```js
+const getOrCreateAssociatedTokenAccountCallExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => c.callee.name === 'getOrCreateAssociatedTokenAccount');
+assert.exists(
+  getOrCreateAssociatedTokenAccountCallExpression,
+  'A call expression to `getOrCreateAssociatedTokenAccount` should exist'
+);
+const [arg1, arg2, arg3, arg4] =
+  getOrCreateAssociatedTokenAccountCallExpression.arguments;
+assert.equal(
+  arg1.name,
+  'connection',
+  'The first argument to `getOrCreateAssociatedTokenAccount` should be `connection`'
+);
+assert.equal(
+  arg2.name,
+  'payer',
+  'The second argument to `getOrCreateAssociatedTokenAccount` should be `payer`'
+);
+assert.equal(
+  arg3.name,
+  'mintAddress',
+  'The third argument to `getOrCreateAssociatedTokenAccount` should be `mintAddress`'
+);
+assert.nestedPropertyVal(arg4, 'object.name', 'payer');
+assert.nestedPropertyVal(arg4, 'property.name', 'publicKey');
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-token-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -882,7 +1095,44 @@ Within `create-token-account.js`, log the base-58 representation of the `tokenAc
 You should have `console.log(tokenAccount.publicKey.toBase58());` in `create-token-account.js`.
 
 ```js
+const consoleLogCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return (
+      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+    );
+  });
+assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
+const consoleLogArguments = consoleLogCallExpression.arguments;
+// Assert one of the arguments is the `mint.toBase58()` call
+const mintToBase58CallExpression = consoleLogArguments.find(a => {
+  return (
+    a.type === 'CallExpression' &&
+    a.callee?.object?.object?.name === 'tokenAccount' &&
+    a.callee?.object?.property?.name === 'publicKey' &&
+    a.callee?.property?.name === 'toBase58'
+  );
+});
+assert.exists(
+  mintToBase58CallExpression,
+  'One of the arguments to `console.log` should be `tokenAccount.publicKey.toBase58()`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-token-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
@@ -919,7 +1169,12 @@ node create-token-account.js
 You should run `node create-token-account.js` in a terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'node create-token-account.js',
+  'Try running `node create-token-account.js` in a terminal'
+);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -968,7 +1223,33 @@ Copy this address, and paste it into the `TOKEN_ACCOUNT_58` variable in `utils.j
 You should have `const TOKEN_ACCOUNT_58 = '...';` in `utils.js`.
 
 ```js
+// TODO: Note that seed cannot add this...
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'TOKEN_ACCOUNT_58');
+assert.exists(
+  variableDeclaration,
+  'The `TOKEN_ACCOUNT_58` variable is should exist'
+);
+const value = variableDeclaration.declarations?.[0]?.init?.value;
+assert.isString(value, 'The `TOKEN_ACCOUNT_58` value should be a string');
+assert.isNotEmpty(value, 'The `TOKEN_ACCOUNT_58` value should not be empty');
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 22
@@ -986,7 +1267,12 @@ node create-token-account.js
 You should run `node create-token-account.js` in a terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'node create-token-account.js',
+  'Try running `node create-token-account.js` in a terminal'
+);
 ```
 
 The validator should be running at `http://localhost:8899`.
