@@ -136,10 +136,12 @@ Install both packages using `npm`.
 You should have at least version `1.70.0` of `@solana/web3.js` added to the `package.json` dependencies.
 
 ```js
-const packageJson = await import(
-  'learn-solanas-token-program-by-minting-a-fungible-token/package.json'
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    './learn-solanas-token-program-by-minting-a-fungible-token/package.json'
+  )
 );
-const web3Version = packageJson.dependencies['@solana/web3.js'];
+const web3Version = packageJson.dependencies?.['@solana/web3.js'];
 assert.exists(
   web3Version,
   'You should have `@solana/web3.js` in your dependencies'
@@ -166,7 +168,12 @@ assert.isAtLeast(
 You should have at least version `0.3.6` of `@solana/spl-token` added to the `package.json` dependencies.
 
 ```js
-const splTokenVersion = packageJson.dependencies['@solana/spl-token'];
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    './learn-solanas-token-program-by-minting-a-fungible-token/package.json'
+  )
+);
+const splTokenVersion = packageJson.dependencies?.['@solana/spl-token'];
 assert.exists(
   splTokenVersion,
   'You should have `@solana/spl-token` in your dependencies'
@@ -1769,11 +1776,10 @@ node get-token-account.js <public_key>
 You should run `node get-token-account.js <public_key>` in the terminal.
 
 ```js
-const wallet = await import(
-  'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json',
-  {
-    assert: { type: 'json' }
-  }
+const wallet = JSON.parse(
+  await __helpers.getFile(
+    './learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
+  )
 );
 const secretKey = Uint8Array.from(wallet);
 const { Keypair } = await import('@solana/web3.js');
@@ -2114,11 +2120,10 @@ Run the `get-token-account.js` script again, passing in the public key of the `p
 You should run `node get-token-account.js <public_key>` in the terminal.
 
 ```js
-const wallet = await import(
-  'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json',
-  {
-    assert: { type: 'json' }
-  }
+const wallet = JSON.parse(
+  await __helpers.getFile(
+    './learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
+  )
 );
 const secretKey = Uint8Array.from(wallet);
 const { Keypair } = await import('@solana/web3.js');
@@ -2481,11 +2486,10 @@ assert.equal(
 The `payer` account should have a balance of at least `3_000_000_000`.
 
 ```js
-const wallet = await import(
-  'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json',
-  {
-    assert: { type: 'json' }
-  }
+const wallet = JSON.parse(
+  await __helpers.getFile(
+    './learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
+  )
 );
 const secretKey = Uint8Array.from(wallet);
 const { Keypair } = await import('@solana/web3.js');
@@ -2509,9 +2513,11 @@ assert.isAtLeast(tokenAmount?.uiAmount, 3);
 The total supply of tokens should be `3_000_000_000`.
 
 ```js
-const { mintPublicKey } = await import(
-  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
-);
+const { mintPublicKey } = (
+  await import(
+    '../../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+  )
+).default;
 const { getMint } = await import('@solana/spl-token');
 const { Connection } = await import('@solana/web3.js');
 const connection = new Connection('http://localhost:8899');
