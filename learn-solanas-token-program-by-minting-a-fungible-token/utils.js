@@ -13,6 +13,6 @@ const MINT_ADDRESS_58 = '';
 const MINT_AUTHORITY_58 = payer.publicKey.toBase58();
 const TOKEN_ACCOUNT_58 = '';
 
-export const mintAddress = new PublicKey(MINT_ADDRESS_58);
+// export const mintAddress = new PublicKey(MINT_ADDRESS_58);
 export const mintAuthority = new PublicKey(MINT_AUTHORITY_58);
-export const tokenAccount = new PublicKey(TOKEN_ACCOUNT_58);
+// export const tokenAccount = new PublicKey(TOKEN_ACCOUNT_58);

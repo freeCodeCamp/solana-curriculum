@@ -305,24 +305,25 @@ You should have `const mintAuthority = payer.publicKey;` in `create-mint-account
 const mintAuthorityDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.id.name === 'mintAuthority';
+    return v.declarations?.[0]?.id?.name === 'mintAuthority';
   });
 assert.exists(
   mintAuthorityDeclaration,
   'A variable named `mintAuthority` should exist'
 );
-const mintAuthorityMemberExpression = mintAuthorityDeclaration.init;
+const mintAuthorityMemberExpression =
+  mintAuthorityDeclaration.declarations?.[0]?.init;
 assert.exists(
   mintAuthorityMemberExpression,
   'The `mintAuthority` variable should have an initialiser'
 );
 assert.equal(
-  mintAuthorityMemberExpression.object.name,
+  mintAuthorityMemberExpression.object?.name,
   'payer',
   'The `mintAuthority` variable should be initialised with `payer.publicKey`'
 );
 assert.equal(
-  mintAuthorityMemberExpression.property.name,
+  mintAuthorityMemberExpression.property?.name,
   'publicKey',
   'The `mintAuthority` variable should be initialised with `payer.publicKey`'
 );
@@ -368,24 +369,25 @@ You should have `const freezeAuthority = payer.publicKey;` in `create-mint-accou
 const freezeAuthorityDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.id.name === 'freezeAuthority';
+    return v.declarations?.[0]?.id?.name === 'freezeAuthority';
   });
 assert.exists(
   freezeAuthorityDeclaration,
   'A variable named `freezeAuthority` should exist'
 );
-const freezeAuthorityMemberExpression = freezeAuthorityDeclaration.init;
+const freezeAuthorityMemberExpression =
+  freezeAuthorityDeclaration.declarations?.[0]?.init;
 assert.exists(
   freezeAuthorityMemberExpression,
   'The `freezeAuthority` variable should have an initialiser'
 );
 assert.equal(
-  freezeAuthorityMemberExpression.object.name,
+  freezeAuthorityMemberExpression.object?.name,
   'payer',
   'The `freezeAuthority` variable should be initialised with `payer.publicKey`'
 );
 assert.equal(
-  freezeAuthorityMemberExpression.property.name,
+  freezeAuthorityMemberExpression.property?.name,
   'publicKey',
   'The `freezeAuthority` variable should be initialised with `payer.publicKey`'
 );
@@ -453,15 +455,37 @@ The _decimals_ value is the number of decimal places the token will have. Set th
 
 ### --tests--
 
+You should import `createMint` from `@solana/spl-token`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/spl-token';
+});
+assert.exists(
+  importDeclaration,
+  'An import from `@solana/spl-token` should exist'
+);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'createMint',
+  '`createMint` should be imported from `@solana/spl-token`'
+);
+```
+
 You should have `const mint = await createMint(connection, payer, mintAuthority, freezeAuthority, 9);` in `create-mint-account.js`.
 
 ```js
 const mintDeclaration = babelisedCode.getVariableDeclarations().find(v => {
-  return v.id.name === 'mint';
+  return v.declarations?.[0]?.id?.name === 'mint';
 });
 assert.exists(mintDeclaration, 'A variable named `mint` should exist');
-const mintAwaitExpression = mintDeclaration.init;
-assert.exists(mintAwaitExpression, 'The `createMint` call should be awaited');
+const mintAwaitExpression = mintDeclaration.declarations?.[0]?.init;
+assert.equal(
+  mintAwaitExpression.type,
+  'AwaitExpression',
+  'The `createMint` call should be awaited'
+);
 const createMintCallExpression = mintAwaitExpression.argument;
 assert.equal(
   createMintCallExpression.callee.name,
@@ -554,7 +578,7 @@ You should use the `toBase58` method on `mint`.
 const mintMemberExpression = babelisedCode
   .getType('MemberExpression')
   .find(m => {
-    return m.object.name === 'mint' && m.property.name === 'toBase58';
+    return m.object?.name === 'mint' && m.property?.name === 'toBase58';
   });
 assert.exists(
   mintMemberExpression,
@@ -569,7 +593,7 @@ const consoleLogCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+      c.callee?.object?.name === 'console' && c.callee?.property?.name === 'log'
     );
   });
 assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
@@ -634,6 +658,18 @@ const mint = await createMint(
 Start a local Solana cluster. Ensure the RPC URL is set to `http://localhost:8899`.
 
 ### --tests--
+
+Your Solana config RPC URL should be set to `http://localhost:8899`.
+
+```js
+const command = `solana config get json_rpc_url`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+assert.include(
+  stdout,
+  'http://localhost:8899',
+  'Try running `solana config set --url localhost`'
+);
+```
 
 You should run `solana-test-validator` in a separate terminal.
 
@@ -754,7 +790,7 @@ try {
 
 The output should include the base-58 representation of the Mint Account. In other words, the mint account's public key address.
 
-Copy this address, and paste it into the `MINT_ADDRESS_58` variable in `utils.js`.
+Copy this address, and paste it into the `MINT_ADDRESS_58` variable in `utils.js`. Then, uncomment the `mintAddress` export statement.
 
 ### --tests--
 
@@ -774,13 +810,27 @@ assert.isString(value, 'The `MINT_ADDRESS_58` value should be a string');
 assert.isNotEmpty(value, 'The `MINT_ADDRESS_58` value should not be empty');
 ```
 
+You should uncomment `export const mintAddress = new PublicKey(MINT_ADDRESS_58);` in `utils.js`.
+
+```js
+const exportStatement = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => e.declaration?.declarations?.[0]?.id?.name === 'mintAddress');
+assert.exists(
+  exportStatement,
+  'The `mintAddress` export statement should be UNCOMMENTED'
+);
+```
+
 ### --before-all--
 
 ```js
 const codeString = await __helpers.getFile(
   'learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['importAssertions']
+});
 global.babelisedCode = babelisedCode;
 ```
 
@@ -805,7 +855,9 @@ Create a new file named `create-token-account.js`.
 You can use `touch` to create a file named `create-token-account.js`.
 
 ```js
-const fileExists = await __helpers.fileExists('create-token-account.js');
+const fileExists = await __helpers.fileExists(
+  'learn-solanas-token-program-by-minting-a-fungible-token/create-token-account.js'
+);
 assert.isTrue(fileExists);
 ```
 
@@ -829,12 +881,12 @@ assert.exists(
 );
 const newExpression = connectionVariableDeclaration.declarations[0].init;
 assert.equal(
-  newExpression.callee.name,
+  newExpression.callee?.name,
   'Connection',
   '`connection` should be initialised with a new `Connection`'
 );
 assert.equal(
-  newExpression.arguments[0].value,
+  newExpression.arguments?.[0]?.value,
   'http://localhost:8899',
   "A new connection should be created with `new Connection('http://localhost:8899')`"
 );
@@ -1223,7 +1275,7 @@ console.log('Token Account Address:', tokenAccount.publicKey.toBase58());
 
 The output should include the base-58 representation of the Token Account. In other words, the token account's public key address.
 
-Copy this address, and paste it into the `TOKEN_ACCOUNT_58` variable in `utils.js`.
+Copy this address, and paste it into the `TOKEN_ACCOUNT_58` variable in `utils.js`. Then, uncomment the `tokenAccount` variable.
 
 ### --tests--
 
@@ -1243,13 +1295,27 @@ assert.isString(value, 'The `TOKEN_ACCOUNT_58` value should be a string');
 assert.isNotEmpty(value, 'The `TOKEN_ACCOUNT_58` value should not be empty');
 ```
 
+You should uncomment `export const tokenAccount = new PublicKey(MINT_ADDRESS_58);` in `utils.js`.
+
+```js
+const exportStatement = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => e.declaration?.declarations?.[0]?.id?.name === 'tokenAccount');
+assert.exists(
+  exportStatement,
+  'The `tokenAccount` export statement should be UNCOMMENTED'
+);
+```
+
 ### --before-all--
 
 ```js
 const codeString = await __helpers.getFile(
   'learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['importAssertions']
+});
 global.babelisedCode = babelisedCode;
 ```
 
@@ -1308,7 +1374,9 @@ To see what a token account looks like, create a new file called `get-token-acco
 You should have a `get-token-account.js` file.
 
 ```js
-const fileExists = await __helpers.fileExists('get-token-account.js');
+const fileExists = await __helpers.fileExists(
+  'learn-solanas-token-program-by-minting-a-fungible-token/get-token-account.js'
+);
 assert.isTrue(fileExists);
 ```
 
@@ -3008,7 +3076,7 @@ You should have `const fromWallet = await getAccount(connection, fromTokenAccoun
 ```js
 const variableDeclarations = babelisedCode.getVariableDeclarations();
 const fromWalletVariableDeclaration = variableDeclarations.find(v => {
-  return v.id.name === 'fromWallet';
+  return v.declarations?.[0]?.id?.name === 'fromWallet';
 });
 assert.exists(fromWalletVariableDeclaration, '`fromWallet` should be declared');
 const awaitExpression = fromWalletVariableDeclaration?.init;
@@ -3111,7 +3179,7 @@ You should have `const owner = fromWallet.owner;` in `transfer.js`.
 ```js
 const variableDeclarations = babelisedCode.getVariableDeclarations();
 const ownerVariableDeclaration = variableDeclarations.find(v => {
-  return v.id.name === 'owner';
+  return v.declarations?.[0]?.id?.name === 'owner';
 });
 assert.exists(ownerVariableDeclaration, '`owner` should be declared');
 const memberExpression = ownerVariableDeclaration?.init;
@@ -3183,7 +3251,7 @@ You should have `const amount = Number(process.argv[3]);` in `transfer.js`.
 
 ```js
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
-  return v.id.name === 'amount';
+  return v.declarations?.[0]?.id?.name === 'amount';
 });
 assert.exists(variableDeclaration, '`amount` should be declared');
 const callExpression = variableDeclaration?.init;
