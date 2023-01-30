@@ -2048,11 +2048,11 @@ mintTo(
 ): Promise
 ```
 
-Call the `mintTo` function, passing in the `connection`, `payer`, `mintPublicKey`, `tokenAccountPublicKey`, `mintAuthorityPublicKey`, and `1_000_000_000` variables as arguments.
+Call the `mintTo` function, passing in the `connection`, `payer`, `mintAddress`, `tokenAccount`, `mintAuthority`, and `1_000_000_000` variables as arguments.
 
 ### --tests--
 
-You should have `await mintTo(connection, payer, mintPublicKey, tokenAccountPublicKey, mintAuthorityPublicKey, 1_000_000_000);` in `mint.js`.
+You should have `await mintTo(connection, payer, mintAddress, tokenAccount, mintAuthority, 1_000_000_000);` in `mint.js`.
 
 ```js
 const expressionStatement = babelisedCode
@@ -2060,7 +2060,7 @@ const expressionStatement = babelisedCode
   .find(
     e =>
       e.expression.type === 'AwaitExpression' &&
-      e.expression.argument.callee.name === 'mintTo'
+      e.expression.argument?.callee?.name === 'mintTo'
   );
 assert.exists(
   expressionStatement,
@@ -2070,38 +2070,38 @@ const mintToArguments = expressionStatement.expression.argument.arguments;
 const [
   connectionArgument,
   payerArgument,
-  mintPublicKeyArgument,
-  tokenAccountPublicKeyArgument,
-  mintAuthorityPublicKeyArgument,
+  mintAddressArgument,
+  tokenAccountArgument,
+  mintAuthorityArgument,
   amountArgument
 ] = mintToArguments;
 assert.equal(
-  connectionArgument.name,
+  connectionArgument?.name,
   'connection',
   'The first argument to `mintTo` should be `connection`'
 );
 assert.equal(
-  payerArgument.name,
+  payerArgument?.name,
   'payer',
   'The second argument to `mintTo` should be `payer`'
 );
 assert.equal(
-  mintPublicKeyArgument.name,
-  'mintPublicKey',
-  'The third argument to `mintTo` should be `mintPublicKey`'
+  mintAddressArgument?.name,
+  'mintAddress',
+  'The third argument to `mintTo` should be `mintAddress`'
 );
 assert.equal(
-  tokenAccountPublicKeyArgument.name,
-  'tokenAccountPublicKey',
-  'The fourth argument to `mintTo` should be `tokenAccountPublicKey`'
+  tokenAccountArgument?.name,
+  'tokenAccount',
+  'The fourth argument to `mintTo` should be `tokenAccount`'
 );
 assert.equal(
-  mintAuthorityPublicKeyArgument.name,
-  'mintAuthorityPublicKey',
-  'The fifth argument to `mintTo` should be `mintAuthorityPublicKey`'
+  mintAuthorityArgument?.name,
+  'mintAuthority',
+  'The fifth argument to `mintTo` should be `mintAuthority`'
 );
 assert.equal(
-  amountArgument.value,
+  amountArgument?.value,
   1_000_000_000,
   'The sixth argument to `mintTo` should be `1_000_000_000`'
 );
@@ -2126,6 +2126,95 @@ assert.include(
   '`mintTo` should be imported from `@solana/spl-token`'
 );
 ```
+
+You should import `payer` from `./utils.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './utils.js';
+  });
+assert.exists(
+  importDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const specifiers = importDeclaration.specifiers.map(
+  s => s.imported.name
+);
+assert.include(
+  specifiers,
+  'payer',
+  '`payer` should be imported from `./utils.js`'
+);
+```
+
+You should import `mintAddress` from `./utils.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './utils.js';
+  });
+assert.exists(
+  importDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const specifiers = importDeclaration.specifiers.map(
+  s => s.imported.name
+);
+assert.include(
+  specifiers,
+  'mintAddress',
+  '`mintAddress` should be imported from `./utils.js`'
+);
+```
+
+You should import `tokenAccount` from `./utils.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './utils.js';
+  });
+assert.exists(
+  importDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const specifiers = importDeclaration.specifiers.map(
+  s => s.imported.name
+);
+assert.include(
+  specifiers,
+  'tokenAccount',
+  '`tokenAccount` should be imported from `./utils.js`'
+);
+```
+
+You should import `mintAuthority` from `./utils.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './utils.js';
+  });
+assert.exists(
+  importDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const specifiers = importDeclaration.specifiers.map(
+  s => s.imported.name
+);
+assert.include(
+  specifiers,
+  'mintAuthority',
+  '`mintAuthority` should be imported from `./utils.js`'
+);
+```
+
 
 ### --before-all--
 
@@ -2198,9 +2287,9 @@ import { Connection } from '@solana/web3.js';
 import { mintTo } from '@solana/spl-token';
 import {
   payer,
-  mintPublicKey,
-  tokenAccountPublicKey,
-  mintAuthorityPublicKey
+  mintAddress,
+  tokenAccount,
+  mintAuthority
 } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
@@ -2208,9 +2297,9 @@ const connection = new Connection('http://localhost:8899');
 await mintTo(
   connection,
   payer,
-  mintPublicKey,
-  tokenAccountPublicKey,
-  mintAuthorityPublicKey,
+  mintAddress,
+  tokenAccount,
+  mintAuthority,
   1_000_000_000
 );
 ```
@@ -2363,11 +2452,11 @@ getMint(
 ): Promise<Mint>
 ```
 
-Call the `getMint` function, passing in the `connection` and `mintPublicKey` variables as arguments, and assign the awaited result to a variable `mint`.
+Call the `getMint` function, passing in the `connection` and `mintAddress` variables as arguments, and assign the awaited result to a variable `mint`.
 
 ### --tests--
 
-You should have `const mint = await getMint(connection, mintPublicKey);` in `get-token-info.js`.
+You should have `const mint = await getMint(connection, mintAddress);` in `get-token-info.js`.
 
 ```js
 const mintVariableDeclaration = babelisedCode
@@ -2393,8 +2482,8 @@ assert.equal(
 );
 assert.equal(
   callExpression.arguments[1].name,
-  'mintPublicKey',
-  '`getMint` should be called with `mintPublicKey` as the second argument'
+  'mintAddress',
+  '`getMint` should be called with `mintAddress` as the second argument'
 );
 ```
 
@@ -2416,7 +2505,7 @@ assert.include(
 );
 ```
 
-You should import `mintPublicKey` from `./utils.js`.
+You should import `mintAddress` from `./utils.js`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
@@ -2426,8 +2515,8 @@ assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
 const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   importSpecifiers,
-  'mintPublicKey',
-  '`mintPublicKey` should be imported from `./utils.js`'
+  'mintAddress',
+  '`mintAddress` should be imported from `./utils.js`'
 );
 ```
 
@@ -2513,7 +2602,7 @@ import { getMint } from '@solana/spl-token';
 
 const connection = new Connection('http://localhost:8899');
 
-const mint = await getMint(connection, mintPublicKey);
+const mint = await getMint(connection, mintAddress);
 ```
 
 ## 39
@@ -2559,11 +2648,11 @@ try {
 ```js
 import { Connection } from '@solana/web3.js';
 import { getMint } from '@solana/spl-token';
-import { mintPublicKey } from './utils.js';
+import { mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
-const mint = await getMint(connection, mintPublicKey);
+const mint = await getMint(connection, mintAddress);
 
 console.log(mint);
 ```
@@ -2619,16 +2708,16 @@ assert.isAtLeast(tokenAmount?.uiAmount, 3);
 The total supply of tokens should be `3_000_000_000`.
 
 ```js
-const { mintPublicKey } = (
-  await import(
-    '../../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+const { mintAddress } = 
+  (await __helpers.importSansCache(
+    '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
   )
-).default;
+);
 const { getMint } = await import('@solana/spl-token');
 const { Connection } = await import('@solana/web3.js');
 const connection = new Connection('http://localhost:8899');
 
-const mint = await getMint(connection, mintPublicKey);
+const mint = await getMint(connection, mintAddress);
 assert.equal(mint.supply, 3_000_000_000);
 ```
 
@@ -2863,7 +2952,7 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => v.declarations?.[0]?.id?.name === 'toWallet');
 assert.exists(variableDeclaration, 'A `toWallet` variable should be declared');
-const generateMemberExpression = variableDeclaration.declarations?.[0]?.init;
+const generateMemberExpression = variableDeclaration.declarations?.[0]?.init?.callee;
 assert.equal(
   generateMemberExpression?.object?.name,
   'Keypair',
@@ -2941,11 +3030,11 @@ getOrCreateAssociatedTokenAccount(
 ): Promise<Account>
 ```
 
-Call the function, passing in order: `connection`, `payer`, `mintPublicKey`, and the public key of `toWallet` as arguments. Assign the awaited result to a variable `toTokenAccount`.
+Call the function, passing in order: `connection`, `payer`, `mintAddress`, and the public key of `toWallet` as arguments. Assign the awaited result to a variable `toTokenAccount`.
 
 ### --tests--
 
-You should have `const toTokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, mintPublicKey, toWallet.publicKey);` in `transfer.js`.
+You should have `const toTokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, mintAddress, toWallet.publicKey);` in `transfer.js`.
 
 ```js
 const variableDeclaration = babelisedCode
@@ -2963,14 +3052,14 @@ assert.equal(
 );
 const callExpression = awaitExpression?.argument;
 assert.equal(
-  callExpression?.callee?.object?.name,
+  callExpression?.callee?.name,
   'getOrCreateAssociatedTokenAccount',
   '`toTokenAccount` should be initialised with `getOrCreateAssociatedTokenAccount()`'
 );
 const [
   connectionArgument,
   payerArgument,
-  mintPublicKeyArgument,
+  mintAddressArgument,
   toWalletPublicKeyArgument
 ] = callExpression?.arguments;
 assert.equal(
@@ -2984,9 +3073,9 @@ assert.equal(
   'The second argument of `getOrCreateAssociatedTokenAccount()` should be `payer`'
 );
 assert.equal(
-  mintPublicKeyArgument?.name,
-  'mintPublicKey',
-  'The third argument of `getOrCreateAssociatedTokenAccount()` should be `mintPublicKey`'
+  mintAddressArgument?.name,
+  'mintAddress',
+  'The third argument of `getOrCreateAssociatedTokenAccount()` should be `mintAddress`'
 );
 assert.equal(
   toWalletPublicKeyArgument?.object?.name,
@@ -3042,7 +3131,7 @@ assert.include(
 );
 ```
 
-You should import `mintPublicKey` from `./utils.js`.
+You should import `mintAddress` from `./utils.js`.
 
 ```js
 const utilsImportDeclaration = babelisedCode.getImportDeclarations().find(i => {
@@ -3057,8 +3146,8 @@ const importSpecifiers = utilsImportDeclaration.specifiers.map(s => {
 });
 assert.include(
   importSpecifiers,
-  'mintPublicKey',
-  '`mintPublicKey` should be imported from `./utils.js`'
+  'mintAddress',
+  '`mintAddress` should be imported from `./utils.js`'
 );
 ```
 
@@ -3117,7 +3206,7 @@ const fromWalletVariableDeclaration = variableDeclarations.find(v => {
   return v.declarations?.[0]?.id?.name === 'fromWallet';
 });
 assert.exists(fromWalletVariableDeclaration, '`fromWallet` should be declared');
-const awaitExpression = fromWalletVariableDeclaration?.init;
+const awaitExpression = fromWalletVariableDeclaration.declarations?.[0]?.init;
 assert.equal(
   awaitExpression?.type,
   'AwaitExpression',
@@ -3188,7 +3277,7 @@ delete global.babelisedCode;
 ```js
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
 import { getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3199,7 +3288,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 ```
@@ -3220,7 +3309,7 @@ const ownerVariableDeclaration = variableDeclarations.find(v => {
   return v.declarations?.[0]?.id?.name === 'owner';
 });
 assert.exists(ownerVariableDeclaration, '`owner` should be declared');
-const memberExpression = ownerVariableDeclaration?.init;
+const memberExpression = ownerVariableDeclaration.declarations?.[0]?.init;
 assert.equal(
   memberExpression?.object?.name,
   'fromWallet',
@@ -3259,7 +3348,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   getAccount
 } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3270,7 +3359,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 
@@ -3292,7 +3381,7 @@ const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'amount';
 });
 assert.exists(variableDeclaration, '`amount` should be declared');
-const callExpression = variableDeclaration?.init;
+const callExpression = variableDeclaration.declarations?.[0]?.init;
 assert.equal(
   callExpression?.callee?.name,
   'Number',
@@ -3342,7 +3431,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   getAccount
 } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3353,7 +3442,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 
@@ -3391,11 +3480,11 @@ const expressionStatement = babelisedCode
   .find(
     e =>
       e.expression.type === 'AwaitExpression' &&
-      e.expression.argument.callee.name === 'mintTo'
+      e.expression.argument.callee.name === 'transfer'
   );
 assert.exists(
   expressionStatement,
-  'An `await mintTo(...)` expression should exist'
+  'An `await transfer(...)` expression should exist'
 );
 const transferArgs = expressionStatement.expression.argument.arguments;
 const [
@@ -3488,7 +3577,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   getAccount
 } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3499,7 +3588,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 
@@ -3564,7 +3653,7 @@ import {
   getAccount,
   transfer
 } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3575,7 +3664,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 
@@ -3599,10 +3688,11 @@ await transfer(
 
 ### --description--
 
-Run the `transfer.js` script passing in the `wallet.json` public key and any amount of tokens to transfer:
+Run the `transfer.js` script passing in the token account public key for `./wallet.json` public key and any amount of tokens to transfer:
 
 ```bash
-$ node transfer.js <wallet.json_public_key> <amount>
+$ node get-token-account.js <wallet.json_public_key> # Get wallet.json token account address
+$ node transfer.js <token_account_public_key> <amount>
 ```
 
 ### --tests--
@@ -3642,7 +3732,7 @@ import {
   getAccount,
   transfer
 } from '@solana/spl-token';
-import { payer, mintPublicKey } from './utils.js';
+import { payer, mintAddress } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -3653,7 +3743,7 @@ const toWallet = Keypair.generate();
 const toTokenAccount = await getOrCreateAssociatedTokenAccount(
   connection,
   payer,
-  mintPublicKey,
+  mintAddress,
   toWallet.publicKey
 );
 
