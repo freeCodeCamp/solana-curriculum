@@ -674,6 +674,7 @@ assert.include(
 You should run `solana-test-validator` in a separate terminal.
 
 ```js
+await new Promise((res) => setTimeout(() => res(), 2000));
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
@@ -757,6 +758,21 @@ Run the `create-mint-account.js` script:
 ```bash
 node create-mint-account.js
 ```
+
+<details>
+  <summary>NOTE: Error</summary>
+
+  If this command fails with the below error, wait a few seconds and run it again - transactions (e.g. Airdrops) take a few seconds to be finalised.
+
+  ```bash
+  /workspace/solana-curriculum/learn-solanas-token-program-by-minting-a-fungible-token/node_modules/@solana/web3.js/lib/index.cjs.js:9754
+        throw new SendTransactionError('failed to send transaction: ' + res.error.message, logs);
+              ^
+
+  SendTransactionError: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+  ```
+
+</details>
 
 ### --tests--
 
@@ -1089,7 +1105,7 @@ You should pass in order: `connection`, `payer`, `mintAddress`, and `payer.publi
 
 ```js
 const getOrCreateAssociatedTokenAccountCallExpression = babelisedCode
-  .getCallExpressions()
+  .getType('CallExpression')
   .find(c => c.callee.name === 'getOrCreateAssociatedTokenAccount');
 assert.exists(
   getOrCreateAssociatedTokenAccountCallExpression,
@@ -1151,14 +1167,14 @@ Within `create-token-account.js`, log the base-58 representation of the `tokenAc
 
 ### --tests--
 
-You should have `console.log(tokenAccount.publicKey.toBase58());` in `create-token-account.js`.
+You should have `console.log(tokenAccount.address.toBase58());` in `create-token-account.js`.
 
 ```js
 const consoleLogCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+      c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
     );
   });
 assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
@@ -1168,7 +1184,7 @@ const mintToBase58CallExpression = consoleLogArguments.find(a => {
   return (
     a.type === 'CallExpression' &&
     a.callee?.object?.object?.name === 'tokenAccount' &&
-    a.callee?.object?.property?.name === 'publicKey' &&
+    a.callee?.object?.property?.name === 'address' &&
     a.callee?.property?.name === 'toBase58'
   );
 });
@@ -1295,7 +1311,7 @@ assert.isString(value, 'The `TOKEN_ACCOUNT_58` value should be a string');
 assert.isNotEmpty(value, 'The `TOKEN_ACCOUNT_58` value should not be empty');
 ```
 
-You should uncomment `export const tokenAccount = new PublicKey(MINT_ADDRESS_58);` in `utils.js`.
+You should uncomment `export const tokenAccount = new PublicKey(TOKEN_ACCOUNT_58);` in `utils.js`.
 
 ```js
 const exportStatement = babelisedCode
@@ -1623,6 +1639,28 @@ assert.include(
 );
 ```
 
+You should import `mintAddress` from `./utils.js`.
+
+```js
+const importDeclaration = babelisedCode
+  .getImportDeclarations()
+  .find(i => {
+    return i.source.value === './utils.js';
+  });
+assert.exists(
+  importDeclaration,
+  'An import from `./utils.js` should exist'
+);
+const specifiers = importDeclaration.specifiers.map(
+  s => s.imported.name
+);
+assert.include(
+  specifiers,
+  'mintAddress',
+  '`mintAddress` should be imported from `./utils.js`'
+);
+```
+
 ### --before-all--
 
 ```js
@@ -1776,7 +1814,7 @@ const consoleLogCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+      c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
     );
   });
 assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
@@ -2434,7 +2472,7 @@ const consoleLogCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.object.name === 'console' && c.callee.property.name === 'log'
+      c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
     );
   });
 assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
