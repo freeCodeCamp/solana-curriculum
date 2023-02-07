@@ -32,7 +32,18 @@
     "numberOfLessons": 1
   },
   {
-    "id": 3,
+    "id": 4,
+    "title": "Learn the Metaplex SDK by Minting an NFT",
+    "dashedName": "learn-the-metaplex-sdk-by-minting-an-nft",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use the Metaplex JS SDK to mint an NFT.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 2
+  },
+  {
+    "id": 5,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,
