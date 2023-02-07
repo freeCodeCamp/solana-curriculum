@@ -1,0 +1,12 @@
+[2/6/2023, 5:43:38 PM] GET /tx_anchor 200 18ms 
+[2/6/2023, 5:43:38 PM] GET /price/2263 200 1ms 
+[2/6/2023, 5:44:13 PM] GET /tx_anchor 200 2ms 
+[2/6/2023, 5:44:13 PM] GET /price/2263 200 1ms 
+[2/6/2023, 5:44:48 PM] GET /tx_anchor 200 1ms 
+[2/6/2023, 5:44:48 PM] GET /price/2263 200 1ms 
+[2/6/2023, 5:47:08 PM] GET /tx_anchor 200 1ms 
+[2/6/2023, 5:47:08 PM] GET /price/2263 200 0ms 
+[2/6/2023, 5:47:09 PM] POST /tx 410 24ms 
+[2/6/2023, 5:47:09 PM] GET /tx_anchor 200 2ms 
+[2/6/2023, 5:47:09 PM] GET /price/59 200 1ms 
+[2/6/2023, 5:47:09 PM] POST /tx 410 5ms 

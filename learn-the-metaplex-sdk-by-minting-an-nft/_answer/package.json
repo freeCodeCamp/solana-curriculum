@@ -1,0 +1,19 @@
+{
+  "name": "learn-the-metaplex-sdk-by-minting-an-nft",
+  "type": "module",
+  "dependencies": {
+    "@metaplex-foundation/amman": "^0.12.1",
+    "@metaplex-foundation/js": "^0.18.0",
+    "@solana/spl-token": "^0.3.7",
+    "@solana/web3.js": "^1.73.2",
+    "arlocal": "^1.1.60",
+    "arweave": "^1.12.4",
+    "ipfs": "^0.66.0"
+  },
+  "scripts": {
+    "start:ipfs": "jsipfs daemon",
+    "config:ipfs": "jsipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '[\"http://127.0.0.1:5002\", \"http://localhost:3000\", \"http://127.0.0.1:5001\"]' && jsipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '[\"PUT\", \"POST\"]'",
+    "start:ar": "arlocal 3001",
+    "amman": "amman"
+  }
+}
