@@ -16,7 +16,7 @@ edition = "2021"
 no-entrypoint = []
 
 [dependencies]
-borsh = "0.9.3"
+borsh = "0.10.1"
 borsh-derive = "0.9.3"
 solana-program = "1.15.0"
 
