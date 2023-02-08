@@ -276,6 +276,15 @@ const walletJsonExists = __helpers.fileExists(
   'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
 );
 assert.isTrue(walletJsonExists, 'The `wallet.json` file should exist');
+const walletJson = JSON.parse(
+  await __helpers.getFile(
+    'learn-solanas-token-program-by-minting-a-fungible-token/wallet.json'
+  )
+);
+assert.isArray(
+  walletJson,
+  'The `wallet.json` file should be an array of numbers.\nRun `solana-keygen new --outfile wallet.json` to create a new keypair.'
+);
 ```
 
 ### --seed--
@@ -663,6 +672,7 @@ Your Solana config RPC URL should be set to `http://localhost:8899`.
 
 ```js
 const command = `solana config get json_rpc_url`;
+await new Promise(res => setTimeout(() => res(), 2000));
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 assert.include(
   stdout,
@@ -674,7 +684,7 @@ assert.include(
 You should run `solana-test-validator` in a separate terminal.
 
 ```js
-await new Promise((res) => setTimeout(() => res(), 2000));
+await new Promise(res => setTimeout(() => res(), 2000));
 const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
@@ -762,15 +772,15 @@ node create-mint-account.js
 <details>
   <summary>NOTE: Error</summary>
 
-  If this command fails with the below error, wait a few seconds and run it again - transactions (e.g. Airdrops) take a few seconds to be finalised.
+If this command fails with the below error, wait a few seconds and run it again - transactions (e.g. Airdrops) take a few seconds to be finalised.
 
-  ```bash
-  /workspace/solana-curriculum/learn-solanas-token-program-by-minting-a-fungible-token/node_modules/@solana/web3.js/lib/index.cjs.js:9754
-        throw new SendTransactionError('failed to send transaction: ' + res.error.message, logs);
-              ^
+```bash
+/workspace/solana-curriculum/learn-solanas-token-program-by-minting-a-fungible-token/node_modules/@solana/web3.js/lib/index.cjs.js:9754
+      throw new SendTransactionError('failed to send transaction: ' + res.error.message, logs);
+            ^
 
-  SendTransactionError: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
-  ```
+SendTransactionError: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+```
 
 </details>
 
@@ -785,6 +795,13 @@ assert.include(
   'node create-mint-account.js',
   'You should run `node create-mint-account.js` in a terminal'
 );
+```
+
+The output of `node create-mint-account.js` should include the base-58 representation of the Mint Account.
+
+```js
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.match(terminalOutput, /[a-Z0-9]{44}/);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1252,6 +1269,13 @@ assert.include(
 );
 ```
 
+The output of `node create-token-account.js` should include the base-58 representation of the Token Account.
+
+```js
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.match(terminalOutput, /[a-Z0-9]{44}/);
+```
+
 The validator should be running at `http://localhost:8899`.
 
 ```js
@@ -1642,18 +1666,11 @@ assert.include(
 You should import `mintAddress` from `./utils.js`.
 
 ```js
-const importDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === './utils.js';
-  });
-assert.exists(
-  importDeclaration,
-  'An import from `./utils.js` should exist'
-);
-const specifiers = importDeclaration.specifiers.map(
-  s => s.imported.name
-);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
+const specifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   specifiers,
   'mintAddress',
@@ -1873,7 +1890,7 @@ const tokenAccount = await getAccount(connection, tokenAddress);
 Run the `get-token-account.js` script, passing in the public key of the `payer` account as the first argument:
 
 ```bash
-solana address -k ./wallet.json # to get the public key
+solana address --keypair ./wallet.json # to get the public key
 node get-token-account.js <public_key>
 ```
 
@@ -1936,7 +1953,7 @@ console.log('Token Account:', tokenAccount);
 
 ### --description--
 
-The `tokenAccount` variable should have a `amount` property, which is the number of tokens held by the account.
+The `tokenAccount` variable should have an `amount` property, which is the number of tokens held by the account.
 
 Currently, the token account has no tokens, because none have been minted into the account.
 
@@ -2048,7 +2065,7 @@ mintTo(
 ): Promise
 ```
 
-Call the `mintTo` function, passing in the `connection`, `payer`, `mintAddress`, `tokenAccount`, `mintAuthority`, and `1_000_000_000` variables as arguments.
+Call and await the `mintTo` function, passing in the `connection`, `payer`, `mintAddress`, `tokenAccount`, `mintAuthority`, and `1_000_000_000` variables as arguments.
 
 ### --tests--
 
@@ -2130,18 +2147,11 @@ assert.include(
 You should import `payer` from `./utils.js`.
 
 ```js
-const importDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === './utils.js';
-  });
-assert.exists(
-  importDeclaration,
-  'An import from `./utils.js` should exist'
-);
-const specifiers = importDeclaration.specifiers.map(
-  s => s.imported.name
-);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
+const specifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   specifiers,
   'payer',
@@ -2152,18 +2162,11 @@ assert.include(
 You should import `mintAddress` from `./utils.js`.
 
 ```js
-const importDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === './utils.js';
-  });
-assert.exists(
-  importDeclaration,
-  'An import from `./utils.js` should exist'
-);
-const specifiers = importDeclaration.specifiers.map(
-  s => s.imported.name
-);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
+const specifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   specifiers,
   'mintAddress',
@@ -2174,18 +2177,11 @@ assert.include(
 You should import `tokenAccount` from `./utils.js`.
 
 ```js
-const importDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === './utils.js';
-  });
-assert.exists(
-  importDeclaration,
-  'An import from `./utils.js` should exist'
-);
-const specifiers = importDeclaration.specifiers.map(
-  s => s.imported.name
-);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
+const specifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   specifiers,
   'tokenAccount',
@@ -2196,25 +2192,17 @@ assert.include(
 You should import `mintAuthority` from `./utils.js`.
 
 ```js
-const importDeclaration = babelisedCode
-  .getImportDeclarations()
-  .find(i => {
-    return i.source.value === './utils.js';
-  });
-assert.exists(
-  importDeclaration,
-  'An import from `./utils.js` should exist'
-);
-const specifiers = importDeclaration.specifiers.map(
-  s => s.imported.name
-);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
+const specifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   specifiers,
   'mintAuthority',
   '`mintAuthority` should be imported from `./utils.js`'
 );
 ```
-
 
 ### --before-all--
 
@@ -2285,12 +2273,7 @@ try {
 ```js
 import { Connection } from '@solana/web3.js';
 import { mintTo } from '@solana/spl-token';
-import {
-  payer,
-  mintAddress,
-  tokenAccount,
-  mintAuthority
-} from './utils.js';
+import { payer, mintAddress, tokenAccount, mintAuthority } from './utils.js';
 
 const connection = new Connection('http://localhost:8899');
 
@@ -2621,7 +2604,7 @@ You should run `node get-token-info.js` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.equal(
+assert.include(
   lastCommand,
   'node get-token-info.js',
   'Try running `node get-token-info.js` in the terminal'
@@ -2663,7 +2646,7 @@ console.log(mint);
 
 The output should show a `supply` property of `1000000000n`, which means the total number of tokens minted is `1_000_000_000 / 9 = 1`.
 
-Mint 2 more tokens to the `payer` account.
+Mint at least 2 more tokens to the `payer` account.
 
 ### --tests--
 
@@ -2705,20 +2688,18 @@ const { tokenAmount } = tokenAccounts?.value?.[0]?.account?.data?.parsed?.info;
 assert.isAtLeast(tokenAmount?.uiAmount, 3);
 ```
 
-The total supply of tokens should be `3_000_000_000`.
+The total supply of tokens should be at least `3_000_000_000`.
 
 ```js
-const { mintAddress } = 
-  (await __helpers.importSansCache(
-    '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
-  )
+const { mintAddress } = await __helpers.importSansCache(
+  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
 const { getMint } = await import('@solana/spl-token');
 const { Connection } = await import('@solana/web3.js');
 const connection = new Connection('http://localhost:8899');
 
 const mint = await getMint(connection, mintAddress);
-assert.equal(mint.supply, 3_000_000_000);
+assert.isAtLeast(mint.supply, 3_000_000_000);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2952,7 +2933,8 @@ const variableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => v.declarations?.[0]?.id?.name === 'toWallet');
 assert.exists(variableDeclaration, 'A `toWallet` variable should be declared');
-const generateMemberExpression = variableDeclaration.declarations?.[0]?.init?.callee;
+const generateMemberExpression =
+  variableDeclaration.declarations?.[0]?.init?.callee;
 assert.equal(
   generateMemberExpression?.object?.name,
   'Keypair',
@@ -3688,7 +3670,7 @@ await transfer(
 
 ### --description--
 
-Run the `transfer.js` script passing in the token account public key for `./wallet.json` public key and any amount of tokens to transfer:
+Run the `transfer.js` script passing in the token account public key for `./wallet.json`, and any amount of tokens to transfer:
 
 ```bash
 $ node get-token-account.js <wallet.json_public_key> # Get wallet.json token account address
