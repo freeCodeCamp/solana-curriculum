@@ -7,10 +7,11 @@
     "@solana/web3.js": "^1.73.2"
   },
   "scripts": {
-    "mlp": "echo -n \"metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s\"",
-    "dump": "solana program dump -u mainnet-beta $(npm run mlp | tail -n 1) > ../mlp_token.so",
-    "airdrop": "solana airdrop 10 3jXnpGMPLBQGBj6gxBtandgFHjz3VCRH5sYBfvehw8Fs",
-    "validate": "solana-test-validator --bpf-program $(npm run mlp | tail -n 1) ../mlp_token.so --reset"
+    "mlp": "echo -n \"metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s\" | tail -n 1",
+    "solana:dump": "solana program dump -u mainnet-beta $(npm run mlp) > ../mlp_token.so",
+    "solana:airdrop": "solana airdrop 10 3jXnpGMPLBQGBj6gxBtandgFHjz3VCRH5sYBfvehw8Fs",
+    "start:validator": "solana-test-validator --bpf-program $(npm run mlp) ../mlp_token.so --reset",
+    "start:server": "npx serve -l 3001 ../assets"
   },
   "env": {
     "METAPLEX_TOKEN_METADATA_PROGRAM_ID": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
