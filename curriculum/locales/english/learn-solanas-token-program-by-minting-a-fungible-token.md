@@ -3682,11 +3682,15 @@ $ node transfer.js <token_account_public_key> <amount>
 You should run the `transfer.js` script.
 
 ```js
+const { tokenAccount } = await __helpers.importSansCache(
+  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+);
+const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \d+`);
 const lastCommand = await __helpers.getLastCommand();
-assert.include(
+assert.match(
   lastCommand,
-  'node transfer.js',
-  'The `transfer.js` script should be run'
+  commandRe,
+  `The last command should match '${commandRe}'`
 );
 ```
 
