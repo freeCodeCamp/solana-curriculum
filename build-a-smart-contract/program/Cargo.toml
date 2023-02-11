@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 borsh = "0.10.1"
-borsh-derive = "0.9.3"
+borsh-derive = "0.10.1"
 solana-program = "1.15.1"
 
 [lib]
