@@ -11,6 +11,7 @@
   "dependencies": {
     "@babel/parser": "7.20.5",
     "@freecodecamp/freecodecamp-os": "1.6.9",
+    "@solana/spl-token": "0.3.7",
     "@solana/web3.js": "1.70.1",
     "babeliser": "0.6.0",
     "borsh": "0.7.0",

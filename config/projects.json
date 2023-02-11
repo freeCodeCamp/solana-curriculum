@@ -33,6 +33,17 @@
   },
   {
     "id": 3,
+    "title": "Learn Solana's Token Program by Minting a Fungible Token",
+    "dashedName": "learn-solanas-token-program-by-minting-a-fungible-token",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use Solana's token program by minting a fungible token.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 65
+  },
+  {
+    "id": 4,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,

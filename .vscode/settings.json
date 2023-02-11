@@ -28,7 +28,8 @@
     "build-x-using-y": false,
     "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract": false,
     "learn-how-to-interact-with-on-chain-programs": false,
-    "build-a-smart-contract": false
+    "build-a-smart-contract": false,
+    "learn-solanas-token-program-by-minting-a-fungible-token": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
