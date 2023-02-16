@@ -1,10 +1,8 @@
 import { Connection, Keypair } from '@solana/web3.js';
-import { readFile } from 'fs/promises';
 import {
   keypairIdentity,
   Metaplex,
-  mockStorage,
-  toMetaplexFile
+  mockStorage
 } from '@metaplex-foundation/js';
 
 const connection = new Connection('http://127.0.0.1:8899');
@@ -21,7 +19,7 @@ const metaplex = Metaplex.make(connection)
   .use(keypairIdentity(WALLET_KEYPAIR))
   .use(mockStorage());
 
-const imageUri = getUri('fcc_primary_small.svg');
+const imageUri = getUri('pic.png');
 
 const { uri } = await metaplex.nfts().uploadMetadata({
   name: 'fCC',
@@ -42,5 +40,5 @@ const res = await metaplex.nfts().create({
 console.log(res);
 
 function getUri(path) {
-  return `http://localhost:3001/assets/${path}`;
+  return `http://localhost:3001/${path}`;
 }
