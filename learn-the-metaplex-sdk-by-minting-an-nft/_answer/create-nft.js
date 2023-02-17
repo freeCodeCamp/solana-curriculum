@@ -1,11 +1,10 @@
 import { Connection, Keypair } from '@solana/web3.js';
-import { readFile } from 'fs/promises';
 import {
   keypairIdentity,
   Metaplex,
-  mockStorage,
-  toMetaplexFile
+  mockStorage
 } from '@metaplex-foundation/js';
+import { getUri } from '../utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
 
@@ -21,19 +20,8 @@ const metaplex = Metaplex.make(connection)
   .use(keypairIdentity(WALLET_KEYPAIR))
   .use(mockStorage());
 
-const buffer = await readFile('../assets/fcc_primary_small.svg');
+const imageUri = getUri('pic.png');
 
-// buffer to metaplex file
-const file = toMetaplexFile(buffer, 'fcc_primary_small.svg');
-
-console.log('Uploading file...');
-
-// upload image and get image uri
-const imageUri = await metaplex.storage().upload(file);
-
-console.log('Image URI:', imageUri);
-
-// upload metadata and get metadata uri (off chain metadata)
 const { uri } = await metaplex.nfts().uploadMetadata({
   name: 'fCC',
   description: 'My fCC nft',
@@ -42,7 +30,9 @@ const { uri } = await metaplex.nfts().uploadMetadata({
 
 console.log('Metadata URI:', uri);
 
-const n = await metaplex.nfts().create({
+console.log('Creating NFT using:', metaplex.identity().publicKey.toBase58());
+
+const res = await metaplex.nfts().create({
   name: 'fCC',
   uri,
   sellerFeeBasisPoints: 1000,
@@ -50,4 +40,4 @@ const n = await metaplex.nfts().create({
   symbol: 'FCC'
 });
 
-console.log(n);
+console.log(res);
