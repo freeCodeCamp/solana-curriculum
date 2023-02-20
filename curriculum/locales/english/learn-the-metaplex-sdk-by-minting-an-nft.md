@@ -565,9 +565,87 @@ try {
 }
 ```
 
-<!-- 3. Mint token -->
+## 12
 
-<!-- 4. Look at the information associated with this NFT - boring -->
+### --description--
+
+Run the following to mint the NFT to the token account:
+
+```bash
+node spl-program/mint.js
+```
+
+### --tests--
+
+You should run `node spl-program/mint.js` in the terminal.
+
+```js
+// Test command is run in correct directory
+```
+
+The command should succeed.
+
+```js
+// Test authority is null
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 13
+
+### --description--
+
+Run the following to confirm the NFT has no mint authority, and has a total supply of 1:
+
+```bash
+node spl-program/get-token-info.js
+```
+
+### --tests--
+
+You should run `node spl-program/get-token-info.js` in the terminal.
+
+```js
+// Test command is run in correct directory
+```
+
+The command should succeed.
+
+```js
+
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 14
+
+### --description--
+
+There is a lack of information associated with the NFT. You often hear about NFTs being odd pictures of a cat, but what if you wanted to associate more information with the NFT? For example, you could associate a name, description, and image with the NFT. This is where metadata comes in.
+
+The metadata file is stored on IPFS, and the NFT is associated with the metadata file by storing the IPFS hash in the NFT's data field.
 
 <!-- Fail to run `metaplex.nfts().create()` because of missing program -->
 

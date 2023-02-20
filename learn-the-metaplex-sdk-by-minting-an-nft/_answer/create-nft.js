@@ -4,7 +4,7 @@ import {
   Metaplex,
   mockStorage
 } from '@metaplex-foundation/js';
-import { getUri } from '../utils.js';
+import { getUri } from './utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
 
