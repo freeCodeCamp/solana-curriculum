@@ -643,11 +643,229 @@ try {
 
 ### --description--
 
-There is a lack of information associated with the NFT. You often hear about NFTs being odd pictures of a cat, but what if you wanted to associate more information with the NFT? For example, you could associate a name, description, and image with the NFT. This is where metadata comes in.
+You often hear about NFTs being odd pictures of a cat, but what if you wanted to associate more information with the NFT? For example, you could associate a name, description, and image with the NFT. This is where metadata comes in.
 
 The metadata file is stored on IPFS, and the NFT is associated with the metadata file by storing the IPFS hash in the NFT's data field.
 
+There are many accounts and files involved in the process of creating an NFT with metadata. Metaplex has a JavaScript SDK which provides common functionality for creating NFTs with metadata.
+
+Install version `0.18.1` of `@metaplex-foundation/js`.
+
+### --tests--
+
+You should install `@metaplex-foundation/js` version `0.18.1`.
+
+```js
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    'learn-the-metaplex-sdk-by-minting-an-nft/package.json'
+  )
+);
+assert.property(
+  packageJson.dependencies,
+  '@metaplex-foundation/js',
+  'The `package.json` file should have a `@metaplex-foundation/js` dependency.'
+);
+assert.equal(
+  packageJson.dependencies['@metaplex-foundation/js'],
+  '0.18.1',
+  'Try running `npm install --save-exact @metaplex-foundation/js@0.18.1` in the terminal.'
+);
+```
+
+## 15
+
+### --description--
+
+Create a file called `create-nft.js`.
+
+### --tests--
+
+You should create a file called `create-nft.js`.
+
+```js
+const fileExists = __helpers.fileExists(
+  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
+);
+assert.isTrue(
+  fileExists,
+  'The `learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js` file should exist.'
+);
+```
+
+## 16
+
+### --description--
+
+Within `create-nft.js`, create a `connection` variable set to a new `Connection` of your local Solana validator.
+
+### --tests--
+
+You should have `const connection = new Connection('http://127.0.0.1:8899');` in `create-nft.js`.
+
+```js
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'connection');
+assert.exists(
+  connectionVariableDeclaration,
+  'You should declare a variable named `connection`'
+);
+const newExpression = connectionVariableDeclaration.declarations[0].init;
+assert.equal(
+  newExpression.callee.name,
+  'Connection',
+  'You should initialise `connection` with a new `Connection`'
+);
+assert.equal(
+  newExpression.arguments[0].value,
+  'http://127.0.0.1:8899',
+  "You should create a new connection with `new Connection('http://127.0.0.1:8899')`"
+);
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Connection',
+  '`Connection` should be imported from `@solana/spl-token`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 17
+
+### --description--
+
+Import the `Metaplex` class from the Metaplex SDK, create a `metaplex` variable, and set it to:
+
+```js
+Metaplex.make();
+```
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make();` in `create-nft.js`.
+
+```js
+
+```
+
+You should import `Metaplex` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+## 18
+
+### --description--
+
+The `make` method on the `Metaplex` class expects a `Connection` that will be used to communicate with the cluster.
+
+Pass the `connection` variable to the `make` method.
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make(connection);` in `create-nft.js`.
+
+```js
+
+```
+
+## 19
+
+### --description--
+
+The `Metaplex` class has chainable `use` methods that allow you to configure the `Metaplex` instance with `MetaplexPlugin` implementations.
+
+Configure the `Metaplex` instance to use the wallet keypair as the primary identity for transactions:
+
+```js
+Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR));
+```
+
+The `keypairIdentity` function takes a `Keypair` and returns a `MetaplexPlugin`, and is exported from `@metaplex-foundation/js`.
+
+The `WALLET_KEYPAIR` variable is a `Keypair` created from the `wallet.json` file,a nd is already exported from `utils.js`.
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR));` in `create-nft.js`.
+
+```js
+
+```
+
+You should import `keypairIdentity` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+You should import `WALLET_KEYPAIR` from `utils.js`.
+
+```js
+
+```
+
+## 20
+
+The final configuration required is the _storage driver_ that will be used to store the NFT's metadata. This is because the NFT's metadata is not stored on-chain, but rather in a separate, often cheaper, storage system.
+
+Some common metadata storage locations are:
+
+- IPFS
+- Arweave
+- AWS
+
+For the purpose of testing, and to avoid having to pay for storage, you can use the `mockStorage` driver which will generate random URLs and keep track of their content in a local dictionary.
+
+Configure the `Metaplex` instance to use the `mockStorage` driver.
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(mockStorage());` in `create-nft.js`.
+
+```js
+
+```
+
+You should import `mockStorage` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+## 21
+
+### --description--
+
 <!-- Fail to run `metaplex.nfts().create()` because of missing program -->
+
+<!-- `.create` will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you. -->
 
 <!-- 5. Get dump of metaplex_token_program from mainnet -->
 

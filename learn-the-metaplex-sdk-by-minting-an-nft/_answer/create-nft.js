@@ -1,20 +1,12 @@
-import { Connection, Keypair } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import {
   keypairIdentity,
   Metaplex,
   mockStorage
 } from '@metaplex-foundation/js';
-import { getUri } from './utils.js';
+import { getUri, WALLET_KEYPAIR } from './utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
-
-const t = (
-  await import('./wallet.json', {
-    assert: { type: 'json' }
-  })
-).default;
-// solana address -k wallet.json
-const WALLET_KEYPAIR = Keypair.fromSecretKey(new Uint8Array(t));
 
 const metaplex = Metaplex.make(connection)
   .use(keypairIdentity(WALLET_KEYPAIR))
