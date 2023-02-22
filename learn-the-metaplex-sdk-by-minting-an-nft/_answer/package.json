@@ -10,14 +10,17 @@
     "solana:dump": "solana program dump -u mainnet-beta $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID) > ../mlp_token.so",
     "solana:airdrop": "solana airdrop 10 $(npm pkg get env.WALLET_ADDRESS)",
     "start:validator": "solana-test-validator --bpf-program $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID) ../mlp_token.so --reset",
-    "start:server": "npx serve -l 3001 ../assets"
+    "start:server": "node server.js"
   },
   "env": {
     "METAPLEX_TOKEN_METADATA_PROGRAM_ID": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
     "WALLET_ADDRESS": "3jXnpGMPLBQGBj6gxBtandgFHjz3VCRH5sYBfvehw8Fs",
-    "MINT_ACCOUNT_ADDRESS": "4dxh8QsgLHD5T8Bkc4cHFZfAZ4vZ7Q8s6kNsPSKMAqja",
-    "METADATA_ADDRESS": "EqeQwjHJH4PSbaLTe22Puvk9NUkKF2kFwYUPNkyUxniy",
-    "MASTER_EDITION_ADDRESS": "4rP8Yrtgyfs3ho723ceR4QWje2ic5kBX7hkwEjtbpHUC",
-    "TOKEN_ACCOUNT_ADDRESS": "JAFWDBmDSbYiY3Nmvor3mkMLmHsrgmVpumLH77vJfuab"
+    "MINT_ACCOUNT_ADDRESS": "G6zLtpwo4uy1BwtGqMnWS6Lc2U9x5i2wFKCFaLyBJsHc",
+    "METADATA_ADDRESS": "9xT6YC6kHApF7P8jsCDxWRrchpNE2EJRG1gYeXXnUBBy",
+    "MASTER_EDITION_ADDRESS": "C6KwJTopsgmswFEj8oNkAn85WY565ZrKtgWLq16zH3fP",
+    "TOKEN_ACCOUNT_ADDRESS": "8HdTQVS8Wwp6JjttfFdh5hwXTynbySTDog2X7j5cUjba"
+  },
+  "devDependencies": {
+    "express": "4.18.2"
   }
 }
