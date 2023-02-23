@@ -13,12 +13,12 @@ app.get('/:id', (req, res) => {
     return res.status(404).end();
   }
 
-  console.log('GET', req.params.id, metadata);
+  console.log('GET', req.params.id);
 
-  return res.json(metadata);
+  return res.send(Buffer.from(metadata));
 });
 app.put('/:id', (req, res) => {
-  console.log('POST', req.params.id, req.body);
+  console.log('POST', req.params.id);
   metadatas[req.params.id] = req.body;
   res.status(200).end();
 });

@@ -18,15 +18,18 @@ const file = toMetaplexFile(imageBuffer, 'pic.png');
 
 const image = await metaplex.storage().upload(file);
 
-const { uri, metadata, assetUris } = await metaplex.nfts().uploadMetadata({
+const { uri } = await metaplex.nfts().uploadMetadata({
   name: 'fCC',
-  description: 'My fCC nft',
+  description: 'An image of the freeCodeCamp logo',
   image
 });
 
-console.log('Metadata URI:', uri, metadata, assetUris);
+console.log('Metadata URI:', uri);
 
-console.log('Creating NFT using:', metaplex.identity().publicKey.toBase58());
+console.log(
+  'Creating NFT using Wallet:',
+  metaplex.identity().publicKey.toBase58()
+);
 
 const createResponse = await metaplex.nfts().create({
   name: 'fCC',
@@ -36,4 +39,4 @@ const createResponse = await metaplex.nfts().create({
   symbol: 'FCC'
 });
 
-console.log(createResponse.mintAddress, createResponse.nft.json);
+console.log(createResponse);

@@ -841,19 +841,19 @@ Some common metadata storage locations are:
 - Arweave
 - AWS
 
-For the purpose of testing, and to avoid having to pay for storage, you can use the `mockStorage` driver which will generate random URLs and keep track of their content in a local dictionary.
+For the purpose of testing, and to avoid having to pay for storage, you can use the `localStorage` driver which will generate random URLs and keep track of their content in a local server.
 
-Configure the `Metaplex` instance to use the `mockStorage` driver.
+Configure the `Metaplex` instance to use the `localStorage` driver.
 
 ### --tests--
 
-You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(mockStorage());` in `create-nft.js`.
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage());` in `create-nft.js`.
 
 ```js
 
 ```
 
-You should import `mockStorage` from `@metaplex-foundation/js`.
+You should import `localStorage` from `utils.js`.
 
 ```js
 
@@ -862,6 +862,94 @@ You should import `mockStorage` from `@metaplex-foundation/js`.
 ## 21
 
 ### --description--
+
+The storage driver takes an object with a `baseUrl` property, which is the base URL that will be used to generate the metadata URLs.
+
+Set the `baseUrl` to `http://127.0.0.1:3001`.
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001' }));` in `create-nft.js`.
+
+```js
+
+```
+
+## 22
+
+### --description--
+
+You can use any image you want for your NFT, but one is provided for you in the `assets` folder.
+
+Declare a variable `imageBuffer`, and set it to the contents of the `assets/pic.png` file. You can use the `fs` module to read the file.
+
+### --tests--
+
+You can use `const imageBuffer = readFile('assets/pic.png');` in `create-nft.js`.
+
+```js
+
+```
+
+You should import one of the file-reading API.
+
+```js
+// fs, fs/promises
+// readFileSync, readFile, read
+```
+
+## 23
+
+### --description--
+
+The `@metaplex-foundation/js` module exports a `toMetaplexFile` function:
+
+```typescript
+toMetaplexFile(
+  content: MetaplexFileContent,
+  fileName: string
+): MetaplexFile
+```
+
+The `MetaplexFile` type contains useful metadata about the file which is useful for your NFT's metadata.
+
+Declare a `file` variable, and set it to the result of calling `toMetaplexFile` with the `imageBuffer` and the filename `pic.png`.
+
+### --tests--
+
+You should have `const file = toMetaplexFile(imageBuffer, 'pic.png');` in `create-nft.js`.
+
+```js
+
+```
+
+You should import `toMetaplexFile` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+## 24
+
+### --description--
+
+The `Metaplex` class has a `storage` method that returns the storage driver configured earlier. The storage driver has an `upload` method that takes a `MetaplexFile` and returns a `Promise` that resolves to a `string` containing the URL of the uploaded file.
+
+Declare an `image` variable, and set it to the result of awaiting `metaplex.storage().upload(file)`.
+
+### --tests--
+
+You should have `const image = await metaplex.storage().upload(file);` in `create-nft.js`.
+
+```js
+
+```
+
+## 25
+
+### --description--
+
+With the URL to the uploaded image, you can upload the NFT's metadata. The `Metaplex` class has an `nfts` method that returns many useful methods for working with NFT's. One of these methods is `uploadMetadata`
 
 <!-- Fail to run `metaplex.nfts().create()` because of missing program -->
 

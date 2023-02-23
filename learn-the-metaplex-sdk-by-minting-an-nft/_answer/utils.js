@@ -1,4 +1,4 @@
-import { amount, toMetaplexFileFromJson } from '@metaplex-foundation/js';
+import { amount, toMetaplexFile } from '@metaplex-foundation/js';
 import { Keypair } from '@solana/web3.js';
 import { readFile } from 'fs/promises';
 
@@ -12,10 +12,6 @@ export const WALLET_KEYPAIR = Keypair.fromSecretKey(new Uint8Array(t));
 
 const file = await readFile('./package.json', 'utf8');
 export const pkg = JSON.parse(file);
-
-export function getUri(path) {
-  return `http://localhost:3001/${path}`;
-}
 
 export function localStorage(options) {
   return {
@@ -43,7 +39,7 @@ class LocalStorageDriver {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(file)
+      body: JSON.stringify(file.buffer)
     });
     return uri;
   }
@@ -52,7 +48,8 @@ class LocalStorageDriver {
     if (!res) {
       throw new Error(`URI not found: ${uri}`);
     }
-    const file = await res.json();
-    return toMetaplexFileFromJson(file, uri);
+    const buffer = await res.arrayBuffer();
+    const metaplexFile = toMetaplexFile(buffer, uri);
+    return metaplexFile;
   }
 }
