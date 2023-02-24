@@ -949,17 +949,426 @@ You should have `const image = await metaplex.storage().upload(file);` in `creat
 
 ### --description--
 
-With the URL to the uploaded image, you can upload the NFT's metadata. The `Metaplex` class has an `nfts` method that returns many useful methods for working with NFT's. One of these methods is `uploadMetadata`
+With the URL to the uploaded image, you can upload the NFT's metadata. The `Metaplex` class has an `nfts` method that returns many useful methods for working with NFT's. One of these methods is `uploadMetadata`:
+
+<details>
+  <summary>`uploadMetadata` Signature</summary>
+
+```typescript
+uploadMetadata(
+  input: {
+    name?: string;
+    symbol?: string;
+    description?: string;
+    seller_fee_basis_points?: number;
+    image?: MetaplexFile;
+    external_url?: MetaplexFile;
+    attributes?: Array<{
+      trait_type?: string;
+      value?: string;
+      [key: string]: unknown;
+    }>;
+    properties?: {
+      creators?: Array<{
+        address?: string;
+        share?: number;
+        [key: string]: unknown;
+      }>;
+      files?: Array<{
+        type?: string;
+        uri?: MetaplexFile;
+        [key: string]: unknown;
+      }>;
+      [key: string]: unknown;
+    };
+    collection?: {
+      name?: string;
+      family?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  }
+): Promise
+```
+
+</details>
+
+That is a lot of metadata! For now, you can just set the `name`, `description`, and `image` properties.
+
+Destructure the `uri` property from the result of awaiting `uploadMetadata`. Pass the `image` variable as the `image` property, and give the `name` and `description` properties some sane values.
+
+### --tests--
+
+You should have `const { uri } = await metaplex.nfts().uploadMetadata({ name: 'any string', description: 'any string', image });` in `create-nft.js`.
+
+```js
+
+```
+
+## 26
+
+### --description--
+
+Another method on the `nfts` object is `create`:
+
+<details>
+  <summary>`create` Signature</summary>
+
+````typescript
+create(
+  input: {
+    /**
+     * The authority that will be able to make changes
+     * to the created NFT.
+     *
+     * This is required as a Signer because creating the master
+     * edition account requires the update authority to sign
+     * the transaction.
+     *
+     * @defaultValue `metaplex.identity()`
+     */
+    updateAuthority?: Signer;
+    /**
+     * The authority that is currently allowed to mint new tokens
+     * for the provided mint account.
+     *
+     * Note that this is only relevant if the `useExistingMint` parameter
+     * if provided.
+     *
+     * @defaultValue `metaplex.identity()`
+     */
+    mintAuthority?: Signer;
+    /**
+     * The address of the new mint account as a Signer.
+     * This is useful if you already have a generated Keypair
+     * for the mint account of the NFT to create.
+     *
+     * @defaultValue `Keypair.generate()`
+     */
+    useNewMint?: Signer;
+    /**
+     * The address of the existing mint account that should be converted
+     * into an NFT. The account at this address should have the right
+     * requirements to become an NFT, e.g. its supply should contains
+     * exactly 1 token.
+     *
+     * @defaultValue Defaults to creating a new mint account with the
+     * right requirements.
+     */
+    useExistingMint?: PublicKey;
+    /**
+     * Whether or not we should mint one token for the new NFT.
+     *
+     * @defaultValue `true`
+     */
+    mintTokens?: boolean;
+    /**
+     * The owner of the NFT to create.
+     *
+     * @defaultValue `metaplex.identity().publicKey`
+     */
+    tokenOwner?: PublicKey;
+    /**
+     * The token account linking the mint account and the token owner
+     * together. By default, the associated token account will be used.
+     *
+     * If the provided token account does not exist, it must be passed as
+     * a Signer as we will need to create it before creating the NFT.
+     *
+     * @defaultValue Defaults to creating a new associated token account
+     * using the `mintAddress` and `tokenOwner` parameters.
+     */
+    tokenAddress?: PublicKey | Signer;
+    /**
+     * Describes the asset class of the token.
+     * It can be one of the following:
+     * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
+     * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+     * - `TokenStandard.Fungible`: A fungible token with simple metadata.
+     * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
+     * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
+     *
+     * @defaultValue `TokenStandard.NonFungible`
+     */
+    tokenStandard?: TokenStandard;
+    /** The URI that points to the JSON metadata of the asset. */
+    uri: string;
+    /** The on-chain name of the asset, e.g. "My NFT #123". */
+    name: string;
+    /**
+     * The royalties in percent basis point (i.e. 250 is 2.5%) that
+     * should be paid to the creators on each secondary sale.
+     */
+    sellerFeeBasisPoints: number;
+    /**
+     * The on-chain symbol of the asset, stored in the Metadata account.
+     * E.g. "MYNFT".
+     *
+     * @defaultValue `""`
+     */
+    symbol?: string;
+    /**
+     * {@inheritDoc CreatorInput}
+     * @defaultValue
+     * Defaults to using the provided `updateAuthority` as the only verified creator.
+     * ```ts
+     * [{
+     *   address: updateAuthority.publicKey,
+     *   authority: updateAuthority,
+     *   share: 100,
+     * }]
+     * ```
+     */
+    creators?: CreatorInput[];
+    /**
+     * Whether or not the NFT's metadata is mutable.
+     * When set to `false` no one can update the Metadata account,
+     * not even the update authority.
+     *
+     * @defaultValue `true`
+     */
+    isMutable?: boolean;
+    /**
+     * Whether or not selling this asset is considered a primary sale.
+     * Once flipped from `false` to `true`, this field is immutable and
+     * all subsequent sales of this asset will be considered secondary.
+     *
+     * @defaultValue `false`
+     */
+    primarySaleHappened?: boolean;
+    /**
+     * The maximum supply of printed editions.
+     * When this is `null`, an unlimited amount of editions
+     * can be printed from the original edition.
+     *
+     * @defaultValue `toBigNumber(0)`
+     */
+    maxSupply?: Option<BigNumber>;
+    /**
+     * When this field is not `null`, it indicates that the NFT
+     * can be "used" by its owner or any approved "use authorities".
+     *
+     * @defaultValue `null`
+     */
+    uses?: Option<Uses>;
+    /**
+     * Whether the created NFT is a Collection NFT.
+     * When set to `true`, the NFT will be created as a
+     * Sized Collection NFT with an initial size of 0.
+     *
+     * @defaultValue `false`
+     */
+    isCollection?: boolean;
+    /**
+     * The Collection NFT that this new NFT belongs to.
+     * When `null`, the created NFT will not be part of a collection.
+     *
+     * @defaultValue `null`
+     */
+    collection?: Option<PublicKey>;
+    /**
+     * The collection authority that should sign the created NFT
+     * to prove that it is part of the provided collection.
+     * When `null`, the provided `collection` will not be verified.
+     *
+     * @defaultValue `null`
+     */
+    collectionAuthority?: Option<Signer>;
+    /**
+     * Whether or not the provided `collectionAuthority` is a delegated
+     * collection authority, i.e. it was approved by the update authority
+     * using `metaplex.nfts().approveCollectionAuthority()`.
+     *
+     * @defaultValue `false`
+     */
+    collectionAuthorityIsDelegated?: boolean;
+    /**
+     * Whether or not the provided `collection` is a sized collection
+     * and not a legacy collection.
+     *
+     * @defaultValue `true`
+     */
+    collectionIsSized?: boolean;
+    /**
+     * The ruleset account that should be used to configure the
+     * programmable NFT.
+     *
+     * This is only relevant for programmable NFTs, i.e. if the
+     * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+     *
+     * @defaultValue `null`
+     */
+    ruleSet?: Option<PublicKey>;
+  }
+): Promise
+````
+
+</details>
+
+The only required properties are `name`, `uri`, and `sellerFeeBasisPoints`. On top of those, you should also provide a `maxSupply` of `1` if you want to create a limited edition NFT.
+
+The `create` method will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you.
+
+Declare a variable `createResponse`, and assign to it the result of awaiting the `create` method. Pass in the previously mentioned properties with sane values.
+
+### --tests--
+
+You should have `const createResponse = await metaplex.nfts().create({ name: "any string", uri, sellerFeeBasisPoints: <any_int>, maxSupply: 1 });` in `create-nft.js`.
+
+```js
+
+```
+
+## 27
+
+### --description--
+
+Log the `createResponse` variable to the console.
+
+### --tests--
+
+You should have `console.log(createResponse);` in `create-nft.js`.
+
+```js
+
+```
+
+## 28
+
+### --description--
 
 <!-- Fail to run `metaplex.nfts().create()` because of missing program -->
 
-<!-- `.create` will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you. -->
+Run the script in the terminal:
 
-<!-- 5. Get dump of metaplex_token_program from mainnet -->
+```bash
+node create-nft.js
+```
 
-<!-- 6. Deploy dump to local cluster -->
+**Note:** You should see an error (similar to below) in the terminal.
 
-<!-- 7. Start a local cluster with program deployed: `npm run start:validator` -->
+<details>
+  <summary>Error</summary>
+
+```bash
+
+```
+
+</details>
+
+### --tests--
+
+You should run `node create-nft.js` in the terminal.
+
+```bash
+
+```
+
+## 29
+
+### --description--
+
+The error comes about because the default Solana test validator does not come with the Metaplex Token program deployed.
+
+So, the program needs to be manually deployed to the local cluster. To do this, first a dump of the program from mainnet needs to be created:
+
+```bash
+solana program dump --url mainnet-beta metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so
+```
+
+<details>
+  <summary>About the Command</summary>
+
+The above command:
+
+- Takes a dump of the program at the provided address
+- Uses the mainnet-beta cluster (the cluster that the Metaplex Token program is deployed to)
+- Outputs the dump to `mlp_token.so`
+
+The address of the Metaplex Token program is `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`. You can find the address of any program you want by searching for it on the Solana Explorer:
+
+`https://explorer.solana.com/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`
+
+</details>
+
+### --tests--
+
+```js
+
+```
+
+## 30
+
+### --description--
+
+Deploy the Metaplex Token program to your local cluster:
+
+```bash
+solana program deploy --program-id metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so
+```
+
+<details>
+  <summary>About the Command</summary>
+
+The `--program-id` flag is used to specify the address of the program. This is the same address that the program is deployed to on mainnet-beta. Internally, the Metaplex SDK uses this address in the transaction instructions to tell the cluster which program to use.
+
+</details>
+
+### --tests--
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Re-run the script to create the NFT.
+
+### --tests--
+
+You should run `node create-nft.js` in the terminal.
+
+```js
+
+```
+
+## 32
+
+### --description--
+
+Instead of manually deploying the program to the local cluster every time, you can start the local cluster with the program pre-deployed:
+
+```bash
+solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset
+```
+
+Stop you existing local cluster, and start a new one with the above command.
+
+### --tests--
+
+```js
+
+```
+
+## 33
+
+### --description--
+
+For ease, this command has been added to the `package.json` file as a script. Stop your existling local cluster, and start a new one with the following command:
+
+```bash
+npm run start:validator
+```
+
+### --tests--
+
+You should run `npm run start:validator` in the terminal.
+
+```js
+
+```
 
 ## 99
 

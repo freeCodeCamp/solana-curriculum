@@ -35,8 +35,7 @@ const createResponse = await metaplex.nfts().create({
   name: 'fCC',
   uri,
   sellerFeeBasisPoints: 1000,
-  maxSupply: 1,
-  symbol: 'FCC'
+  maxSupply: 1
 });
 
 console.log(createResponse);
