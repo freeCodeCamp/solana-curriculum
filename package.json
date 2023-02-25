@@ -9,7 +9,7 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@babel/parser": "7.20.15",
+    "@babel/parser": "7.21.2",
     "@freecodecamp/freecodecamp-os": "1.7.3",
     "@solana/web3.js": "1.73.3",
     "babeliser": "0.6.0",
