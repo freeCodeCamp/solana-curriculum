@@ -54,11 +54,11 @@ assert.isArray(
 
 ### --description--
 
-Start a local Solana cluster. Ensure the RPC URL is set to `http://localhost:8899`.
+Start a local Solana cluster. Ensure the RPC URL is set to `http://127.0.0.1:8899`.
 
 ### --tests--
 
-Your Solana config RPC URL should be set to `http://localhost:8899`.
+Your Solana config RPC URL should be set to `http://127.0.0.1:8899`.
 
 ```js
 const command = `solana config get json_rpc_url`;
@@ -66,7 +66,7 @@ await new Promise(res => setTimeout(() => res(), 2000));
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 assert.include(
   stdout,
-  'http://localhost:8899',
+  'http://127.0.0.1:8899',
   'Try running `solana config set --url localhost`'
 );
 ```
@@ -75,7 +75,7 @@ You should run `solana-test-validator` in a separate terminal.
 
 ```js
 await new Promise(res => setTimeout(() => res(), 2000));
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -326,10 +326,10 @@ The command should succeed.
 
 ```
 
-The validator should be running at `http://localhost:8899`.
+The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -450,10 +450,10 @@ The command should succeed.
 
 ```
 
-The validator should be running at `http://localhost:8899`.
+The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -589,10 +589,10 @@ The command should succeed.
 // Test authority is null
 ```
 
-The validator should be running at `http://localhost:8899`.
+The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -626,10 +626,10 @@ The command should succeed.
 
 ```
 
-The validator should be running at `http://localhost:8899`.
+The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -1237,7 +1237,38 @@ You should have `console.log(createResponse);` in `create-nft.js`.
 
 ### --description--
 
-<!-- Fail to run `metaplex.nfts().create()` because of missing program -->
+The local storage driver points to is a simple REST API that stores the metadata on your local machine. It is useful for testing purposes.
+
+Start the local storage driver in a new terminal:
+
+```bash
+npm run start:server
+```
+
+### --tests--
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 28
+
+### --description--
 
 Run the script in the terminal:
 
@@ -1251,7 +1282,11 @@ node create-nft.js
   <summary>Error</summary>
 
 ```bash
+FailedToSendTransactionError: The transaction could not be sent successfully to the network. Please check the underlying error below for more details.
 
+Source: RPC
+
+Caused By: Error: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
 ```
 
 </details>
@@ -1262,6 +1297,138 @@ You should run `node create-nft.js` in the terminal.
 
 ```bash
 
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 29
+
+### --description--
+
+Remember to airdrop some SOL to the wallet 🤦‍♂️
+
+### --tests--
+
+The `wallet.json` account should have at least 2 SOL.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ./learn-solanas-token-program-by-minting-a-fungible-token/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  2,
+  'Try running `solana airdrop 2 ./wallet.json`'
+);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 28
+
+### --description--
+
+Run the script in the terminal:
+
+```bash
+node create-nft.js
+```
+
+**Note:** You should see an error (similar to below) in the terminal.
+
+<details>
+  <summary>Error</summary>
+
+```bash
+FailedToSendTransactionError: The transaction could not be sent successfully to the network. Please check the underlying error below for more details.
+
+Source: RPC
+
+Caused By: Error: failed to send transaction: Transaction simulation failed: Attempt to load a program that does not exist
+```
+
+</details>
+
+### --tests--
+
+You should run `node create-nft.js` in the terminal.
+
+```bash
+
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 ## 29
@@ -1334,6 +1501,40 @@ You should run `node create-nft.js` in the terminal.
 
 ```
 
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
 ## 32
 
 ### --description--
@@ -1368,6 +1569,154 @@ You should run `npm run start:validator` in the terminal.
 
 ```js
 
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 34
+
+### --description--
+
+Create a new NFT again. Pay attention to the output in the terminal.
+
+### --tests--
+
+You should run `node create-nft.js` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 35
+
+### --description--
+
+Part of the output should be the mint account's public key. Copy the base58 string and paste it into the `env.MINT_ACCOUNT_ADDRESS` property of the `package.json` file.
+
+_As this is a new NFT, the `env.MINT_ACCOUNT_ADDRESS` property will be different to the previous one._
+
+### --tests--
+
+The `package.json` file should have a `env.MINT_ACCOUNT_ADDRESS` property.
+
+```js
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    'learn-the-metaplex-sdk-by-minting-an-nft/package.json'
+  )
+);
+assert.property(
+  packageJson,
+  'env',
+  'The `package.json` file should have an `env` property.'
+);
+assert.property(
+  packageJson.env,
+  'MINT_ACCOUNT_ADDRESS',
+  'The `package.json` file should have an `env.MINT_ACCOUNT_ADDRESS` property.'
+);
+```
+
+The `env.MINT_ACCOUNT_ADDRESS` property should match an NFT owned by `wallet.json`.
+
+```js
+const command =
+  'solana address -k learn-the-metaplex-sdk-by-minting-an-nft/wallet.json';
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+const walletAddress = stdout.trim();
+
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    'learn-the-metaplex-sdk-by-minting-an-nft/package.json'
+  )
+);
+assert.property(
+  packageJson,
+  'env',
+  'The `package.json` file should have an `env` property.'
+);
+
+assert.equal(
+  packageJson.env.WALLET_ADDRESS,
+  walletAddress,
+  'The `env.WALLET_ADDRESS` property should match the public key of `wallet.json`.'
+);
+
+try {
+  const { Connection } = await import('@solana/web3.js');
+  const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
+  const connection = new Connection('http://127.0.0.1:8899');
+
+  const mintAccounts = await connection.getParsedProgramAccounts(
+    TOKEN_PROGRAM_ID,
+    {
+      filters: [
+        {
+          dataSize: 82
+        },
+        {
+          memcmp: {
+            offset: 4,
+            bytes: packageJson.env.MINT_ADDRESS
+          }
+        }
+      ]
+    }
+  );
+
+  const mintAccount = mintAccounts.find(
+    ({ pubkey }) => pubkey === packageJson.env.MINT_ADDRESS
+  );
+  assert.exists(
+    mintAccount,
+    'The `env.MINT_ACCOUNT_ADDRESS` property should match an NFT owned by `wallet.json`.'
+  );
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 ## 99

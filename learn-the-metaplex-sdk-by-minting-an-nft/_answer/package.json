@@ -8,7 +8,7 @@
   },
   "scripts": {
     "solana:dump": "solana program dump -u mainnet-beta $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID) > ../mlp_token.so",
-    "solana:airdrop": "solana airdrop 10 $(npm pkg get env.WALLET_ADDRESS)",
+    "solana:airdrop": "solana airdrop 10 ./wallet.json",
     "start:validator": "solana-test-validator --bpf-program $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID) ../mlp_token.so --reset",
     "start:server": "node server.js"
   },

@@ -23,6 +23,10 @@ app.put('/:id', (req, res) => {
   res.status(200).end();
 });
 
+app.get('/ping', (_req, res) => {
+  res.status(200).send('pong');
+});
+
 app.listen(3001, () => {
   console.log('Server started');
 });
