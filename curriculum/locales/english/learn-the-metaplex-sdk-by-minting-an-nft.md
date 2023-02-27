@@ -1479,15 +1479,8 @@ assert.isTrue(fileExists, 'A file called `mlp_token.so` should exist.');
 Deploy the Metaplex Token program to your local cluster:
 
 ```bash
-solana program deploy --program-id metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so
+solana program deploy ./mlp_token.so
 ```
-
-<details>
-  <summary>About the Command</summary>
-
-The `--program-id` flag is used to specify the address of the program. This is the same address that the program is deployed to on mainnet-beta. Internally, the Metaplex SDK uses this address in the transaction instructions to tell the cluster which program to use.
-
-</details>
 
 ### --tests--
 
@@ -1500,6 +1493,8 @@ The `--program-id` flag is used to specify the address of the program. This is t
 ### --description--
 
 Re-run the script to create the NFT.
+
+**Note:** You should see an error in the terminal.
 
 ### --tests--
 
@@ -1547,7 +1542,9 @@ try {
 
 ### --description--
 
-Instead of manually deploying the program to the local cluster every time, you can start the local cluster with the program pre-deployed:
+The error comes about because, internally, the Metaplex SDK is expecting a program address of `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`. However, when you deployed the `.so` file, it was deployed at a random public address.
+
+Instead, you can start the local cluster with the program pre-deployed at a specific address:
 
 ```bash
 solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset
@@ -1555,10 +1552,34 @@ solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s 
 
 Stop you existing local cluster, and start a new one with the above command.
 
+<details>
+  <summary>About the Command</summary>
+
+The `--bpf-program` flag is used to specify the address of the program. This is the same address that the program is deployed to on mainnet-beta. Internally, the Metaplex SDK uses this address in the transaction instructions to tell the cluster which program to use.
+
+The `--reset` flag is used to clear the `test-ledger` directory. This is where the local cluster stores its data. If you don't clear the directory, the cluster will use the old data.
+
+</details>
+
 ### --tests--
+
+You should run `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset` in the terminal.
 
 ```js
 
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
 ```
 
 ## 36
@@ -1971,9 +1992,105 @@ try {
 
 Notice the output includes a `json` property. This is the metadata for the NFT.
 
-To actually get the
+The metadata includes the image URL, but not the image data itself. To get the image data, you can use the `download` method on the `Metaplex.storage()` class:
 
-## 99
+```typescript
+download(
+  uri: string
+): Promise<MetaplexFile>
+```
+
+Declare a variable `imageData`, and assign it the awaited result of calling the `download` method, passing in the `image` property of the NFT metadata.
+
+### --tests--
+
+You should have `const imageData = await metaplex.storage().download(nft.json.image);` in `get-nft.js`.
+
+```js
+
+```
+
+## 47
+
+### --description--
+
+Log the `imageData` variable to the console.
+
+### --tests--
+
+You should have `console.log(imageData);` in `get-nft.js`.
+
+```js
+
+```
+
+## 48
+
+### --description--
+
+Run the `get-nft.js` script.
+
+### --tests--
+
+You should run `node get-nft.js` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 49
+
+### --description--
+
+Now, with the buffer data, use the `writeFile` function from the `fs/promises` module to reconstruct the image file.
+
+### --tests--
+
+You should have `await writeFile(<file_name>, imageData.buffer);` in `get-nft.js`.
+
+```js
+
+```
+
+You should have a `.png` file in the project root.
+
+```js
+
+```
+
+## 50
 
 ### --description--
 
