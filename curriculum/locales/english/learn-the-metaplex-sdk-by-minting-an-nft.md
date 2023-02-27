@@ -54,11 +54,11 @@ assert.isArray(
 
 ### --description--
 
-Start a local Solana cluster. Ensure the RPC URL is set to `http://127.0.0.1:8899`.
+Start a local Solana cluster. Ensure the RPC URL is set to `http://localhost:8899`.
 
 ### --tests--
 
-Your Solana config RPC URL should be set to `http://127.0.0.1:8899`.
+Your Solana config RPC URL should be set to `http://localhost:8899`.
 
 ```js
 const command = `solana config get json_rpc_url`;
@@ -66,7 +66,7 @@ await new Promise(res => setTimeout(() => res(), 2000));
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 assert.include(
   stdout,
-  'http://127.0.0.1:8899',
+  'http://localhost:8899',
   'Try running `solana config set --url localhost`'
 );
 ```
@@ -93,7 +93,7 @@ Use the Solana CLI to get the public key of the wallet you created. Put this pub
 
 ### --tests--
 
-The `package.json` file should have a `env.WALLET_ADDRESS` property.
+The `package.json` file should have a `env.WALLET_ADDRESS` property that is not empty.
 
 ```js
 const packageJson = JSON.parse(
@@ -111,15 +111,33 @@ assert.property(
   'WALLET_ADDRESS',
   'The `package.json` file should have an `env.WALLET_ADDRESS` property.'
 );
+assert.notEmpty(
+  packageJson.env.WALLET_ADDRESS,
+  'The `env.WALLET_ADDRESS` property should have a value.'
+);
 ```
 
 The `env.WALLET_ADDRESS` property should match the public key of `wallet.json`.
 
 ```js
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    'learn-the-metaplex-sdk-by-minting-an-nft/package.json'
+  )
+);
 const command =
   'solana address -k learn-the-metaplex-sdk-by-minting-an-nft/wallet.json';
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 const walletAddress = stdout.trim();
+console.debug('walletAddress', walletAddress, packageJson.env.WALLET_ADDRESS);
+assert.notEmpty(
+  walletAddress,
+  'The `wallet.json` file should have a public key.'
+);
+assert.notEmpty(
+  packageJson.env.WALLET_ADDRESS,
+  'The `env.WALLET_ADDRESS` property should have a value.'
+);
 assert.equal(
   packageJson.env.WALLET_ADDRESS,
   walletAddress,
@@ -142,7 +160,76 @@ Seeing as NFT's are not divisible - you cannot own 0.1 of an NFT - the decimal a
 The `createMint` call within `spl-program/create-mint-account.js` should have a decimal place argument of `0`.
 
 ```js
+const mintDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'mint';
+});
+assert.exists(mintDeclaration, 'A variable named `mint` should exist');
+const mintAwaitExpression = mintDeclaration.declarations?.[0]?.init;
+assert.equal(
+  mintAwaitExpression.type,
+  'AwaitExpression',
+  'The `createMint` call should be awaited'
+);
+const createMintCallExpression = mintAwaitExpression.argument;
+assert.equal(
+  createMintCallExpression.callee.name,
+  'createMint',
+  'The `mint` variable should be initialised with the `createMint` function'
+);
+const createMintArguments = createMintCallExpression.arguments;
+assert.equal(
+  createMintArguments.length,
+  5,
+  'The `createMint` function should be called with 5 arguments'
+);
+const [
+  connectionArgument,
+  payerArgument,
+  mintAuthorityArgument,
+  freezeAuthorityArgument,
+  decimalsArgument
+] = createMintArguments;
+assert.equal(
+  connectionArgument.name,
+  'connection',
+  'The first argument to `createMint` should be `connection`'
+);
+assert.equal(
+  payerArgument.name,
+  'payer',
+  'The second argument to `createMint` should be `payer`'
+);
+assert.equal(
+  mintAuthorityArgument.name,
+  'mintAuthority',
+  'The third argument to `createMint` should be `mintAuthority`'
+);
+assert.equal(
+  freezeAuthorityArgument.name,
+  'freezeAuthority',
+  'The fourth argument to `createMint` should be `freezeAuthority`'
+);
+assert.equal(
+  decimalsArgument.value,
+  0,
+  'The fifth argument to `createMint` should be `0`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/spl-program/create-mint-account.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 6
@@ -158,7 +245,72 @@ Within `spl-program/mint.js`, change the `amount` argument of the `mintTo` call 
 The `mintTo` call within `spl-program/mint.js` should have an `amount` argument of `1`.
 
 ```js
+const expressionStatement = babelisedCode
+  .getExpressionStatements()
+  .find(
+    e =>
+      e.expression.type === 'AwaitExpression' &&
+      e.expression.argument?.callee?.name === 'mintTo'
+  );
+assert.exists(
+  expressionStatement,
+  'An `await mintTo(...)` expression should exist'
+);
+const mintToArguments = expressionStatement.expression.argument.arguments;
+const [
+  connectionArgument,
+  payerArgument,
+  mintAddressArgument,
+  tokenAccountArgument,
+  mintAuthorityArgument,
+  amountArgument
+] = mintToArguments;
+assert.equal(
+  connectionArgument?.name,
+  'connection',
+  'The first argument to `mintTo` should be `connection`'
+);
+assert.equal(
+  payerArgument?.name,
+  'payer',
+  'The second argument to `mintTo` should be `payer`'
+);
+assert.equal(
+  mintAddressArgument?.name,
+  'mintAddress',
+  'The third argument to `mintTo` should be `mintAddress`'
+);
+assert.equal(
+  tokenAccountArgument?.name,
+  'tokenAccount',
+  'The fourth argument to `mintTo` should be `tokenAccount`'
+);
+assert.equal(
+  mintAuthorityArgument?.name,
+  'mintAuthority',
+  'The fifth argument to `mintTo` should be `mintAuthority`'
+);
+assert.equal(
+  amountArgument?.value,
+  1,
+  'The sixth argument to `mintTo` should be `1`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/spl-program/mint.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 7
@@ -288,7 +440,7 @@ assert.include(
 
 ```js
 const codeString = await __helpers.getFile(
-  'learn-solanas-token-program-by-minting-a-fungible-token/mint.js'
+  'learn-the-metaplex-sdk-by-minting-an-nft/spl-program/mint.js'
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
 global.babelisedCode = babelisedCode;
@@ -1343,7 +1495,7 @@ The `wallet.json` account should have at least 2 SOL.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
-  `solana balance ./learn-solanas-token-program-by-minting-a-fungible-token/wallet.json`
+  `solana balance ./learn-the-metaplex-sdk-by-minting-an-nft/wallet.json`
 );
 const balance = stdout.trim()?.match(/\d+/)?.[0];
 assert.isAtLeast(
