@@ -1460,13 +1460,21 @@ The address of the Metaplex Token program is `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a
 
 ### --tests--
 
-```js
+You should have a file called `mlp_token.so` in the root of the project.
 
+```js
+const fileExists = __helpers.fileExists(
+  'learn-the-metaplex-sdk-by-minting-an-nft/mlp_token.so'
+);
+assert.isTrue(fileExists, 'A file called `mlp_token.so` should exist.');
 ```
 
 ## 33
 
 ### --description--
+
+<!-- TODO: Currently not possible to deploy to specific address without keypair.
+           Instead, show that it is not possible to simply deploy, because current tooling looks for a specific address -->
 
 Deploy the Metaplex Token program to your local cluster:
 
@@ -1718,6 +1726,252 @@ try {
   assert.fail(e);
 }
 ```
+
+## 39
+
+### --description--
+
+Now that your NFT is deployed, and you have the mint account's public key, you can always find it using the public key.
+
+Create a new file called `get-nft.js`.
+
+### --tests--
+
+You should have a `get-nft.js` file.
+
+```js
+const fileExists = __helpers.fileExists(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+assert.isTrue(fileExists, 'You should have a `get-nft.js` file.');
+```
+
+## 40
+
+### --description--
+
+Within `get-nft.js`, declare a `connection` variable with a configuration pointing to your local cluster.
+
+### --tests--
+
+You should have `const connection = new Connection('http://127.0.0.1:8899');` in `get-nft.js`.
+
+```js
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'connection');
+assert.exists(
+  connectionVariableDeclaration,
+  'You should declare a variable named `connection`'
+);
+const newExpression = connectionVariableDeclaration.declarations[0].init;
+assert.equal(
+  newExpression.callee.name,
+  'Connection',
+  'You should initialise `connection` with a new `Connection`'
+);
+assert.equal(
+  newExpression.arguments[0].value,
+  'http://127.0.0.1:8899',
+  "You should create a new connection with `new Connection('http://127.0.0.1:8899')`"
+);
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Connection',
+  '`Connection` should be imported from `@solana/spl-token`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
+## 41
+
+### --description--
+
+Within `get-nft.js`, declare a `metaplex` variable with the same configuration as the `metaplex` variable in `create-nft.js`.
+
+### --tests--
+
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001' }));` in `get-nft.js`.
+
+```js
+
+```
+
+You should import `Metaplex` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+You should import `keypairIdentity` from `@metaplex-foundation/js`.
+
+```js
+
+```
+
+You should import `WALLET_KEYPAIR` from `utils.js`.
+
+```js
+
+```
+
+You should import `localStorage` from `utils.js`.
+
+```js
+
+```
+
+## 42
+
+### --description--
+
+Within `get-nft.js`, declare a `mintAddress` variable, and assign it the value of an instance of `PublicKey` constructed from the `MINT_ACCOUNT_ADDRESS` property from `pkg.env`.
+
+**Hint:** The `pkg` object is exported from `utils.js`.
+
+### --tests--
+
+You should have `const mintAddress = new PublicKey(pkg.env.MINT_ACCOUNT_ADDRESS);` in `get-nft.js`.
+
+```js
+
+```
+
+You should import `pkg` from `utils.js`.
+
+```js
+
+```
+
+You should import `PublicKey` from `@solana/web3.js`.
+
+```js
+
+```
+
+## 43
+
+### --description--
+
+To get the NFT, use the `findByMint` method on the `Metaplex.nfts()` class:
+
+```typescript
+findByMint(
+  {
+    mintAddress: PublicKey;
+    tokenAddress?: PublicKey;
+    tokenOwner?: PublicKey;
+    loadJsonMetadata?: boolean;
+  }
+): Promise
+```
+
+Pass in the required `mintAddress` property, and assign the awaited result to an `nft` variable.
+
+### --tests--
+
+You should have `const nft = await metaplex.nfts().findByMint({ mintAddress });` in `get-nft.js`.
+
+```js
+
+```
+
+## 44
+
+### --description--
+
+Log the `nft` variable to the console.
+
+### --tests--
+
+You should have `console.log(nft);` in `get-nft.js`.
+
+```js
+
+```
+
+## 45
+
+### --description--
+
+Run the `get-nft.js` script.
+
+```bash
+node get-nft.js
+```
+
+### --tests--
+
+You should run `node get-nft.js` in the terminal.
+
+```js
+
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
+```
+
+## 46
+
+### --description--
+
+Notice the output includes a `json` property. This is the metadata for the NFT.
+
+To actually get the
 
 ## 99
 
