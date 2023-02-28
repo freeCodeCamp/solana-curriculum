@@ -2183,7 +2183,12 @@ npm run start:validator
 You should run `npm run start:validator` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(
+  lastCommand?.trim(),
+  'npm run start:validator',
+  'Run `npm run start:validator` in the terminal'
+);
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -2210,7 +2215,12 @@ Create a new NFT again. Pay attention to the output in the terminal.
 You should run `node create-nft.js` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(
+  lastCommand?.trim(),
+  'node create-nft.js',
+  'Run `node create-nft.js` in the terminal'
+);
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -2426,31 +2436,95 @@ Within `get-nft.js`, declare a `metaplex` variable with the same configuration a
 You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001' }));` in `get-nft.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+assert.match(
+  codeString,
+  /\s*metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.use\s*\(\s*localStorage\s*\(\\s*{\s*('|"|`)?baseUrl\1:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\2\s*\}\s*\)\s*\)/
+);
 ```
 
 You should import `Metaplex` from `@metaplex-foundation/js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@metaplex-foundation/js';
+});
+assert.exists(
+  importDeclaration,
+  'You should import from `@metaplex-foundation/js`'
+);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Metaplex',
+  '`Metaplex` should be imported from `@metaplex-foundation/js`'
+);
 ```
 
 You should import `keypairIdentity` from `@metaplex-foundation/js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@metaplex-foundation/js';
+});
+assert.exists(
+  importDeclaration,
+  'You should import from `@metaplex-foundation/js`'
+);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'keypairIdentity',
+  '`keypairIdentity` should be imported from `@metaplex-foundation/js`'
+);
 ```
 
 You should import `WALLET_KEYPAIR` from `utils.js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'You should import from `./utils.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'WALLET_KEYPAIR',
+  '`WALLET_KEYPAIR` should be imported from `./utils.js`'
+);
 ```
 
 You should import `localStorage` from `utils.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'You should import from `./utils.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'localStorage',
+  '`localStorage` should be imported from `./utils.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 42
@@ -2466,19 +2540,59 @@ Within `get-nft.js`, declare a `mintAddress` variable, and assign it the value o
 You should have `const mintAddress = new PublicKey(pkg.env.MINT_ACCOUNT_ADDRESS);` in `get-nft.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+assert.match(
+  codeString,
+  /\s*mintAddress\s*=\s*new\s+PublicKey\s*\(\s*pkg\s*\.\s*env\s*\.\s*MINT_ACCOUNT_ADDRESS\s*\)/
+);
 ```
 
 You should import `pkg` from `utils.js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'You should import from `./utils.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'pkg',
+  '`pkg` should be imported from `./utils.js`'
+);
 ```
 
 You should import `PublicKey` from `@solana/web3.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'PublicKey',
+  '`PublicKey` should be imported from `@solana/web3.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 43
@@ -2505,7 +2619,13 @@ Pass in the required `mintAddress` property, and assign the awaited result to an
 You should have `const nft = await metaplex.nfts().findByMint({ mintAddress });` in `get-nft.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+assert.match(
+  codeString,
+  /\s*nft\s*=\s*await\s+metaplex\s*\.\s*nfts\s*\(\s*\)\s*\.\s*findByMint\s*\(\s*\{\s*mintAddress\s*\}\s*\)/
+);
 ```
 
 ## 44
@@ -2519,7 +2639,35 @@ Log the `nft` variable to the console.
 You should have `console.log(nft);` in `get-nft.js`.
 
 ```js
+const consoleLogCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return (
+      c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
+    );
+  });
+assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
+const consoleLogArguments = consoleLogCallExpression.arguments;
+const ident = consoleLogArguments.find(a => {
+  return a.name === 'nft';
+});
+assert.exists(ident, 'One of the arguments to `console.log` should be `nft`');
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 45
@@ -2537,7 +2685,8 @@ node get-nft.js
 You should run `node get-nft.js` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand?.trim(), 'node get-nft.js');
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -2593,7 +2742,13 @@ Declare a variable `imageData`, and assign it the awaited result of calling the 
 You should have `const imageData = await metaplex.storage().download(nft.json.image);` in `get-nft.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+assert.match(
+  codeString,
+  /\simageData\s*=\s*await\s+metaplex\s*\.\s*storage\s*\(\s*\)\s*\.\s*download\s*\(\s*nft\s*\.\s*json\s*\.\s*image\s*\)/
+);
 ```
 
 ## 47
@@ -2607,7 +2762,38 @@ Log the `imageData` variable to the console.
 You should have `console.log(imageData);` in `get-nft.js`.
 
 ```js
+const consoleLogCallExpression = babelisedCode
+  .getType('CallExpression')
+  .find(c => {
+    return (
+      c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
+    );
+  });
+assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
+const consoleLogArguments = consoleLogCallExpression.arguments;
+const ident = consoleLogArguments.find(a => {
+  return a.name === 'imageData';
+});
+assert.exists(
+  ident,
+  'One of the arguments to `console.log` should be `imageData`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 48
@@ -2621,7 +2807,8 @@ Run the `get-nft.js` script.
 You should run `node get-nft.js` in the terminal.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand?.trim(), 'node get-nft.js');
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -2667,18 +2854,58 @@ Now, with the buffer data, use the `writeFile` function from the `fs/promises` m
 You should have `await writeFile(<file_name>, imageData.buffer);` in `get-nft.js`.
 
 ```js
-
+const expressionStatement = babelisedCode.getExpressionStatements().find(e => {
+  return e.expression?.argument?.callee?.name === 'writeFile';
+});
+assert.exists(expressionStatement, 'An `await writeFile()` call should exist');
+const [fileName, imageBufferMemberExpression] =
+  expressionStatement.expression.argument.arguments;
+assert.isString(fileName?.value, 'The first argument should be a string');
+assert.equal(
+  imageBufferMemberExpression?.object?.name,
+  'imageData',
+  'The second argument should be `imageData.buffer`'
+);
+assert.equal(
+  imageBufferMemberExpression?.property?.name,
+  'buffer',
+  'The second argument should be `imageData.buffer`'
+);
 ```
 
 You should have a `.png` file in the project root.
 
 ```js
+const dir = await __helpers.getDirectory(
+  'learn-the-metaplex-sdk-by-minting-an-nft'
+);
+assert.exists(
+  dir.find(f => f.endsWith('.png')),
+  'A .png file should exist in the project root'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 50
 
 ### --description--
+
+Contratulations on finishing this project! Feel free to play with your code.
 
 **Summary**
 
@@ -2687,5 +2914,54 @@ The main differences between NFT's and fungible tokens are:
 - NFT's are not divisible
 - Only one NFT of a mint can exist
 - No more NFT's can be minted once the mint authority is removed
+
+The Metaplex SDK provides a simple interface for minting NFT's and managing the metadata associated with them:
+
+```javascript
+// Create a new Metaplex instance
+const metaplex = Metaplex.make(connection);
+// Attach a wallet to use for transactions
+metaplex.use(keypairIdentity(wallet_keypair));
+// Attach a storage driver to use for uploading and downloading metadata
+metaplex.use(storage_driver);
+
+// Create a MetaplexFile
+const file = toMetaplexFile(image_buffer);
+// Upload the file to the storage driver
+const image_uri = await metaplex.storage().upload(file);
+// Upload the metadata to the storage driver
+const { uri } = await metaplex.nfts().uploadMetadata({
+  name: 'fCC',
+  description: 'An image of the freeCodeCamp logo',
+  image: image_uri
+});
+// Create a new NFT mint
+const nftInfo = await metaplex.nfts().create({
+  name: 'fCC',
+  uri,
+  sellerFeeBasisPoints: 1000,
+  maxSupply: 1
+});
+
+// Get nft data
+const nft = await metaplex.nfts().findByMint({
+  mintAddress: nftInfo.mintAddress
+});
+// Download image from storage driver
+const image = await metaplex.storage().download(nft.json.image);
+```
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
+```
 
 ## --fcc-end--
