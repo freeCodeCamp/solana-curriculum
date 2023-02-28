@@ -464,6 +464,94 @@ Run the following to create the mint account:
 node spl-program/create-mint-account.js
 ```
 
+**Note:** You should see an error (similar to below) in the terminal.
+
+<details>
+  <summary>Error</summary>
+
+```bash
+FailedToSendTransactionError: The transaction could not be sent successfully to the network. Please check the underlying error below for more details.
+
+Source: RPC
+
+Caused By: Error: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+```
+
+</details>
+
+### --tests--
+
+You should run `node spl-program/create-mint-account.js` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(
+  lastCommand?.trim(),
+  'node spl-program/create-mint-account.js',
+  'Try running `node spl-program/create-mint-account.js` in the terminal'
+);
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 30
+
+### --description--
+
+Remember to airdrop some SOL to the wallet 🤦‍♂️
+
+### --tests--
+
+The `wallet.json` account should have at least 2 SOL.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ./learn-the-metaplex-sdk-by-minting-an-nft/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  2,
+  'Try running `solana airdrop 2 ./wallet.json`'
+);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 8
+
+### --description--
+
+You can now mint an NFT!
+
+Run the following to create the mint account:
+
+```bash
+node spl-program/create-mint-account.js
+```
+
 ### --tests--
 
 You should run `node spl-program/create-mint-account.js` in the terminal.
@@ -488,9 +576,11 @@ assert.exists(
   'The terminal output should include a base58 string'
 );
 try {
+  console.log('TEST: ', terminalOut.match(/[\w\d]{32,44}/));
+  const { PublicKey } = await import('@solana/web3.js');
   new PublicKey(base58String);
 } catch (e) {
-  assert.fail(e, 'Public key should be printed to the terminal');
+  assert.fail(e);
 }
 ```
 
@@ -575,7 +665,7 @@ try {
         {
           memcmp: {
             offset: 4,
-            bytes: packageJson.env.MINT_ADDRESS
+            bytes: packageJson.env.WALLET_ADDRESS
           }
         }
       ]
@@ -583,7 +673,7 @@ try {
   );
 
   const mintAccount = mintAccounts.find(
-    ({ pubkey }) => pubkey === packageJson.env.MINT_ADDRESS
+    ({ pubkey }) => pubkey?.toBase58() === packageJson.env.MINT_ACCOUNT_ADDRESS
   );
   assert.exists(
     mintAccount,
@@ -623,11 +713,14 @@ The command should succeed.
 // Test terminal-out includes value that can be parsed as a PublicKey.
 const terminalOut = await __helpers.getTerminalOutput();
 const base58String = terminalOut.match(/[\w\d]{32,44}/)?.[0];
+const error = terminalOut.match('Error')?.[0];
+assert.notExists(error);
 assert.exists(
   base58String,
   'The terminal output should include a base58 string'
 );
 try {
+  const { PublicKey } = await import('@solana/web3.js');
   new PublicKey(base58String);
 } catch (e) {
   assert.fail(e, 'Public key should be printed to the terminal');
@@ -683,6 +776,7 @@ assert.property(
   'TOKEN_ACCOUNT_ADDRESS',
   'The `package.json` file should have an `env` property.'
 );
+assert.notEmpty(packageJson.env.TOKEN_ACCOUNT_ADDRESS);
 ```
 
 The `env.TOKEN_ACCOUNT_ADDRESS` property should match an NFT owned by `wallet.json`.
@@ -732,11 +826,11 @@ try {
     }
   );
 
-  const tokenAccount = tokenAccount.find(
-    ({ pubkey }) => pubkey === packageJson.env.TOKEN_ACCOUNT_ADDRESS
+  const tokenAccount = tokenAccounts.find(
+    ({ pubkey }) => pubkey.toBase58() === packageJson.env.TOKEN_ACCOUNT_ADDRESS
   );
   assert.exists(
-    mintAccount,
+    tokenAccount,
     'The `env.TOKEN_ACCOUNT_ADDRESS` property should match an NFT owned by `wallet.json`.'
   );
   assert.equal(
@@ -794,11 +888,14 @@ assert.notEmpty(
 );
 
 try {
-  const { Connection } = await import('@solana/web3.js');
+  const { Connection, PublicKey } = await import('@solana/web3.js');
   const { getMint } = await import('@solana/spl-token');
   const connection = new Connection('http://127.0.0.1:8899');
 
-  const mint = await getMint(connection, packageJson.env.MINT_ACCOUNT_ADDRESS);
+  const mint = await getMint(
+    connection,
+    new PublicKey(packageJson.env.MINT_ACCOUNT_ADDRESS)
+  );
   assert.equal(mint.mintAuthority, null, 'The mint authority should be null.');
 } catch (e) {
   assert.fail(e);
@@ -851,9 +948,7 @@ const { stdout, stderr } = await __helpers.getCommandOutput(
   command,
   'learn-the-metaplex-sdk-by-minting-an-nft'
 );
-if (stderr) {
-  assert.fail(stderr, 'Expected the script to run without error');
-}
+assert.include(stdout, 'mintAuthority: null');
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -1076,7 +1171,7 @@ Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR));
 
 The `keypairIdentity` function takes a `Keypair` and returns a `MetaplexPlugin`, and is exported from `@metaplex-foundation/js`.
 
-The `WALLET_KEYPAIR` variable is a `Keypair` created from the `wallet.json` file,a nd is already exported from `utils.js`.
+The `WALLET_KEYPAIR` variable is a `Keypair` created from the `wallet.json` file, and is already exported from `utils.js`.
 
 ### --tests--
 
@@ -1114,14 +1209,14 @@ You should import `WALLET_KEYPAIR` from `utils.js`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
-  return i.source.value === './utils';
+  return i.source.value === './utils.js';
 });
-assert.exists(importDeclaration, 'An import from `./utils` should exist');
+assert.exists(importDeclaration, 'An import from `./utils.js` should exist');
 const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   importSpecifiers,
   'WALLET_KEYPAIR',
-  '`WALLET_KEYPAIR` should be imported from `./utils`'
+  '`WALLET_KEYPAIR` should be imported from `./utils.js`'
 );
 ```
 
@@ -1142,6 +1237,8 @@ delete global.babelisedCode;
 ```
 
 ## 20
+
+### --description--
 
 The final configuration required is the _storage driver_ that will be used to store the NFT's metadata. This is because the NFT's metadata is not stored on-chain, but rather in a separate, often cheaper, storage system.
 
@@ -1206,11 +1303,11 @@ delete global.babelisedCode;
 
 The storage driver takes an object with a `baseUrl` property, which is the base URL that will be used to generate the metadata URLs.
 
-Set the `baseUrl` to `http://127.0.0.1:3001`.
+Set the `baseUrl` to `http://127.0.0.1:3001/`.
 
 ### --tests--
 
-You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001' }));` in `create-nft.js`.
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001/' }));` in `create-nft.js`.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1218,7 +1315,7 @@ const codeString = await __helpers.getFile(
 );
 assert.match(
   codeString,
-  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.\s*use\s*\(\s*localStorage\s*\(\s*\{\s*('|"|`)?baseUrl\1\s*:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\2\s*\}\s*\)\s*\)/
+  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.\s*use\s*\(\s*localStorage\s*\(\s*\{\s*('|"|`)?baseUrl\1\s*:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\s*\}\s*\)\s*\)/
 );
 ```
 
@@ -1240,7 +1337,7 @@ const codeString = await __helpers.getFile(
 );
 assert.match(
   codeString,
-  /\s+imageBuffer\s*=\s*(await)?\s+(readFile|readFileSync|read)\s*\(\s*('|"|`)?(\.\/)assets\/pic\.png\3\s*\)/
+  /\s+imageBuffer\s*=\s*(await)?\s+(readFile|readFileSync|read)\s*\(\s*('|"|`)(\.\/)?assets\/pic\.png\3\s*\)/
 );
 ```
 
@@ -1260,11 +1357,18 @@ const importSpecifiers = importDeclarations.flatMap(i =>
   i.specifiers.map(s => s.imported.name)
 );
 const fileReadingApis = ['readFile', 'readFileSync', 'read'];
-assert.hasAnyKeys(
-  importSpecifiers,
-  fileReadingApis,
-  'One of the file-reading APIs should be imported'
-);
+let found = false;
+out: {
+  for (const i of importSpecifiers) {
+    for (const f of fileReadingApis) {
+      if (i === f) {
+        found = true;
+        break out;
+      }
+    }
+  }
+}
+assert.isTrue(found, 'One of the file-reading APIs should be imported');
 ```
 
 ### --before-all--
@@ -1317,14 +1421,14 @@ assert.match(
 You should import `toMetaplexFile` from `@metaplex-foundation/js`.
 
 ```js
-const importDeclaration = babelisedCode.getImportDeclarations().filter(i => {
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === '@metaplex-foundation/js';
 });
 assert.exists(
   importDeclaration,
   'An import from `@metaplex-foundation/js` should exist'
 );
-const importSpecifiers = importDeclaration.specifiers.map(i => i.import.name);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   importSpecifiers,
   'toMetaplexFile',
@@ -1377,7 +1481,7 @@ assert.match(
 With the URL to the uploaded image, you can upload the NFT's metadata. The `Metaplex` class has an `nfts` method that returns many useful methods for working with NFT's. One of these methods is `uploadMetadata`:
 
 <details>
-  <summary>`uploadMetadata` Signature</summary>
+  <summary><code>uploadMetadata</code> Signature</summary>
 
 ```typescript
 uploadMetadata(
@@ -1430,29 +1534,29 @@ You should have `const { uri } = await metaplex.nfts().uploadMetadata({ name: 'a
 const uriVariableDeclaration = babelisedCode
   .getVariableDeclarations()
   .find(v => {
-    return v.id?.properties?.find(p => p.key.name === 'uri');
+    return v.declarations?.[0]?.id?.properties?.find(p => p.key.name === 'uri');
   });
 assert.exists(
   uriVariableDeclaration,
   'A variable declaration with a `uri` property should exist'
 );
-
 const codeString = babelisedCode.generateCode(uriVariableDeclaration);
 
 const metaplex = `
 const metaplex = {
   nfts: () => ({
     uploadMetadata: ({name, description, image}) => {
-        if (!typeof name === 'string') {
+        if (typeof name !== 'string') {
             throw new Error('name must be a string');
         }
-        if (!typeof description === 'string') {
+        if (typeof description !== 'string') {
             throw new Error('description must be a string');
         }
         return Promise.resolve({ uri: 'any string' });
       }
   })
 };
+let image, name, description, uri;
 `;
 const testString = `${metaplex}\n${codeString}`;
 
@@ -1486,7 +1590,7 @@ delete global.babelisedCode;
 Another method on the `nfts` object is `create`:
 
 <details>
-  <summary>`create` Signature</summary>
+  <summary><code>create</code> Signature</summary>
 
 ````typescript
 create(
@@ -1690,17 +1794,12 @@ Declare a variable `createResponse`, and assign to it the result of awaiting the
 You should have `const createResponse = await metaplex.nfts().create({ name: "any string", uri, sellerFeeBasisPoints: <any_int>, maxSupply: 1 });` in `create-nft.js`.
 
 ```js
-const createResponseVariableDeclaration = babelisedCode
-  .getVariableDeclarations()
-  .find(v => {
-    return v.id.name === 'createResponse';
-  });
-assert.exists(
-  uriVariableDeclaration,
-  'A variable `createResponse` should exist'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id.name === 'createResponse';
+});
+assert.exists(variableDeclaration, 'A variable `createResponse` should exist');
 
-const codeString = babelisedCode.generateCode(uriVariableDeclaration);
+const codeString = babelisedCode.generateCode(variableDeclaration);
 
 const metaplex = `
 const metaplex = {
@@ -1710,7 +1809,7 @@ const metaplex = {
             throw new Error('name must be a string');
         }
         if (typeof sellerFeeBasisPoints !== 'number') {
-            throw new Error('description must be a number');
+            throw new Error('sellerFeeBasisPoints must be a number');
         }
         if (typeof maxSupply !== 'number') {
             throw new Error('maxSupply must be a number');
@@ -1723,6 +1822,7 @@ const metaplex = {
       }
   })
 };
+let name, sellerFeeBasisPoints, maxSupply, uri;
 `;
 const testString = `${metaplex}\n${codeString}`;
 
@@ -1824,111 +1924,6 @@ try {
   }
 } catch (e) {
   assert.fail(e);
-}
-```
-
-## 29
-
-### --description--
-
-Run the script in the terminal:
-
-```bash
-node create-nft.js
-```
-
-**Note:** You should see an error (similar to below) in the terminal.
-
-<details>
-  <summary>Error</summary>
-
-```bash
-FailedToSendTransactionError: The transaction could not be sent successfully to the network. Please check the underlying error below for more details.
-
-Source: RPC
-
-Caused By: Error: failed to send transaction: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
-```
-
-</details>
-
-### --tests--
-
-You should run `node create-nft.js` in the terminal.
-
-```js
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(
-  lastCommand?.trim(),
-  'node create-nft.js',
-  'Run `node create-nft.js` in the terminal'
-);
-```
-
-The validator should be running at `http://127.0.0.1:8899`.
-
-```js
-const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
-const { stdout, stderr } = await __helpers.getCommandOutput(command);
-try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
-} catch (e) {
-  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
-}
-```
-
-The local storage driver should be running at `http://127.0.0.1:3001`.
-
-```js
-try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
-  // Response should be 200 with text "pong"
-  if (res.status === 200) {
-    const text = await res.text();
-    if (text !== 'pong') {
-      throw new Error(`Expected response text "pong", got ${text}`);
-    }
-  } else {
-    throw new Error(`Expected status code 200, got ${res.status}`);
-  }
-} catch (e) {
-  assert.fail(e);
-}
-```
-
-## 30
-
-### --description--
-
-Remember to airdrop some SOL to the wallet 🤦‍♂️
-
-### --tests--
-
-The `wallet.json` account should have at least 2 SOL.
-
-```js
-const { stdout } = await __helpers.getCommandOutput(
-  `solana balance ./learn-the-metaplex-sdk-by-minting-an-nft/wallet.json`
-);
-const balance = stdout.trim()?.match(/\d+/)?.[0];
-assert.isAtLeast(
-  parseInt(balance),
-  2,
-  'Try running `solana airdrop 2 ./wallet.json`'
-);
-```
-
-The validator should be running at `http://localhost:8899`.
-
-```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
-const { stdout, stderr } = await __helpers.getCommandOutput(command);
-try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
-} catch (e) {
-  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
 }
 ```
 
@@ -2433,7 +2428,7 @@ Within `get-nft.js`, declare a `metaplex` variable with the same configuration a
 
 ### --tests--
 
-You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001' }));` in `get-nft.js`.
+You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001/' }));` in `get-nft.js`.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -2441,7 +2436,7 @@ const codeString = await __helpers.getFile(
 );
 assert.match(
   codeString,
-  /\s*metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.use\s*\(\s*localStorage\s*\(\\s*{\s*('|"|`)?baseUrl\1:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\2\s*\}\s*\)\s*\)/
+  /\s*metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.use\s*\(\s*localStorage\s*\(\\s*{\s*('|"|`)?baseUrl\1:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\s*\}\s*\)\s*\)/
 );
 ```
 
