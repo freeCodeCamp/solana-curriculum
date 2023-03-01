@@ -505,7 +505,7 @@ try {
 }
 ```
 
-## 30
+## 9
 
 ### --description--
 
@@ -540,7 +540,7 @@ try {
 }
 ```
 
-## 8
+## 10
 
 ### --description--
 
@@ -597,7 +597,7 @@ try {
 }
 ```
 
-## 9
+## 11
 
 ### --description--
 
@@ -684,7 +684,7 @@ try {
 }
 ```
 
-## 10
+## 12
 
 ### --description--
 
@@ -740,7 +740,7 @@ try {
 }
 ```
 
-## 11
+## 13
 
 ### --description--
 
@@ -843,7 +843,7 @@ try {
 }
 ```
 
-## 12
+## 14
 
 ### --description--
 
@@ -915,7 +915,7 @@ try {
 }
 ```
 
-## 13
+## 15
 
 ### --description--
 
@@ -964,7 +964,7 @@ try {
 }
 ```
 
-## 14
+## 16
 
 ### --description--
 
@@ -998,7 +998,7 @@ assert.equal(
 );
 ```
 
-## 15
+## 17
 
 ### --description--
 
@@ -1018,7 +1018,7 @@ assert.isTrue(
 );
 ```
 
-## 16
+## 18
 
 ### --description--
 
@@ -1080,7 +1080,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 17
+## 19
 
 ### --description--
 
@@ -1135,7 +1135,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 18
+## 20
 
 ### --description--
 
@@ -1157,7 +1157,7 @@ assert.match(
 );
 ```
 
-## 19
+## 21
 
 ### --description--
 
@@ -1236,7 +1236,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 20
+## 22
 
 ### --description--
 
@@ -1297,7 +1297,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 21
+## 23
 
 ### --description--
 
@@ -1319,7 +1319,7 @@ assert.match(
 );
 ```
 
-## 22
+## 24
 
 ### --description--
 
@@ -1387,7 +1387,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 23
+## 25
 
 ### --description--
 
@@ -1452,7 +1452,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 24
+## 26
 
 ### --description--
 
@@ -1474,7 +1474,7 @@ assert.match(
 );
 ```
 
-## 25
+## 27
 
 ### --description--
 
@@ -1583,7 +1583,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 26
+## 28
 
 ### --description--
 
@@ -1849,7 +1849,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 27
+## 29
 
 ### --description--
 
@@ -1894,7 +1894,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 28
+## 30
 
 ### --description--
 
@@ -2045,7 +2045,7 @@ assert.isTrue(fileExists, 'A file called `mlp_token.so` should exist.');
 Deploy the Metaplex Token program to your local cluster:
 
 ```bash
-solana program deploy ./mlp_token.so
+solana program deploy --keypair wallet.json ./mlp_token.so
 ```
 
 ### --tests--
@@ -2054,7 +2054,7 @@ solana program deploy ./mlp_token.so
 const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand?.trim(),
-  'solana program deploy ./mlp_token.so',
+  'solana program deploy --keypair wallet.json ./mlp_token.so',
   'Run `solana program deploy ./mlp_token.so` in the terminal'
 );
 ```
@@ -2142,7 +2142,10 @@ The `--reset` flag is used to clear the `test-ledger` directory. This is where t
 You should run `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset` in the terminal.
 
 ```js
+await new Promise(res => setTimeout(() => res(), 2000));
+// TODO: Tests do not watch `.temp.log`
 const temp = await __helpers.getTemp();
+console.log(temp.slice(0, 500));
 assert.include(
   temp,
   'solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset',
@@ -2154,6 +2157,7 @@ The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
 const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+await new Promise(res => setTimeout(() => res(), 2000));
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -2178,6 +2182,7 @@ npm run start:validator
 You should run `npm run start:validator` in the terminal.
 
 ```js
+// TODO: Fix with .temp.log
 const lastCommand = await __helpers.getLastCommand();
 assert.equal(
   lastCommand?.trim(),
