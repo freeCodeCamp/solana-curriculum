@@ -10,7 +10,7 @@
   "type": "module",
   "dependencies": {
     "@babel/parser": "7.20.5",
-    "@freecodecamp/freecodecamp-os": "1.6.9",
+    "@freecodecamp/freecodecamp-os": "github:freeCodeCamp/freeCodeCampOS",
     "@solana/spl-token": "0.3.7",
     "@solana/web3.js": "1.70.1",
     "babeliser": "0.6.0",
