@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 
 const PATH =
-  './curriculum/locales/english/learn-how-to-interact-with-on-chain-programs.md';
+  './curriculum/locales/english/learn-the-metaplex-sdk-by-minting-an-nft.md';
 
 /**
  * Ensures all lessons are incremented by 1

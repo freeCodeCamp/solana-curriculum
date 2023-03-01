@@ -12,7 +12,7 @@ const mint = await createMint(
   payer,
   mintAuthority,
   freezeAuthority,
-  9
+  0
 );
 
 console.log('Token Unique Identifier:', mint.toBase58());

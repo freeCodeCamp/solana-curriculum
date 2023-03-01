@@ -1,0 +1,15 @@
+{
+  "name": "fungi-token",
+  "version": "1.0.0",
+  "description": "A fungible token on Solana",
+  "scripts": {
+    "serve": "npx serve client"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@solana/spl-token": "0.3.7",
+    "@solana/web3.js": "1.73.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "learn-the-metaplex-sdk-by-minting-an-nft",
+  "type": "module",
+  "dependencies": {
+    "@solana/spl-token": "0.3.7",
+    "@solana/web3.js": "1.73.3"
+  },
+  "scripts": {
+    "solana:dump": "solana program dump -u mainnet-beta $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID | tr -d \\\") ./mlp_token.so",
+    "solana:airdrop": "solana airdrop 10 ./wallet.json",
+    "start:validator": "solana-test-validator --bpf-program $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID | tr -d \\\") ./mlp_token.so --reset",
+    "start:server": "node server.js"
+  },
+  "env": {
+    "METAPLEX_TOKEN_METADATA_PROGRAM_ID": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+    "MINT_ACCOUNT_ADDRESS": "",
+    "TOKEN_ACCOUNT_ADDRESS": "",
+    "WALLET_ADDRESS": ""
+  },
+  "devDependencies": {
+    "express": "4.18.2"
+  }
+}
