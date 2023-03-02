@@ -2039,9 +2039,6 @@ assert.isTrue(fileExists, 'A file called `mlp_token.so` should exist.');
 
 ### --description--
 
-<!-- TODO: Currently not possible to deploy to specific address without keypair.
-           Instead, show that it is not possible to simply deploy, because current tooling looks for a specific address -->
-
 Deploy the Metaplex Token program to your local cluster:
 
 ```bash
@@ -2049,6 +2046,8 @@ solana program deploy --keypair wallet.json ./mlp_token.so
 ```
 
 ### --tests--
+
+You should run `solana program deploy ./mlp_token.so` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
