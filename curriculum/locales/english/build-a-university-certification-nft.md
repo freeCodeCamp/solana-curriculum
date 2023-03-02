@@ -8,22 +8,54 @@ You have been contacted by Solana University to build an NFT that will be used t
 
 **User Stories**
 
--
-
 **Notes**
+
+- You should work entirely within the `build-a-university-certification-nft` directory.
 
 ### --tests--
 
-Temp test to pass
+You should deploy the Metaplex Token Metadata program to the local Solana cluster.
 
 ```js
-await new Promise(resolve => setTimeout(resolve, 1000));
+
 ```
 
-Temp test to fail
+The `~/.config/solana/cli/config.yml` file should have the URL set to `localhost`.
 
 ```js
-assert.fail();
+
+```
+
+The validator should be running at `http://127.0.0.1:8899`.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The local storage driver should be running at `http://127.0.0.1:3001`.
+
+```js
+try {
+  const res = await fetch('http://127.0.0.1:3001/ping');
+  // Response should be 200 with text "pong"
+  if (res.status === 200) {
+    const text = await res.text();
+    if (text !== 'pong') {
+      throw new Error(`Expected response text "pong", got ${text}`);
+    }
+  } else {
+    throw new Error(`Expected status code 200, got ${res.status}`);
+  }
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 ## --fcc-end--
