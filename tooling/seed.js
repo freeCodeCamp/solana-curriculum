@@ -11,7 +11,7 @@ import {
   getFilesWithSeed,
   getLessonFromFile,
   getLessonSeed
-} from '../.freeCodeCamp/tooling/parser.js';
+} from '../node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/parser.js';
 
 const PATH =
   './curriculum/locales/english/learn-how-to-interact-with-on-chain-programs.md';

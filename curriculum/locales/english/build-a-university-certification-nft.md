@@ -12,4 +12,16 @@ You have been contacted by Solana University to build an NFT that will be used t
 
 ### --tests--
 
+Temp test to pass
+
+```js
+await new Promise(resolve => setTimeout(resolve, 1000));
+```
+
+Temp test to fail
+
+```js
+assert.fail();
+```
+
 ## --fcc-end--
