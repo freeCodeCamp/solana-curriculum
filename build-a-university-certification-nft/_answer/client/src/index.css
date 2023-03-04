@@ -35,8 +35,27 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 1.8em;
   line-height: 1.1;
+  background: -webkit-linear-gradient(
+    120deg,
+    var(--solana-green),
+    var(--solana-purple)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  padding: 1em;
+  border-radius: 8px;
+  background-color: rgba(40, 40, 40, 0.5);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 button {
@@ -46,7 +65,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--solana-purple);
   cursor: pointer;
   transition: border-color 0.25s;
 }
