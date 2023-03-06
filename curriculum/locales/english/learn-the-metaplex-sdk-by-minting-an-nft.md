@@ -1098,7 +1098,17 @@ You should have `const metaplex = Metaplex.make();` in `create-nft.js`.
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
 );
-assert.match(codeString, /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*\)/);
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'metaplex');
+assert.exists(
+  variableDeclaration,
+  'You should declare a variable named `metaplex`'
+);
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
+assert.match(minifiedCode, /metaplex=Metaplex\.make\(\)/);
 ```
 
 You should import `Metaplex` from `@metaplex-foundation/js`.
@@ -1151,10 +1161,14 @@ You should have `const metaplex = Metaplex.make(connection);` in `create-nft.js`
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
 );
-assert.match(
-  codeString,
-  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)/
-);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'metaplex';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
+assert.match(minifiedCode, /metaplex=Metaplex\.make\(connection\)/);
 ```
 
 ## 21
@@ -1178,12 +1192,15 @@ The `WALLET_KEYPAIR` variable is a `Keypair` created from the `wallet.json` file
 You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR));` in `create-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'metaplex';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)/
+  minifiedCode,
+  /metaplex=Metaplex\.make\(connection\)\.use\(keypairIdentity\(WALLET_KEYPAIR\)\)/
 );
 ```
 
@@ -1257,12 +1274,15 @@ Configure the `Metaplex` instance to use the `localStorage` driver.
 You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage());` in `create-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'metaplex';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.\s*use\s*\(\s*localStorage\s*\(\s*\)\s*\)/
+  minifiedCode,
+  /metaplex=Metaplex\.make\(connection\)\.use\(keypairIdentity\(WALLET_KEYPAIR\)\)\.use\(localStorage\(\)\)/
 );
 ```
 
@@ -1313,9 +1333,16 @@ You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
 );
+const babelisedCode = new __helpers.Babeliser(codeString);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'metaplex';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.\s*use\s*\(\s*localStorage\s*\(\s*\{\s*('|"|`)?baseUrl\1\s*:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\s*\}\s*\)\s*\)/
+  minifiedCode,
+  /metaplex=Metaplex\.make\(connection\)\.use\(keypairIdentity\(WALLET_KEYPAIR\)\)\.use\(localStorage\(\{('|"|`)?baseUrl\1:('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\}\)\)/
 );
 ```
 
@@ -1332,12 +1359,15 @@ Declare a variable `imageBuffer`, and set it to the contents of the `assets/pic.
 You can use `const imageBuffer = await readFile('assets/pic.png');` in `create-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'imageBuffer';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+imageBuffer\s*=\s*(await)?\s+(readFile|readFileSync|read)\s*\(\s*('|"|`)(\.\/)?assets\/pic\.png\3\s*\)/
+  minifiedCode,
+  /imageBuffer=(await )?(readFile|readFileSync|read)\(('|"|`)(\.\/)?assets\/pic\.png\3\)/
 );
 ```
 
@@ -1409,12 +1439,15 @@ Declare a `file` variable, and set it to the result of calling `toMetaplexFile` 
 You should have `const file = toMetaplexFile(imageBuffer, 'pic.png');` in `create-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'file';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+file\s*=\s*toMetaplexFile\s*\(\s*imageBuffer\s*,\s*('|"|`)?pic\.png\1\s*\)/
+  minifiedCode,
+  /file=toMetaplexFile\(imageBuffer,('|"|`)?pic\.png\1\)/
 );
 ```
 
@@ -1468,9 +1501,16 @@ You should have `const image = await metaplex.storage().upload(file);` in `creat
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/create-nft.js'
 );
+const babelisedCode = new __helpers.Babeliser(codeString);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'image';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s+image\s*=\s*await\s+metaplex\s*\.\s*storage\s*\(\s*\)\s*\.\s*upload\s*\(\s*file\s*\)/
+  minifiedCode,
+  /\s+image=await metaplex\.storage\(\)\.upload\(file\)/
 );
 ```
 
@@ -2435,12 +2475,15 @@ Within `get-nft.js`, declare a `metaplex` variable with the same configuration a
 You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(WALLET_KEYPAIR)).use(localStorage({ baseUrl: 'http://127.0.0.1:3001/' }));` in `get-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'metaplex';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s*metaplex\s*=\s*Metaplex\s*\.\s*make\s*\(\s*connection\s*\)\s*\.\s*use\s*\(\s*keypairIdentity\s*\(\s*WALLET_KEYPAIR\s*\)\s*\)\s*\.use\s*\(\s*localStorage\s*\(\\s*{\s*('|"|`)?baseUrl\1:\s*('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\s*\}\s*\)\s*\)/
+  minifiedCode,
+  /metaplex=Metaplex\.make\(connection\)\.use\(keypairIdentity\(WALLET_KEYPAIR\)\)\.use\(localStorage\(\{('|"|`)?baseUrl\1:('|"|`)http:\/\/127\.0\.0\.1:3001\/\2\}\)\)/
 );
 ```
 
@@ -2539,12 +2582,15 @@ Within `get-nft.js`, declare a `mintAddress` variable, and assign it the value o
 You should have `const mintAddress = new PublicKey(pkg.env.MINT_ACCOUNT_ADDRESS);` in `get-nft.js`.
 
 ```js
-const codeString = await __helpers.getFile(
-  'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
-);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'mintAddress';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s*mintAddress\s*=\s*new\s+PublicKey\s*\(\s*pkg\s*\.\s*env\s*\.\s*MINT_ACCOUNT_ADDRESS\s*\)/
+  minifiedCode,
+  /mintAddress=new PublicKey\(pkg\.env\.MINT_ACCOUNT_ADDRESS\)/
 );
 ```
 
@@ -2621,9 +2667,17 @@ You should have `const nft = await metaplex.nfts().findByMint({ mintAddress });`
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
 );
+const babelisedCode = new __helpers.Babeliser(codeString);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'nft';
+});
+assert.exists(variableDeclaration, 'An `nft` variable should exist');
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\s*nft\s*=\s*await\s+metaplex\s*\.\s*nfts\s*\(\s*\)\s*\.\s*findByMint\s*\(\s*\{\s*mintAddress\s*\}\s*\)/
+  minifiedCode,
+  /nft=await metaplex\.nfts\(\)\.findByMint\(\{mintAddress\}\)/
 );
 ```
 
@@ -2744,9 +2798,16 @@ You should have `const imageData = await metaplex.storage().download(nft.json.im
 const codeString = await __helpers.getFile(
   'learn-the-metaplex-sdk-by-minting-an-nft/get-nft.js'
 );
+const babelisedCode = new __helpers.Babeliser(codeString);
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'imageData';
+});
+const minifiedCode = babelisedCode.generate(variableDeclaration, {
+  minified: true
+});
 assert.match(
-  codeString,
-  /\simageData\s*=\s*await\s+metaplex\s*\.\s*storage\s*\(\s*\)\s*\.\s*download\s*\(\s*nft\s*\.\s*json\s*\.\s*image\s*\)/
+  minifiedCode,
+  /imageData=await metaplex\.storage\(\)\.download\(nft\.json\.image\)/
 );
 ```
 
