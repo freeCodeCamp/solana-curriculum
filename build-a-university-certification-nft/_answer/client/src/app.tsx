@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Keypair, Signer } from '@solana/web3.js';
-import { createMintAccount as camperCreateMintAccount } from '../../index.js';
+import {
+  createMintAccount as camperCreateMintAccount,
+  getMintAccounts as camperGetMintAccounts,
+  createTokenAccount as camperCreateTokenAccount,
+  mintToken as camperMintToken
+} from '../../index.js';
 import './app.css';
 
 // 1) Create a certificate program - create a new mint
@@ -15,18 +20,24 @@ export function App() {
       setOutput(JSON.stringify(mint, null, 2));
     }
   };
-  const getMintAccounts: GetMintAccountsF = async () => {};
-  const createTokenAccount: CreateTokenAccountF = async () => {};
-  const mintToken: MintTokenF = async () => {};
+  const getMintAccounts: GetMintAccountsF = async () => {
+    await camperGetMintAccounts();
+  };
+  const createTokenAccount: CreateTokenAccountF = async () => {
+    await camperCreateTokenAccount();
+  };
+  const mintToken: MintTokenF = async () => {
+    await camperMintToken();
+  };
 
   return (
     <main>
       <h1>Solana University Certification Dashboard</h1>
       <div className='controls'>
         <CreateCertificateProgram {...{ createMintAccount }} />
-        <GetCertificatePrograms />
-        <RegisterStudent />
-        <GrantCertificate />
+        <GetCertificatePrograms {...{ getMintAccounts }} />
+        <RegisterStudent {...{ createTokenAccount }} />
+        <GrantCertificate {...{ mintToken }} />
       </div>
       <Output {...{ output }} />
     </main>
@@ -86,11 +97,15 @@ function CreateCertificateProgram({
 /**
  * Get all mitns. Useful to get the mint address for a certificate program
  */
-function GetCertificatePrograms() {
+function GetCertificatePrograms({
+  getMintAccounts
+}: {
+  getMintAccounts: GetMintAccountsF;
+}) {
   return (
     <section>
       <p>Get Certificate Programs</p>
-      <button>Get Mint Accounts</button>
+      <button onClick={() => getMintAccounts()}>Get Mint Accounts</button>
     </section>
   );
 }
@@ -98,11 +113,15 @@ function GetCertificatePrograms() {
 /**
  * Create a new token account associated with the public key of the student
  */
-function RegisterStudent() {
+function RegisterStudent({
+  createTokenAccount
+}: {
+  createTokenAccount: CreateTokenAccountF;
+}) {
   return (
     <section>
       <p>Register Student</p>
-      <button>Create Token Account</button>
+      <button onClick={() => createTokenAccount()}>Create Token Account</button>
     </section>
   );
 }
@@ -110,11 +129,11 @@ function RegisterStudent() {
 /**
  * Mint a new NFT to the student's token account
  */
-function GrantCertificate() {
+function GrantCertificate({ mintToken }: { mintToken: MintTokenF }) {
   return (
     <section>
       <p>Grant Certificate</p>
-      <button>Mint Token</button>
+      <button onClick={() => mintToken()}>Mint Token</button>
     </section>
   );
 }
