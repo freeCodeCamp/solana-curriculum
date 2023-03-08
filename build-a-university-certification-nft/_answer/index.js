@@ -1,4 +1,4 @@
-import { Metaplex } from '@metaplex-foundation/js';
+import { Metaplex, TokenStandard } from '@metaplex-foundation/js';
 import {
   createMint,
   getOrCreateAssociatedTokenAccount
@@ -22,21 +22,43 @@ export async function createMintAccount({ payer }) {
   return mint;
 }
 
-export async function getMintAccounts() {
-  const mintAccounts = await connection.getParsedTokenAccountsByOwner(
-    payer.publicKey,
+export async function getMintAccounts({ payer }) {
+  const mintAccounts = await connection.getParsedProgramAccounts(
+    TOKEN_PROGRAM_ID,
     {
-      programId: TOKEN_PROGRAM_ID
+      filters: [
+        {
+          dataSize: 82
+        },
+        {
+          memcmp: {
+            offset: 4,
+            bytes: payer.publicKey.toBase58()
+          }
+        }
+      ]
     }
   );
   return mintAccounts;
 }
 
-export async function createTokenAccount() {
-  const tokenAccount = await getOrCreateAssociatedTokenAccount(connection);
+export async function createTokenAccount({ payer, mintAddress, ownerAddress }) {
+  const tokenAccount = await getOrCreateAssociatedTokenAccount(
+    connection,
+    payer,
+    mintAddress,
+    ownerAddress
+  );
   return tokenAccount;
 }
 
-export async function mintToken() {
-  const nft = await metaplex.nfts().mint({ toOwner, toToken });
+export async function mintToken({ mintAddress, ownerAddress }) {
+  const nft = await metaplex.nfts().mint({
+    nftOrSft: {
+      address: mintAddress,
+      tokenStandard: TokenStandard.NonFungible
+    },
+    toOwner: ownerAddress
+  });
+  return nft;
 }

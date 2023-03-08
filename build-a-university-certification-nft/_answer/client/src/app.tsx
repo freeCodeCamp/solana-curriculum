@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Keypair, Signer } from '@solana/web3.js';
+import { Keypair, PublicKey, Signer } from '@solana/web3.js';
 import {
   createMintAccount as camperCreateMintAccount,
   getMintAccounts as camperGetMintAccounts,
@@ -14,32 +14,111 @@ import './app.css';
 // 4) View a certificate - view the certificate's metadata
 export function App() {
   const [output, setOutput] = useState<string>('OUTPUT');
-  const createMintAccount: CreateMintAccountF = async ({ payer }) => {
-    if (payer) {
-      const mint = await camperCreateMintAccount({ payer });
-      setOutput(JSON.stringify(mint, null, 2));
+  const [payer, setPayer] = useState<Signer>();
+  const [mintAddress, setMintAddress] = useState<PublicKey>();
+  const [ownerAddress, setOwnerAddress] = useState<PublicKey>();
+  const [invalidInputs, setInvalidInputs] = useState<string[]>([]);
+
+  const createMintAccount: CreateMintAccountF = async () => {
+    if (!payer) {
+      setInvalidInputs(['payer']);
+      return;
     }
+    setInvalidInputs([]);
+    const mint = await camperCreateMintAccount({ payer });
+    setOutput(JSON.stringify(mint, null, 2));
   };
   const getMintAccounts: GetMintAccountsF = async () => {
-    await camperGetMintAccounts();
+    if (!payer) {
+      setInvalidInputs(['payer']);
+      return;
+    }
+    setInvalidInputs([]);
+    await camperGetMintAccounts({ payer });
   };
   const createTokenAccount: CreateTokenAccountF = async () => {
-    await camperCreateTokenAccount();
+    if (!payer || !mintAddress || !ownerAddress) {
+      setInvalidInputs(['payer', 'mintAddress', 'ownerAddress']);
+      return;
+    }
+    setInvalidInputs([]);
+    await camperCreateTokenAccount({ payer, mintAddress, ownerAddress });
   };
   const mintToken: MintTokenF = async () => {
-    await camperMintToken();
+    if (!mintAddress || !ownerAddress) {
+      setInvalidInputs(['mintAddress', 'ownerAddress']);
+      return;
+    }
+    setInvalidInputs([]);
+    await camperMintToken({ mintAddress, ownerAddress });
   };
+
+  const authorityInput = useRef<HTMLInputElement>(null);
+  const mintInput = useRef<HTMLInputElement>(null);
+  const ownerInput = useRef<HTMLInputElement>(null);
+
+  function setAuthority() {
+    if (authorityInput.current) {
+      try {
+        const keypair = Keypair.fromSecretKey(
+          JSON.parse(authorityInput.current.value)
+        );
+        setPayer(keypair);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  function setMint() {
+    if (mintInput.current) {
+      try {
+        const mint = new PublicKey(mintInput.current.value);
+        setMintAddress(mint);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  function setOwner() {
+    if (ownerInput.current) {
+      try {
+        const owner = new PublicKey(ownerInput.current.value);
+        setOwnerAddress(owner);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  useEffect(setAuthority, [authorityInput]);
+  useEffect(setMint, [mintInput]);
+  useEffect(setOwner, [ownerInput]);
 
   return (
     <main>
       <h1>Solana University Certification Dashboard</h1>
+      <form>
+        <label>
+          Payer Secret Key:{' '}
+          <input type='text' id='authority' ref={authorityInput}></input>
+        </label>
+        <label>
+          Mint Public Key: <input type='text' id='mint' ref={mintInput}></input>
+        </label>
+        <label>
+          Student Public Key
+          <input type='text' id='owner' ref={ownerInput}></input>
+        </label>
+      </form>
       <div className='controls'>
         <CreateCertificateProgram {...{ createMintAccount }} />
         <GetCertificatePrograms {...{ getMintAccounts }} />
         <RegisterStudent {...{ createTokenAccount }} />
         <GrantCertificate {...{ mintToken }} />
       </div>
-      <Output {...{ output }} />
+      {invalidInputs.length && <ValidationError {...{ invalidInputs }} />}
     </main>
   );
 }
@@ -48,7 +127,7 @@ type OutputT = {
   output: string;
 };
 
-type CreateMintAccountF = ({ payer }: { payer?: Signer }) => Promise<void>;
+type CreateMintAccountF = () => Promise<void>;
 type GetMintAccountsF = () => Promise<void>;
 type CreateTokenAccountF = () => Promise<void>;
 type MintTokenF = () => Promise<void>;
@@ -63,33 +142,10 @@ type CreateCertificateProgramT = {
 function CreateCertificateProgram({
   createMintAccount
 }: CreateCertificateProgramT) {
-  const [payer, setPayer] = useState<Signer>();
-  const authority = useRef<HTMLInputElement>(null);
-
-  function setAuthority() {
-    if (authority.current) {
-      try {
-        const keypair = Keypair.fromSecretKey(
-          JSON.parse(authority.current.value)
-        );
-        setPayer(keypair);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }
-
-  useEffect(setAuthority, [authority]);
-
   return (
     <section>
       <p>Create Certificate Program</p>
-      <label>
-        Authority: <input type='text' id='authority' ref={authority} />
-      </label>
-      <button onClick={() => createMintAccount({ payer })}>
-        Create Mint Account
-      </button>
+      <button onClick={() => createMintAccount()}>Create Mint Account</button>
     </section>
   );
 }
@@ -150,6 +206,14 @@ function Output({ output }: OutputT) {
   return (
     <div>
       <p>{output}</p>
+    </div>
+  );
+}
+
+function ValidationError({ invalidInputs }: { invalidInputs: string[] }) {
+  return (
+    <div>
+      <p>Form requires: {invalidInputs.join(', ')}</p>
     </div>
   );
 }
