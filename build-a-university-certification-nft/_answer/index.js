@@ -1,7 +1,7 @@
-// import { Metaplex } from '@metaplex-foundation/js';
+import { Metaplex } from '@metaplex-foundation/js';
 import {
   createMint,
-  // getAssociatedTokenAddress,
+  getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount
 } from '@solana/spl-token';
 import { Connection, Keypair } from '@solana/web3.js';
@@ -9,18 +9,18 @@ import { localStorage } from './utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
 
-// const metaplex = Metaplex.make(connection).use(
-//   localStorage({ baseUrl: 'http://127.0.0.1:3001/' })
-// );
+const metaplex = Metaplex.make(connection).use(
+  localStorage({ baseUrl: 'http://127.0.0.1:3001/' })
+);
 
 export async function uploadFile(metaplexFile) {
-  // const image = await metaplex.storage().upload(metaplexFile);
-  // const { uri } = await metaplex.nfts().uploadMetadata({
-  //   name: 'fCC',
-  //   description: 'An image of the freeCodeCamp logo',
-  //   image
-  // });
-  // return uri;
+  const image = await metaplex.storage().upload(metaplexFile);
+  const { uri } = await metaplex.nfts().uploadMetadata({
+    name: 'fCC',
+    description: 'An image of the freeCodeCamp logo',
+    image
+  });
+  return uri;
 }
 
 export async function createMintAccount({ payer }) {
@@ -78,19 +78,19 @@ export async function mintToken({
     ownerAddress
   );
 
-  // const nft = await metaplex.nfts().create({
-  //   useExistingMint: mintAddress,
-  //   tokenOwner: ownerAddress,
-  //   uri,
-  //   name: `SOL-${year}`,
-  //   sellerFeeBasisPoints: 0,
-  //   maxSupply: 1,
-  //   symbol: 'SOLU',
-  //   isMutable: false,
-  //   tokenAddress,
-  //   updateAuthority: payer,
-  //   mintAuthority: payer
-  // });
+  const nft = await metaplex.nfts().create({
+    useExistingMint: mintAddress,
+    tokenOwner: ownerAddress,
+    uri,
+    name: `SOL-${year}`,
+    sellerFeeBasisPoints: 0,
+    maxSupply: 1,
+    symbol: 'SOLU',
+    isMutable: false,
+    tokenAddress,
+    updateAuthority: payer,
+    mintAuthority: payer
+  });
 
-  // return nft;
+  return nft;
 }

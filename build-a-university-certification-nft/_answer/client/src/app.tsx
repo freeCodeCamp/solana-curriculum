@@ -8,7 +8,7 @@ import {
   uploadFile as camperUploadFile
 } from '../../index.js';
 import './app.css';
-// import { toMetaplexFile } from '@metaplex-foundation/js';
+import { toMetaplexFile } from '@metaplex-foundation/js';
 
 // 1) Create a certificate program - create a new mint
 // 2) Register new student - create a token account for the student
@@ -105,8 +105,8 @@ export function App() {
       if (imageInput.current.files) {
         const file = imageInput.current.files[0];
         const arrayBuffer = await file.arrayBuffer();
-        // const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
-        // camperUploadFile(metaplexFile);
+        const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
+        camperUploadFile(metaplexFile);
       }
     }
   }
