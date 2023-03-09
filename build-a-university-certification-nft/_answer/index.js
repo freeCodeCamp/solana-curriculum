@@ -1,13 +1,27 @@
-import { Metaplex, TokenStandard } from '@metaplex-foundation/js';
+// import { Metaplex } from '@metaplex-foundation/js';
 import {
   createMint,
+  // getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount
 } from '@solana/spl-token';
-import { Connection } from '@solana/web3.js';
+import { Connection, Keypair } from '@solana/web3.js';
+import { localStorage } from './utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
 
-const metaplex = Metaplex.make(connection);
+// const metaplex = Metaplex.make(connection).use(
+//   localStorage({ baseUrl: 'http://127.0.0.1:3001/' })
+// );
+
+export async function uploadFile(metaplexFile) {
+  // const image = await metaplex.storage().upload(metaplexFile);
+  // const { uri } = await metaplex.nfts().uploadMetadata({
+  //   name: 'fCC',
+  //   description: 'An image of the freeCodeCamp logo',
+  //   image
+  // });
+  // return uri;
+}
 
 export async function createMintAccount({ payer }) {
   const mintAuthority = payer.publicKey;
@@ -52,13 +66,31 @@ export async function createTokenAccount({ payer, mintAddress, ownerAddress }) {
   return tokenAccount;
 }
 
-export async function mintToken({ mintAddress, ownerAddress }) {
-  const nft = await metaplex.nfts().mint({
-    nftOrSft: {
-      address: mintAddress,
-      tokenStandard: TokenStandard.NonFungible
-    },
-    toOwner: ownerAddress
-  });
-  return nft;
+export async function mintToken({
+  payer,
+  mintAddress,
+  ownerAddress,
+  year,
+  uri
+}) {
+  const tokenAddress = await getAssociatedTokenAddress(
+    mintAddress,
+    ownerAddress
+  );
+
+  // const nft = await metaplex.nfts().create({
+  //   useExistingMint: mintAddress,
+  //   tokenOwner: ownerAddress,
+  //   uri,
+  //   name: `SOL-${year}`,
+  //   sellerFeeBasisPoints: 0,
+  //   maxSupply: 1,
+  //   symbol: 'SOLU',
+  //   isMutable: false,
+  //   tokenAddress,
+  //   updateAuthority: payer,
+  //   mintAuthority: payer
+  // });
+
+  // return nft;
 }

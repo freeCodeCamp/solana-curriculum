@@ -4,9 +4,11 @@ import {
   createMintAccount as camperCreateMintAccount,
   getMintAccounts as camperGetMintAccounts,
   createTokenAccount as camperCreateTokenAccount,
-  mintToken as camperMintToken
+  mintToken as camperMintToken,
+  uploadFile as camperUploadFile
 } from '../../index.js';
 import './app.css';
+// import { toMetaplexFile } from '@metaplex-foundation/js';
 
 // 1) Create a certificate program - create a new mint
 // 2) Register new student - create a token account for the student
@@ -45,27 +47,29 @@ export function App() {
     await camperCreateTokenAccount({ payer, mintAddress, ownerAddress });
   };
   const mintToken: MintTokenF = async () => {
-    if (!mintAddress || !ownerAddress) {
-      setInvalidInputs(['mintAddress', 'ownerAddress']);
+    if (!payer || !mintAddress || !ownerAddress) {
+      setInvalidInputs(['payer', 'mintAddress', 'ownerAddress']);
       return;
     }
     setInvalidInputs([]);
-    await camperMintToken({ mintAddress, ownerAddress });
+    await camperMintToken({ payer, mintAddress, ownerAddress });
   };
 
   const authorityInput = useRef<HTMLInputElement>(null);
   const mintInput = useRef<HTMLInputElement>(null);
   const ownerInput = useRef<HTMLInputElement>(null);
+  const imageInput = useRef<HTMLInputElement>(null);
+  const previewImg = useRef<HTMLImageElement>(null);
 
   function setAuthority() {
     if (authorityInput.current) {
       try {
         const keypair = Keypair.fromSecretKey(
-          JSON.parse(authorityInput.current.value)
+          new Uint8Array(JSON.parse(authorityInput.current.value))
         );
         setPayer(keypair);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     }
   }
@@ -76,7 +80,7 @@ export function App() {
         const mint = new PublicKey(mintInput.current.value);
         setMintAddress(mint);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     }
   }
@@ -87,7 +91,7 @@ export function App() {
         const owner = new PublicKey(ownerInput.current.value);
         setOwnerAddress(owner);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     }
   }
@@ -95,6 +99,17 @@ export function App() {
   useEffect(setAuthority, [authorityInput]);
   useEffect(setMint, [mintInput]);
   useEffect(setOwner, [ownerInput]);
+
+  async function uploadFile() {
+    if (imageInput.current) {
+      if (imageInput.current.files) {
+        const file = imageInput.current.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        // const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
+        // camperUploadFile(metaplexFile);
+      }
+    }
+  }
 
   return (
     <main>
@@ -108,9 +123,41 @@ export function App() {
           Mint Public Key: <input type='text' id='mint' ref={mintInput}></input>
         </label>
         <label>
-          Student Public Key
+          Student Public Key:{' '}
           <input type='text' id='owner' ref={ownerInput}></input>
         </label>
+      </form>
+      <form>
+        <label>
+          Image File:{' '}
+          <input
+            type='file'
+            id='image'
+            accept='image/*'
+            ref={imageInput}
+            onChange={e => {
+              if (e.target.files) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = ev => {
+                  if (ev.target) {
+                    if (previewImg.current) {
+                      previewImg.current.src = ev.target.result as string;
+                    }
+                  }
+                  if (reader.result) {
+                    console.log(reader.result);
+                  }
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+          ></input>
+        </label>
+        <img id='preview' alt='nft preview' ref={previewImg} />
+        <button type='submit' onClick={() => uploadFile()}>
+          Upload Image
+        </button>
       </form>
       <div className='controls'>
         <CreateCertificateProgram {...{ createMintAccount }} />
@@ -118,7 +165,7 @@ export function App() {
         <RegisterStudent {...{ createTokenAccount }} />
         <GrantCertificate {...{ mintToken }} />
       </div>
-      {invalidInputs.length && <ValidationError {...{ invalidInputs }} />}
+      {invalidInputs.length > 0 && <ValidationError {...{ invalidInputs }} />}
     </main>
   );
 }

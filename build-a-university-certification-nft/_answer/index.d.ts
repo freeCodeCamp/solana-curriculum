@@ -1,4 +1,4 @@
-import { MintNftOutput } from '@metaplex-foundation/js';
+import { MetaplexFile, MintNftOutput } from '@metaplex-foundation/js';
 import { Account, createMint } from '@solana/spl-token';
 import {
   AccountInfo,
@@ -6,6 +6,8 @@ import {
   PublicKey,
   Signer
 } from '@solana/web3.js';
+
+declare function uploadFile(file: MetaplexFile): Promise<string>;
 
 declare function createMintAccount({
   payer
@@ -30,9 +32,11 @@ declare function createTokenAccount({
 }): Promise<Account>;
 
 declare function mintToken({
+  payer,
   mintAddress,
   ownerAddress
 }: {
+  payer: Signer;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
 }): Promise<MintNftOutput>;

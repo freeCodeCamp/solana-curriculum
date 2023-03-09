@@ -1,4 +1,7 @@
 {
-  "name": "build-a-university-certification-nft"
+  "name": "build-a-university-certification-nft",
+  "scripts": {
+    "start:server": "node server.js",
+    "start:client": "cd client && npm run dev"
+  }
 }
-

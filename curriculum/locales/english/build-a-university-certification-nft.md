@@ -8,6 +8,29 @@ You have been contacted by Solana University to build an NFT that will be used t
 
 **User Stories**
 
+1. You should generate a new keypair and store it in a file called `solana-university-wallet.json`
+2. You should use the `
+
+**Types**
+
+```typescript
+payer: Signer;
+mintAddress: PublicKey;
+ownerAddress: PublicKey;
+
+type ParsedProgramAccounts = {
+  pubkey: PublicKey;
+  account: AccountInfo<ParsedAccountData | Buffer>;
+}[];
+```
+
+**Commands**
+
+| Command                | Description                           |
+| ---------------------- | ------------------------------------- |
+| `npm run start:server` | Start the local storage driver        |
+| `npm run start:client` | Start the Solana University dashboard |
+
 **Notes**
 
 - You should work entirely within the `build-a-university-certification-nft` directory.
@@ -56,6 +79,86 @@ try {
 } catch (e) {
   assert.fail(e);
 }
+```
+
+The `index.js` file should export a `uploadFile` function.
+
+```js
+
+```
+
+The `uploadFile` function should expect a `MetaplexFile` as an argument.
+
+```js
+
+```
+
+The `index.js` file should export a `createMintAccount` function.
+
+```js
+
+```
+
+The `createMintAccount` function should expect `{payer}` as an argument.
+
+```js
+
+```
+
+The `createMintAccount` function should create a new mint account for an NFT.
+
+```js
+// `payer` should be payer
+// `payer` should be mint authority and freeze authority
+// The mint should have 0 decimal places
+```
+
+The `createMintAccount` function should return the `PublicKey` of the mint account.
+
+```js
+
+```
+
+The `index.js` file should export a `getMintAcconuts` function.
+
+```js
+
+```
+
+The `getMintAccounts` function should expect `{payer}` as an argument.
+
+```js
+
+```
+
+The `getMintAccounts` function should return all mint accounts owned by the `payer` argument type `ParsedProgramAccounts`.
+
+```js
+
+```
+
+The `index.js` file should export a `createTokenAccount` function.
+
+```js
+
+```
+
+The `createTokenAccount` function should expect `{payer, mintAddress, ownerAddress}` as an argument.
+
+```js
+
+```
+
+The `index.js` file should export a `mintToken` function.
+
+```js
+
+```
+
+The `mintToken` function should expect `{payer, mintAddress, ownerAddress}` as an argument.
+
+```js
+
 ```
 
 ## --fcc-end--
