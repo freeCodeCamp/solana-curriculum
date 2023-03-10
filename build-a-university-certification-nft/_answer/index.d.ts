@@ -7,7 +7,13 @@ import {
   Signer
 } from '@solana/web3.js';
 
-declare function uploadFile(file: MetaplexFile): Promise<string>;
+declare function uploadFile({
+  metaplexFile,
+  payer
+}: {
+  metaplexFile: MetaplexFile;
+  payer: Signer;
+}): Promise<string>;
 
 declare function createMintAccount({
   payer

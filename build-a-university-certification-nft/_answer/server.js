@@ -1,7 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs';
+import cors from 'cors';
 import express from 'express';
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -25,6 +28,7 @@ app.put('/:id', (req, res) => {
 });
 
 app.get('/ping', (_req, res) => {
+  console.log('Got ping');
   res.status(200).send('pong');
 });
 

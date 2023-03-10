@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Keypair, PublicKey, Signer } from '@solana/web3.js';
 import {
   createMintAccount as camperCreateMintAccount,
@@ -55,17 +55,14 @@ export function App() {
     await camperMintToken({ payer, mintAddress, ownerAddress });
   };
 
-  const authorityInput = useRef<HTMLInputElement>(null);
-  const mintInput = useRef<HTMLInputElement>(null);
-  const ownerInput = useRef<HTMLInputElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
   const previewImg = useRef<HTMLImageElement>(null);
 
-  function setAuthority() {
-    if (authorityInput.current) {
+  function setAuthority(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target) {
       try {
         const keypair = Keypair.fromSecretKey(
-          new Uint8Array(JSON.parse(authorityInput.current.value))
+          new Uint8Array(JSON.parse(e.target.value))
         );
         setPayer(keypair);
       } catch (e) {
@@ -74,10 +71,10 @@ export function App() {
     }
   }
 
-  function setMint() {
-    if (mintInput.current) {
+  function setMint(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target) {
       try {
-        const mint = new PublicKey(mintInput.current.value);
+        const mint = new PublicKey(e.target.value);
         setMintAddress(mint);
       } catch (e) {
         console.warn(e);
@@ -85,10 +82,10 @@ export function App() {
     }
   }
 
-  function setOwner() {
-    if (ownerInput.current) {
+  function setOwner(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target) {
       try {
-        const owner = new PublicKey(ownerInput.current.value);
+        const owner = new PublicKey(e.target.value);
         setOwnerAddress(owner);
       } catch (e) {
         console.warn(e);
@@ -96,17 +93,18 @@ export function App() {
     }
   }
 
-  useEffect(setAuthority, [authorityInput]);
-  useEffect(setMint, [mintInput]);
-  useEffect(setOwner, [ownerInput]);
-
   async function uploadFile() {
     if (imageInput.current) {
       if (imageInput.current.files) {
         const file = imageInput.current.files[0];
         const arrayBuffer = await file.arrayBuffer();
         const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
-        camperUploadFile(metaplexFile);
+        if (!payer) {
+          setInvalidInputs(['payer']);
+          return;
+        }
+        setInvalidInputs([]);
+        camperUploadFile({ metaplexFile, payer });
       }
     }
   }
@@ -117,14 +115,15 @@ export function App() {
       <form>
         <label>
           Payer Secret Key:{' '}
-          <input type='text' id='authority' ref={authorityInput}></input>
+          <input type='text' id='authority' onChange={setAuthority}></input>
         </label>
         <label>
-          Mint Public Key: <input type='text' id='mint' ref={mintInput}></input>
+          Mint Public Key:{' '}
+          <input type='text' id='mint' onChange={setMint}></input>
         </label>
         <label>
           Student Public Key:{' '}
-          <input type='text' id='owner' ref={ownerInput}></input>
+          <input type='text' id='owner' onChange={setOwner}></input>
         </label>
       </form>
       <form>
@@ -155,7 +154,13 @@ export function App() {
           ></input>
         </label>
         <img id='preview' alt='nft preview' ref={previewImg} />
-        <button type='submit' onClick={() => uploadFile()}>
+        <button
+          type='submit'
+          onClick={e => {
+            e.preventDefault();
+            uploadFile();
+          }}
+        >
           Upload Image
         </button>
       </form>

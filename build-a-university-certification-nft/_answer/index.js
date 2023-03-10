@@ -13,13 +13,16 @@ const metaplex = Metaplex.make(connection).use(
   localStorage({ baseUrl: 'http://127.0.0.1:3001/' })
 );
 
-export async function uploadFile(metaplexFile) {
+export async function uploadFile({ metaplexFile, payer }) {
   const image = await metaplex.storage().upload(metaplexFile);
-  const { uri } = await metaplex.nfts().uploadMetadata({
-    name: 'fCC',
-    description: 'An image of the freeCodeCamp logo',
-    image
-  });
+  const { uri } = await metaplex.nfts().uploadMetadata(
+    {
+      name: 'fCC',
+      description: 'An image of the freeCodeCamp logo',
+      image
+    },
+    { payer }
+  );
   return uri;
 }
 

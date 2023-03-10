@@ -9,8 +9,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      stream: 'rollup-plugin-node-polyfills/polyfills/stream',
-      events: 'rollup-plugin-node-polyfills/polyfills/events',
+      stream: 'node_modules/rollup-plugin-node-polyfills/polyfills/stream.js',
+      events: 'node_modules/rollup-plugin-node-polyfills/polyfills/events.js',
       assert: 'assert',
       crypto: 'node_modules/crypto-browserify/index.js',
       util: 'util',

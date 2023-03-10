@@ -9,20 +9,11 @@ You have been contacted by Solana University to build an NFT that will be used t
 **User Stories**
 
 1. You should generate a new keypair and store it in a file called `solana-university-wallet.json`
-2. You should use the `
+2. You should use the
 
 **Types**
 
-```typescript
-payer: Signer;
-mintAddress: PublicKey;
-ownerAddress: PublicKey;
-
-type ParsedProgramAccounts = {
-  pubkey: PublicKey;
-  account: AccountInfo<ParsedAccountData | Buffer>;
-}[];
-```
+The expected signatures for your functions are visible in the `index.d.ts` file. This file should **not** be modified.
 
 **Commands**
 
@@ -87,7 +78,7 @@ The `index.js` file should export a `uploadFile` function.
 
 ```
 
-The `uploadFile` function should expect a `MetaplexFile` as an argument.
+The `uploadFile` function should match the `index.d.ts` signature definition.
 
 ```js
 
@@ -99,7 +90,7 @@ The `index.js` file should export a `createMintAccount` function.
 
 ```
 
-The `createMintAccount` function should expect `{payer}` as an argument.
+The `createMintAccount` function should match the `index.d.ts` signature definition.
 
 ```js
 
@@ -125,7 +116,7 @@ The `index.js` file should export a `getMintAcconuts` function.
 
 ```
 
-The `getMintAccounts` function should expect `{payer}` as an argument.
+The `getMintAccounts` function should match the `index.d.ts` signature definition.
 
 ```js
 
@@ -143,7 +134,7 @@ The `index.js` file should export a `createTokenAccount` function.
 
 ```
 
-The `createTokenAccount` function should expect `{payer, mintAddress, ownerAddress}` as an argument.
+The `createTokenAccount` function should match the `index.d.ts` signature definition.
 
 ```js
 
@@ -155,7 +146,7 @@ The `index.js` file should export a `mintToken` function.
 
 ```
 
-The `mintToken` function should expect `{payer, mintAddress, ownerAddress}` as an argument.
+The `mintToken` function should match the `index.d.ts` signature definition.
 
 ```js
 
