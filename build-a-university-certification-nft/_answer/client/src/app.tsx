@@ -36,7 +36,8 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    await camperGetMintAccounts({ payer });
+    const mintAccounts = await camperGetMintAccounts({ payer });
+    setOutput(JSON.stringify(mintAccounts, null, 2));
   };
   const createTokenAccount: CreateTokenAccountF = async () => {
     if (!payer || !mintAddress || !ownerAddress) {
@@ -44,7 +45,13 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    await camperCreateTokenAccount({ payer, mintAddress, ownerAddress });
+    const tokenAccount = await camperCreateTokenAccount({
+      payer,
+      mintAddress,
+      ownerAddress
+    });
+    console.log(tokenAccount);
+    setOutput(tokenAccount.address.toBase58());
   };
   const mintToken: MintTokenF = async () => {
     if (!payer || !mintAddress || !ownerAddress) {
@@ -52,7 +59,17 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    await camperMintToken({ payer, mintAddress, ownerAddress });
+    const year = new Date().getFullYear();
+    const uri = 'http://localhost:3002/meta/bsmDZxkbOP8GJlX1eHJp';
+    const nft = await camperMintToken({
+      payer,
+      mintAddress,
+      ownerAddress,
+      year,
+      uri
+    });
+    console.log(nft);
+    setOutput(JSON.stringify(nft, null, 2));
   };
 
   const imageInput = useRef<HTMLInputElement>(null);
@@ -104,7 +121,8 @@ export function App() {
           return;
         }
         setInvalidInputs([]);
-        camperUploadFile({ metaplexFile, payer });
+        const uri = await camperUploadFile({ metaplexFile, payer });
+        setOutput(uri);
       }
     }
   }
@@ -171,6 +189,7 @@ export function App() {
         <GrantCertificate {...{ mintToken }} />
       </div>
       {invalidInputs.length > 0 && <ValidationError {...{ invalidInputs }} />}
+      <Output {...{ output }} />
     </main>
   );
 }
@@ -257,7 +276,9 @@ function DisplayPng({ buffer }: DisplayPngT) {
 function Output({ output }: OutputT) {
   return (
     <div>
-      <p>{output}</p>
+      <pre style={{ textAlign: 'left' }}>
+        <code>{output}</code>
+      </pre>
     </div>
   );
 }

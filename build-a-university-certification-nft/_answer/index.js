@@ -2,15 +2,16 @@ import { Metaplex } from '@metaplex-foundation/js';
 import {
   createMint,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount
+  getOrCreateAssociatedTokenAccount,
+  TOKEN_PROGRAM_ID
 } from '@solana/spl-token';
-import { Connection, Keypair } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { localStorage } from './utils.js';
 
 const connection = new Connection('http://127.0.0.1:8899');
 
 const metaplex = Metaplex.make(connection).use(
-  localStorage({ baseUrl: 'http://127.0.0.1:3001/' })
+  localStorage({ baseUrl: 'http://localhost:3002/' })
 );
 
 export async function uploadFile({ metaplexFile, payer }) {
@@ -81,19 +82,22 @@ export async function mintToken({
     ownerAddress
   );
 
-  const nft = await metaplex.nfts().create({
-    useExistingMint: mintAddress,
-    tokenOwner: ownerAddress,
-    uri,
-    name: `SOL-${year}`,
-    sellerFeeBasisPoints: 0,
-    maxSupply: 1,
-    symbol: 'SOLU',
-    isMutable: false,
-    tokenAddress,
-    updateAuthority: payer,
-    mintAuthority: payer
-  });
+  const nft = await metaplex.nfts().create(
+    {
+      useExistingMint: mintAddress,
+      tokenOwner: ownerAddress,
+      uri,
+      name: `SOL-${year}`,
+      sellerFeeBasisPoints: 0,
+      maxSupply: 1,
+      symbol: 'SOLU',
+      isMutable: false,
+      tokenAddress,
+      updateAuthority: payer,
+      mintAuthority: payer
+    },
+    { payer }
+  );
 
   return nft;
 }

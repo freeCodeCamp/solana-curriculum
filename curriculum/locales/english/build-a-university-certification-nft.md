@@ -53,11 +53,11 @@ try {
 }
 ```
 
-The local storage driver should be running at `http://127.0.0.1:3001`.
+The local storage driver should be running at `http://localhost:3002`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://localhost:3002/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -70,6 +70,24 @@ try {
 } catch (e) {
   assert.fail(e);
 }
+```
+
+You should create a new keypair named `student-1.json`.
+
+```js
+
+```
+
+You should create a new keypair named `student-2.json`.
+
+```js
+
+```
+
+You should create a new keypair named `solana-university-wallet.json`.
+
+```js
+
 ```
 
 The `index.js` file should export a `uploadFile` function.

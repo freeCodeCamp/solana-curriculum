@@ -40,9 +40,13 @@ declare function createTokenAccount({
 declare function mintToken({
   payer,
   mintAddress,
-  ownerAddress
+  ownerAddress,
+  year,
+  uri
 }: {
   payer: Signer;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
+  year: number;
+  uri: string;
 }): Promise<MintNftOutput>;
