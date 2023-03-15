@@ -9,7 +9,32 @@ You have been contacted by Solana University to build an NFT that will be used t
 **User Stories**
 
 1. You should generate a new keypair and store it in a file called `solana-university-wallet.json`
-2. You should use the
+2. You should use the `solana-university-wallet.json` keypair as the payer for all transactions
+3. You should generate two more keypairs stored in `student-1.json` and `student-2.json`
+4. You should deploy the Metaplex Token Metadata program to your local Solana cluster
+5. You should use the provided `localStorage` function in `utils.js` for the Metaplex storage driver
+6. You should export a function named `uploadFile` from `index.js` with the signature defined in `index.d.ts`
+   1. `uploadFile` should upload the provided `metaplexFile` parameter to the storage driver
+   2. `uploadFile` should upload metadata consiting of the image URL returned from the storage driver, and the `fileName` property of the `metaplexFile`
+   3. `uploadFile` should use the provided `payer` parameter as the fee payer for the metadata upload transaction
+7. You should export a function named `createMintAccount` from `index.js` with the signature defined in `index.d.ts`
+   1. `createMintAccount` should create and initialise a new NFT mint, using the provided `payer` parameter as the fee payer, mint authority, and freeze authority
+8. You should export a function named `getMintAccounts` from `index.js` with the signature defined in `index.d.ts`
+   1. `getMintAccounts` should return all mint accounts owned by the provided `payer` parameter
+9. You should export a function named `createTokenAccount` from `index.js` with the signatrure defined in `index.d.ts`
+   1. `createTokenAccount` should get or create an associated token account for the provided `ownerAddress` parameter
+   2. `createTokenAccount` should use the provided `payer` parameter to pay for the transaction fee
+   3. `createTokenAccount` should use the provided `mintAddress` parameter as the mint associated with the token account
+10. You should export a function named `mintToken` from `index.js` with the signature defined in `index.d.ts`
+    1. `mintToken` should mint an NFT to the associated token account of the provided <!-- NAME OF STANDARD ACCOUNT --> (`ownerAddress`), using the existing mint account (`mintAddress`)
+    2. `mintToken` should use the provided `uri` parameter to point to the JSON metadata
+    3. `mintToken` should use the provided `year` parameter to give the NFT a `name` of `SOL-{year}`
+    4. `mintToken` should mint an NFT with `0` royalties when resold
+    5. `mintToken` should mint an NFT with a `symbol` of `SOLU`
+    6. `mintToken` should mint an NFT that is set to immutable
+    7. `mintToken` should mint an NFT owned by the associated token account of the provided <!-- NAME OF STANDARD ACCOUNT --> (`ownerAddress`)
+    8. `mintToken` should mint an NFT with an update authority set to the provided `payer` parameter
+    9. `mintToken` should mint an NFT with an mint authority set to the provided `payer` parameter
 
 **Types**
 
@@ -25,6 +50,7 @@ The expected signatures for your functions are visible in the `index.d.ts` file.
 **Notes**
 
 - You should work entirely within the `build-a-university-certification-nft` directory.
+- You can use provided Solana University dashboard (`client/`) to test and play around with your code.
 
 ### --tests--
 

@@ -18,8 +18,7 @@ export async function uploadFile({ metaplexFile, payer }) {
   const image = await metaplex.storage().upload(metaplexFile);
   const { uri } = await metaplex.nfts().uploadMetadata(
     {
-      name: 'fCC',
-      description: 'An image of the freeCodeCamp logo',
+      name: metaplexFile.fileName,
       image
     },
     { payer }
