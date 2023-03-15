@@ -26,15 +26,21 @@ You have been contacted by Solana University to build an NFT that will be used t
    2. `createTokenAccount` should use the provided `payer` parameter to pay for the transaction fee
    3. `createTokenAccount` should use the provided `mintAddress` parameter as the mint associated with the token account
 10. You should export a function named `mintToken` from `index.js` with the signature defined in `index.d.ts`
-    1. `mintToken` should mint an NFT to the associated token account of the provided <!-- NAME OF STANDARD ACCOUNT --> (`ownerAddress`), using the existing mint account (`mintAddress`)
+    1. `mintToken` should mint an NFT to the associated token account of the provided account (`ownerAddress`), using the existing mint account (`mintAddress`)
     2. `mintToken` should use the provided `uri` parameter to point to the JSON metadata
     3. `mintToken` should use the provided `year` parameter to give the NFT a `name` of `SOL-{year}`
     4. `mintToken` should mint an NFT with `0` royalties when resold
     5. `mintToken` should mint an NFT with a `symbol` of `SOLU`
     6. `mintToken` should mint an NFT that is set to immutable
-    7. `mintToken` should mint an NFT owned by the associated token account of the provided <!-- NAME OF STANDARD ACCOUNT --> (`ownerAddress`)
+    7. `mintToken` should mint an NFT owned by the associated token account of the provided account (`ownerAddress`)
     8. `mintToken` should mint an NFT with an update authority set to the provided `payer` parameter
     9. `mintToken` should mint an NFT with an mint authority set to the provided `payer` parameter
+11. You should use the Solana Univeristy Dashboard (`client/` _see below_) to create a new mint account
+    1. The `payer` should be the `solana-university-wallet.json` keypair
+12. You should use the Solana University Dashboard to create two token accounts associated with the new mint account, and owned by `student-1.json` and `student-2.json` respectively
+13. You should use the Solana University Dashboard to upload a metaplex file to the storage driver
+    1. You can use any image file for this, but one is provided: `solanaLogoMark.png`
+14. You should use the Solana University Dashboard to mint one token to each new token account
 
 **Types**
 
