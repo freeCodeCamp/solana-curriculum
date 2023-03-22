@@ -2,7 +2,7 @@
   "name": "build-a-university-certification-nft",
   "scripts": {
     "start:server": "node server.js",
-    "start:client": "cd client && npm run dev",
+    "start:client": "cd client && npm run dev -- --force",
     "solana:dump": "solana program dump -u mainnet-beta metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so",
     "start:validator": "solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset"
   },
