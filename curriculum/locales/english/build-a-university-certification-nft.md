@@ -36,12 +36,15 @@ You have been contacted by Solana University to build an NFT that will be used t
     7. `mintToken` should mint an NFT owned by the associated token account of the provided account (`ownerAddress`)
     8. `mintToken` should mint an NFT with an update authority set to the provided `payer` parameter
     9. `mintToken` should mint an NFT with an mint authority set to the provided `payer` parameter
-15. You should use the Solana Univeristy Dashboard (`client/` _see below_) to create a new mint account
+15. You should export a function named `getNFTs` from `index.js` with the signature defined in `index.d.ts`
+    1. `getNFTs` should return all NFTs owned by the provided `ownerAddress` parameter
+    2. `getNFTs` should use the provided `payer` parameter to pay for the transaction fee
+16. You should use the Solana Univeristy Dashboard (`client/` _see below_) to create a new mint account
     1. The `payer` should be the `solana-university-wallet.json` keypair
-16. You should use the Solana University Dashboard to create two token accounts associated with the new mint account, and owned by `student-1.json` and `student-2.json` respectively
-17. You should use the Solana University Dashboard to upload a metaplex file to the storage driver
+17. You should use the Solana University Dashboard to create two token accounts associated with the new mint account, and owned by `student-1.json` and `student-2.json` respectively
+18. You should use the Solana University Dashboard to upload a metaplex file to the storage driver
     1. You can use any image file for this, but one is provided: `solanaLogoMark.png`
-18. You should use the Solana University Dashboard to mint one token to each new token account
+19. You should use the Solana University Dashboard to mint one token to each new token account
 
 **Types**
 
@@ -58,6 +61,9 @@ The expected signatures for your functions are visible in the `index.d.ts` file.
 
 - You should work entirely within the `build-a-university-certification-nft` directory.
 - You can use provided Solana University dashboard (`client/`) to test and play around with your code.
+- Useful links to API documentation:
+  - [Solana JS SDK](https://solana-labs.github.io/solana-web3.js/)
+  - [Metaplex JS SDK](https://github.com/metaplex-foundation/js)
 
 ### --tests--
 
@@ -241,6 +247,21 @@ assert.isFunction(mintToken);
 ```
 
 The `mintToken` function should match the `index.d.ts` signature definition.
+
+```js
+
+```
+
+The `index.js` file should export a `getNFTs` function.
+
+```js
+const { getNFTs } = await __helpers.importSansCache(
+  join(__projectDir, 'index.js')
+);
+assert.isFunction(getNFTs);
+```
+
+The `getNFTs` function should match the `index.d.ts` signature definition.
 
 ```js
 

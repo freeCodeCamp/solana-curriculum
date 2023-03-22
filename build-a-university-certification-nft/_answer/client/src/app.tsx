@@ -5,7 +5,8 @@ import {
   getMintAccounts as camperGetMintAccounts,
   createTokenAccount as camperCreateTokenAccount,
   mintToken as camperMintToken,
-  uploadFile as camperUploadFile
+  uploadFile as camperUploadFile,
+  getNFTs as camperGetNFTs
 } from '../../index.js';
 import './app.css';
 import { toMetaplexFile } from '@metaplex-foundation/js';
@@ -19,6 +20,7 @@ export function App() {
   const [payer, setPayer] = useState<Signer>();
   const [mintAddress, setMintAddress] = useState<PublicKey>();
   const [ownerAddress, setOwnerAddress] = useState<PublicKey>();
+  const [uri, setUri] = useState<string>();
   const [invalidInputs, setInvalidInputs] = useState<string[]>([]);
 
   const createMintAccount: CreateMintAccountF = async () => {
@@ -27,8 +29,15 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    const mint = await camperCreateMintAccount({ payer });
-    setOutput(JSON.stringify(mint, null, 2));
+    try {
+      const mint = await camperCreateMintAccount({ payer });
+      setOutput(JSON.stringify(mint, null, 2));
+    } catch (e) {
+      console.warn(e);
+      setOutput(
+        'Error creating mint account:\n\n' + JSON.stringify(e, null, 2)
+      );
+    }
   };
   const getMintAccounts: GetMintAccountsF = async () => {
     if (!payer) {
@@ -36,8 +45,15 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    const mintAccounts = await camperGetMintAccounts({ payer });
-    setOutput(JSON.stringify(mintAccounts, null, 2));
+    try {
+      const mintAccounts = await camperGetMintAccounts({ payer });
+      setOutput(JSON.stringify(mintAccounts, null, 2));
+    } catch (e) {
+      console.warn(e);
+      setOutput(
+        'Error getting mint accounts:\n\n' + JSON.stringify(e, null, 2)
+      );
+    }
   };
   const createTokenAccount: CreateTokenAccountF = async () => {
     if (!payer || !mintAddress || !ownerAddress) {
@@ -45,35 +61,62 @@ export function App() {
       return;
     }
     setInvalidInputs([]);
-    const tokenAccount = await camperCreateTokenAccount({
-      payer,
-      mintAddress,
-      ownerAddress
-    });
-    console.log(tokenAccount);
-    setOutput(tokenAccount.address.toBase58());
+    try {
+      const tokenAccount = await camperCreateTokenAccount({
+        payer,
+        mintAddress,
+        ownerAddress
+      });
+      console.log(tokenAccount);
+      setOutput(tokenAccount.address.toBase58());
+    } catch (e) {
+      console.warn(e);
+      setOutput(
+        'Error creating token account:\n\n' + JSON.stringify(e, null, 2)
+      );
+    }
   };
   const mintToken: MintTokenF = async () => {
-    if (!payer || !mintAddress || !ownerAddress) {
-      setInvalidInputs(['payer', 'mintAddress', 'ownerAddress']);
+    if (!payer || !mintAddress || !ownerAddress || !uri) {
+      setInvalidInputs(['payer', 'mintAddress', 'ownerAddress', 'uri']);
       return;
     }
     setInvalidInputs([]);
     const year = new Date().getFullYear();
-    const uri = 'http://localhost:3002/meta/bsmDZxkbOP8GJlX1eHJp';
-    const nft = await camperMintToken({
-      payer,
-      mintAddress,
-      ownerAddress,
-      year,
-      uri
-    });
-    console.log(nft);
-    setOutput(JSON.stringify(nft, null, 2));
+    try {
+      const nft = await camperMintToken({
+        payer,
+        mintAddress,
+        ownerAddress,
+        year,
+        uri
+      });
+      console.log(nft);
+      setOutput(JSON.stringify(nft, null, 2));
+    } catch (e) {
+      console.warn(e);
+      setOutput('Error minting token:\n\n' + JSON.stringify(e, null, 2));
+    }
+  };
+  const getNFTs: GetNFTsF = async () => {
+    if (!payer || !ownerAddress) {
+      setInvalidInputs(['payer', 'ownerAddress']);
+      return;
+    }
+    setInvalidInputs([]);
+    try {
+      const nfts = await camperGetNFTs({ payer, ownerAddress });
+      console.log(nfts);
+      setOutput(JSON.stringify(nfts, null, 2));
+    } catch (e) {
+      console.warn(e);
+      setOutput('Error getting NFTs:\n\n' + JSON.stringify(e, null, 2));
+    }
   };
 
   const imageInput = useRef<HTMLInputElement>(null);
   const previewImg = useRef<HTMLImageElement>(null);
+  const uriInput = useRef<HTMLInputElement>(null);
 
   function setAuthority(e: ChangeEvent<HTMLInputElement>) {
     if (e.target) {
@@ -84,6 +127,7 @@ export function App() {
         setPayer(keypair);
       } catch (e) {
         console.warn(e);
+        setOutput('Invalid payer secret key\n\n' + JSON.stringify(e, null, 2));
       }
     }
   }
@@ -95,6 +139,7 @@ export function App() {
         setMintAddress(mint);
       } catch (e) {
         console.warn(e);
+        setOutput('Invalid mint public key\n\n' + JSON.stringify(e, null, 2));
       }
     }
   }
@@ -106,23 +151,46 @@ export function App() {
         setOwnerAddress(owner);
       } catch (e) {
         console.warn(e);
+        setOutput(
+          'Invalid student public key\n\n' + JSON.stringify(e, null, 2)
+        );
       }
     }
   }
+
+  function setUriInput(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target) {
+      setUri(e.target.value);
+    }
+  }
+
+  useEffect(() => {
+    if (uri) {
+      if (uriInput.current && uri !== uriInput.current.value) {
+        uriInput.current.value = uri;
+      }
+    }
+  }, [uri]);
 
   async function uploadFile() {
     if (imageInput.current) {
       if (imageInput.current.files) {
         const file = imageInput.current.files[0];
-        const arrayBuffer = await file.arrayBuffer();
-        const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
-        if (!payer) {
-          setInvalidInputs(['payer']);
-          return;
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const metaplexFile = toMetaplexFile(arrayBuffer, file.name);
+          if (!payer) {
+            setInvalidInputs(['payer']);
+            return;
+          }
+          setInvalidInputs([]);
+          const uri = await camperUploadFile({ metaplexFile, payer });
+          setUri(uri);
+          setOutput(uri);
+        } catch (e) {
+          console.warn(e);
+          setOutput('Invalid file\n\n' + JSON.stringify(e, null, 2));
         }
-        setInvalidInputs([]);
-        const uri = await camperUploadFile({ metaplexFile, payer });
-        setOutput(uri);
       }
     }
   }
@@ -142,6 +210,15 @@ export function App() {
         <label>
           Student Public Key:{' '}
           <input type='text' id='owner' onChange={setOwner}></input>
+        </label>
+        <label>
+          NFT Metadata URI:{' '}
+          <input
+            type='text'
+            id='owner'
+            onChange={setUriInput}
+            ref={uriInput}
+          ></input>
         </label>
       </form>
       <form>
@@ -187,6 +264,7 @@ export function App() {
         <GetCertificatePrograms {...{ getMintAccounts }} />
         <RegisterStudent {...{ createTokenAccount }} />
         <GrantCertificate {...{ mintToken }} />
+        <ViewStudentCertificate {...{ getNFTs }} />
       </div>
       {invalidInputs.length > 0 && <ValidationError {...{ invalidInputs }} />}
       <Output {...{ output }} />
@@ -202,6 +280,7 @@ type CreateMintAccountF = () => Promise<void>;
 type GetMintAccountsF = () => Promise<void>;
 type CreateTokenAccountF = () => Promise<void>;
 type MintTokenF = () => Promise<void>;
+type GetNFTsF = () => Promise<void>;
 
 type CreateCertificateProgramT = {
   createMintAccount: CreateMintAccountF;
@@ -261,6 +340,15 @@ function GrantCertificate({ mintToken }: { mintToken: MintTokenF }) {
     <section>
       <p>Grant Certificate</p>
       <button onClick={() => mintToken()}>Mint Token</button>
+    </section>
+  );
+}
+
+function ViewStudentCertificate({ getNFTs }: { getNFTs: GetNFTsF }) {
+  return (
+    <section>
+      <p>View Student Certificate</p>
+      <button onClick={() => getNFTs()}>Get NFT</button>
     </section>
   );
 }

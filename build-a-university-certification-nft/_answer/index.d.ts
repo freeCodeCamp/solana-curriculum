@@ -50,3 +50,11 @@ declare function mintToken({
   year: number;
   uri: string;
 }): Promise<MintNftOutput>;
+
+declare function getNFTs({
+  payer,
+  ownerAddress
+}: {
+  payer: Signer;
+  ownerAddress: PublicKey;
+}): Promise<MintNftOutput[]>;

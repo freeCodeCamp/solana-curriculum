@@ -100,3 +100,10 @@ export async function mintToken({
 
   return nft;
 }
+
+export async function getNFTs({ payer, ownerAddress }) {
+  const nfts = await metaplex
+    .nfts()
+    .findAllByOwner({ owner: ownerAddress }, { payer });
+  return nfts;
+}
