@@ -257,12 +257,58 @@ try {
   const { createMintAccount } = await __helpers.importSansCache(
     join(__projectDir, 'index.js')
   );
-  const { Keypair } = await __helpers.importSansCache('solana-web3.js');
+  const { Keypair, Connection } = await __helpers.importSansCache(
+    '@solana/web3.js'
+  );
+
+  const connection = new Connection('http://127.0.0.1:8899');
+
+  async function airdrop() {
+    const airdropSignature = await connection.requestAirdrop(
+      payer.publicKey,
+      1000000000
+    );
+    // Confirm transaction
+    await connection.confirmTransaction(airdropSignature);
+  }
+  await airdrop();
 
   const payer = Keypair.generate();
   const mint = await createMintAccount({ payer });
 
-  // TODO: Finish test
+  const mintAccounts = await connection.getParsedProgramAccounts(
+    TOKEN_PROGRAM_ID,
+    {
+      filters: [
+        {
+          dataSize: 82
+        },
+        {
+          memcmp: {
+            offset: 4,
+            bytes: payer.publicKey.toBase58()
+          }
+        }
+      ]
+    }
+  );
+  const mintAccount = mintAccounts[0];
+  assert.exists(mintAccount, 'The mint account should exist');
+  assert.equal(
+    mintAccount.account.data.parsed.info.mintAuthority,
+    payer.publicKey.toBase58(),
+    'The mint authority should be the payer'
+  );
+  assert.equal(
+    mintAccount.account.data.parsed.info.freezeAuthority,
+    payer.publicKey.toBase58(),
+    'The freeze authority should be the payer'
+  );
+  assert.equal(
+    mintAccount.account.data.parsed.info.decimals,
+    0,
+    'The mint should have 0 decimal places'
+  );
 } catch (e) {
   assert.fail(e);
 }
@@ -271,7 +317,55 @@ try {
 The `createMintAccount` function should return the `PublicKey` of the mint account.
 
 ```js
+try {
+  const { createMintAccount } = await __helpers.importSansCache(
+    join(__projectDir, 'index.js')
+  );
+  const { Keypair, Connection } = await __helpers.importSansCache(
+    '@solana/web3.js'
+  );
 
+  const connection = new Connection('http://127.0.0.1:8899');
+
+  async function airdrop() {
+    const airdropSignature = await connection.requestAirdrop(
+      payer.publicKey,
+      1000000000
+    );
+    // Confirm transaction
+    await connection.confirmTransaction(airdropSignature);
+  }
+  await airdrop();
+
+  const payer = Keypair.generate();
+  const mint = await createMintAccount({ payer });
+
+  const mintAccounts = await connection.getParsedProgramAccounts(
+    TOKEN_PROGRAM_ID,
+    {
+      filters: [
+        {
+          dataSize: 82
+        },
+        {
+          memcmp: {
+            offset: 4,
+            bytes: payer.publicKey.toBase58()
+          }
+        }
+      ]
+    }
+  );
+  const mintAccount = mintAccounts[0];
+
+  assert.equal(
+    mintAccount.pubkey.toBase58(),
+    mint.toBase58(),
+    'The mint account should be returned'
+  );
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 The `index.js` file should export a `getMintAcconuts` function.
@@ -310,7 +404,52 @@ assert.isTrue(
 The `getMintAccounts` function should return all mint accounts owned by the `payer` argument type `ParsedProgramAccounts`.
 
 ```js
+try {
+  const { getMintAcconuts, createMintAccount } =
+    await __helpers.importSansCache(join(__projectDir, 'index.js'));
+  const { Keypair, Connection } = await __helpers.importSansCache(
+    '@solana/web3.js'
+  );
+  const { createMint } = await __helpers.importSansCache('@solana/spl-token');
 
+  const connection = new Connection('http://127.0.0.1:8899');
+
+  async function airdrop() {
+    const airdropSignature = await connection.requestAirdrop(
+      payer.publicKey,
+      1000000000
+    );
+    // Confirm transaction
+    await connection.confirmTransaction(airdropSignature);
+  }
+  await airdrop();
+
+  const payer = Keypair.generate();
+  const mintAuthority = payer.publicKey;
+  const freezeAuthority = payer.publicKey;
+  const mint = await createMint(
+    connection,
+    payer,
+    mintAuthority,
+    freezeAuthority,
+    0
+  );
+
+  const mintAccounts = await getMintAccounts({ payer });
+  assert.isArray(mintAccounts, '`getMintAccounts` should return an array');
+  const mintAccount = mintAccounts[0];
+  assert.exists(
+    mintAccount,
+    'This test creates a mint account. At least one account should exist'
+  );
+  assert.equal(
+    mintAccount.pubkey.toBase58(),
+    mint.toBase58(),
+    'The mint account should match the payer'
+  );
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 The `index.js` file should export a `createTokenAccount` function.
