@@ -40,7 +40,7 @@
     "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
-    "numberOfLessons": 65
+    "numberOfLessons": 52
   },
   {
     "id": 4,
@@ -51,10 +51,20 @@
     "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
-    "numberOfLessons": 2
+    "numberOfLessons": 50
   },
   {
     "id": 5,
+    "title": "Build a University Certification NFT",
+    "dashedName": "build-a-university-certification-nft",
+    "isIntegrated": true,
+    "description": "In this integrated project, you will use what you previously learnt to build-out the logic for an NFT-issuing system for university certifications.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "numberOfLessons": 1
+  },
+  {
+    "id": 6,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,
