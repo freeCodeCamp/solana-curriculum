@@ -142,19 +142,43 @@ try {
 You should create a new keypair named `student-1.json`.
 
 ```js
-
+const walletPath = join(__projectDir, 'student-1.json');
+const walletJsonExists = __helpers.fileExists(walletPath);
+assert.isTrue(walletJsonExists, 'The `student-1.json` file should exist');
+const walletJson = JSON.parse(await __helpers.getFile(walletPath));
+assert.isArray(
+  walletJson,
+  'The `student-1.json` file should be an array of numbers.\nRun `solana-keygen new --outfile student-1.json` to create a new keypair.'
+);
 ```
 
 You should create a new keypair named `student-2.json`.
 
 ```js
-
+const walletPath = join(__projectDir, 'student-2.json');
+const walletJsonExists = __helpers.fileExists(walletPath);
+assert.isTrue(walletJsonExists, 'The `student-2.json` file should exist');
+const walletJson = JSON.parse(await __helpers.getFile(walletPath));
+assert.isArray(
+  walletJson,
+  'The `student-2.json` file should be an array of numbers.\nRun `solana-keygen new --outfile student-2.json` to create a new keypair.'
+);
 ```
 
 You should create a new keypair named `solana-university-wallet.json`.
 
 ```js
-
+const walletPath = join(__projectDir, 'solana-university-wallet.json');
+const walletJsonExists = __helpers.fileExists(walletPath);
+assert.isTrue(
+  walletJsonExists,
+  'The `solana-university-wallet.json` file should exist'
+);
+const walletJson = JSON.parse(await __helpers.getFile(walletPath));
+assert.isArray(
+  walletJson,
+  'The `solana-university-wallet.json` file should be an array of numbers.\nRun `solana-keygen new --outfile solana-university-wallet.json` to create a new keypair.'
+);
 ```
 
 The `index.js` file should export a `uploadFile` function.
@@ -169,7 +193,25 @@ assert.isFunction(uploadFile);
 The `uploadFile` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'uploadFile';
+});
+assert.exists(
+  functionDeclaration,
+  'A function named `uploadFile` should exist'
+);
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'uploadFile' ||
+    e.specifiers?.find(s => s.exported.name === 'uploadFile')
+  );
+});
+assert.isTrue(
+  functionIsExported,
+  'The `uploadFile` function should be exported'
+);
 ```
 
 The `index.js` file should export a `createMintAccount` function.
@@ -184,7 +226,25 @@ assert.isFunction(createMintAccount);
 The `createMintAccount` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'createMintAccount';
+});
+assert.exists(
+  functionDeclaration,
+  'A function named `createMintAccount` should exist'
+);
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'createMintAccount' ||
+    e.specifiers?.find(s => s.exported.name === 'createMintAccount')
+  );
+});
+assert.isTrue(
+  functionIsExported,
+  'The `createMintAccount` function should be exported'
+);
 ```
 
 The `createMintAccount` function should create a new mint account for an NFT.
@@ -193,6 +253,19 @@ The `createMintAccount` function should create a new mint account for an NFT.
 // `payer` should be payer
 // `payer` should be mint authority and freeze authority
 // The mint should have 0 decimal places
+try {
+  const { createMintAccount } = await __helpers.importSansCache(
+    join(__projectDir, 'index.js')
+  );
+  const { Keypair } = await __helpers.importSansCache('solana-web3.js');
+
+  const payer = Keypair.generate();
+  const mint = await createMintAccount({ payer });
+
+  // TODO: Finish test
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 The `createMintAccount` function should return the `PublicKey` of the mint account.
@@ -213,7 +286,25 @@ assert.isFunction(getMintAccounts);
 The `getMintAccounts` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'getMintAccounts';
+});
+assert.exists(
+  functionDeclaration,
+  'A function named `getMintAccounts` should exist'
+);
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'getMintAccounts' ||
+    e.specifiers?.find(s => s.exported.name === 'getMintAccounts')
+  );
+});
+assert.isTrue(
+  functionIsExported,
+  'The `getMintAccounts` function should be exported'
+);
 ```
 
 The `getMintAccounts` function should return all mint accounts owned by the `payer` argument type `ParsedProgramAccounts`.
@@ -234,7 +325,25 @@ assert.isFunction(createTokenAccount);
 The `createTokenAccount` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'createTokenAccount';
+});
+assert.exists(
+  functionDeclaration,
+  'A function named `createTokenAccount` should exist'
+);
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'createTokenAccount' ||
+    e.specifiers?.find(s => s.exported.name === 'createTokenAccount')
+  );
+);
+assert.isTrue(
+  functionIsExported,
+  'The `createTokenAccount` function should be exported'
+);
 ```
 
 The `index.js` file should export a `mintToken` function.
@@ -249,7 +358,22 @@ assert.isFunction(mintToken);
 The `mintToken` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'mintToken';
+});
+assert.exists(functionDeclaration, 'A function named `mintToken` should exist');
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'mintToken' ||
+    e.specifiers?.find(s => s.exported.name === 'mintToken')
+  );
+});
+assert.isTrue(
+  functionIsExported,
+  'The `mintToken` function should be exported'
+);
 ```
 
 The `index.js` file should export a `getNFTs` function.
@@ -264,20 +388,40 @@ assert.isFunction(getNFTs);
 The `getNFTs` function should match the `index.d.ts` signature definition.
 
 ```js
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id.name === 'getNFTs';
+});
+assert.exists(functionDeclaration, 'A function named `getNFTs` should exist');
 
+const exports = babelisedCode.getType('ExportNamedDeclaration');
+const functionIsExported = exports.some(e => {
+  return (
+    e.declaration?.id?.name === 'getNFTs' ||
+    e.specifiers?.find(s => s.exported.name === 'getNFTs')
+  );
+});
+assert.isTrue(functionIsExported, 'The `getNFTs` function should be exported');
 ```
+
+<!-- TODO: Add tests for getNFTs -->
 
 ### --before-all--
 
 ```js
 const __projectDir = 'build-a-university-certification-nft';
+
+const codeString = await __helpers.getFile(join(__projectDir, 'index.js'));
+const babelisedCode = new __helpers.Babeliser(codeString);
+
 global.__projectDir = __projectDir;
+global.babelisedCode = babelisedCode;
 ```
 
 ### --after-all--
 
 ```js
 delete global.__projectDir;
+delete global.babelisedCode;
 ```
 
 ## --fcc-end--
