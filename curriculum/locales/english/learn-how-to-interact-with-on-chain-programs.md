@@ -15,10 +15,7 @@ You should use `cd` to change into the `learn-how-to-interact-with-on-chain-prog
 ```js
 const cwdFile = await __helpers.getCWD();
 const cwd = cwdFile.split('\n').filter(Boolean).pop();
-assert.include(
-  cwd,
-  'learn-how-to-interact-with-on-chain-programs'
-);
+assert.include(cwd, 'learn-how-to-interact-with-on-chain-programs');
 ```
 
 ## 2
@@ -254,7 +251,7 @@ await main();
 
 ### --description--
 
-Within `hello-world.js`, export an async function named `establishConnection`.
+Within `hello-world.js`, export a function named `establishConnection`.
 
 ### --tests--
 
@@ -342,7 +339,9 @@ assert.match(lastCommand.trim(), /npm\s+(i|install)/);
 You should have a `node_modules/@solana/web3.js` folder as a result of installing the dependencies
 
 ```js
-const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules/@solana')
+const dir = await __helpers.getDirectory(
+  'learn-how-to-interact-with-on-chain-programs/node_modules/@solana'
+);
 
 assert.include(dir, 'web3.js');
 ```
@@ -350,7 +349,9 @@ assert.include(dir, 'web3.js');
 You should have a `node_modules/borsh` folder as a result of installing the dependencies
 
 ```js
-const dir = await __helpers.getDirectory('learn-how-to-interact-with-on-chain-programs/node_modules')
+const dir = await __helpers.getDirectory(
+  'learn-how-to-interact-with-on-chain-programs/node_modules'
+);
 
 assert.include(dir, 'borsh');
 ```
@@ -429,7 +430,7 @@ const { Connection } = await __helpers.importSansCache(
 const { establishConnection } = await __helpers.importSansCache(
   '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
-const connection = await establishConnection();
+const connection = establishConnection();
 assert.instanceOf(
   connection,
   Connection,
@@ -707,7 +708,9 @@ const readFileCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.name === 'readFile' && c.scope.includes('global') && c.scope.includes('establishPayer')
+      c.callee.name === 'readFile' &&
+      c.scope.includes('global') &&
+      c.scope.includes('establishPayer')
     );
   });
 assert.exists(
@@ -1122,7 +1125,9 @@ const readFileCallExpression = babelisedCode
   .getType('CallExpression')
   .find(c => {
     return (
-      c.callee.name === 'readFile' && c.scope.includes('global') && c.scope.includes('getProgramId')
+      c.callee.name === 'readFile' &&
+      c.scope.includes('global') &&
+      c.scope.includes('getProgramId')
     );
   });
 assert.exists(
@@ -6243,7 +6248,7 @@ assert.equal(
 You should have an `id.json` file in the `/root/.config/solana/` directory as a result of generating a key
 
 ```js
-const solanaDir = await __helpers.getDirectory('../../root/.config/solana')
+const solanaDir = await __helpers.getDirectory('../../root/.config/solana');
 assert.exists(solanaDir, 'id.json');
 ```
 

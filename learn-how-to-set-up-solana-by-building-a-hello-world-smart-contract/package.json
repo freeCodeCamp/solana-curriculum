@@ -7,16 +7,16 @@
     "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist"
   },
   "dependencies": {
-    "@solana/web3.js": "1.70.1",
+    "@solana/web3.js": "1.74.0",
     "borsh": "0.7.0",
-    "yaml": "2.1.3"
+    "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@tsconfig/recommended": "1.0.1",
-    "@types/node": "18.11.13",
+    "@tsconfig/recommended": "1.0.2",
+    "@types/node": "18.15.3",
     "@types/yaml": "1.9.7",
     "ts-node": "10.9.1",
-    "typescript": "4.9.4"
+    "typescript": "4.9.5"
   },
   "engines": {
     "node": ">=16.0.0"
