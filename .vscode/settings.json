@@ -30,7 +30,8 @@
     "learn-how-to-interact-with-on-chain-programs": false,
     "build-a-smart-contract": false,
     "build-a-university-certification-nft": false,
-    "learn-solanas-token-program-by-minting-a-fungible-token": false
+    "learn-solanas-token-program-by-minting-a-fungible-token": false,
+    "learn-the-metaplex-sdk-by-minting-an-nft": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
