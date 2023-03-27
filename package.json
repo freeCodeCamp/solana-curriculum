@@ -10,10 +10,11 @@
   "type": "module",
   "dependencies": {
     "@babel/parser": "7.21.3",
-    "@freecodecamp/freecodecamp-os": "1.7.3",
+    "@freecodecamp/freecodecamp-os": "1.8.2",
+    "@metaplex-foundation/js": "0.18.3",
+    "@solana/spl-token": "0.3.7",
     "@solana/web3.js": "1.74.0",
     "babeliser": "0.6.0",
-    "borsh": "0.7.0",
-    "node-bug": "github:ShaunSHamilton/node-bug"
+    "borsh": "0.7.0"
   }
 }
