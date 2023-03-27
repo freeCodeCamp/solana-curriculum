@@ -29,6 +29,7 @@
     "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract": false,
     "learn-how-to-interact-with-on-chain-programs": false,
     "build-a-smart-contract": false,
+    "build-a-university-certification-nft": false,
     "learn-solanas-token-program-by-minting-a-fungible-token": false
   },
   "terminal.integrated.profiles.linux": {
@@ -42,5 +43,5 @@
     "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml",
     "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml"
   ],
-  "//workbench.colorTheme": "freeCodeCamp Dark Theme"
+  "workbench.colorTheme": "freeCodeCamp Dark Theme"
 }
