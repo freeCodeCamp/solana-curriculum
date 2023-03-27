@@ -6,7 +6,7 @@ app.use(express.json());
 
 const metadatas = {};
 
-app.get('/:id', (req, res) => {
+app.get('/meta/:id', (req, res) => {
   const metadata = metadatas[req.params.id];
   if (!metadata) {
     return res.status(404).end();
@@ -16,13 +16,13 @@ app.get('/:id', (req, res) => {
 
   return res.send(Buffer.from(metadata));
 });
-app.put('/:id', (req, res) => {
+app.put('/meta/:id', (req, res) => {
   console.log('POST', req.params.id);
   metadatas[req.params.id] = req.body;
   res.status(200).end();
 });
 
-app.get('/ping', (_req, res) => {
+app.get('/status/ping', (_req, res) => {
   res.status(200).send('pong');
 });
 

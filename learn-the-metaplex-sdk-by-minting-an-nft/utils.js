@@ -33,7 +33,7 @@ class LocalStorageDriver {
     return amount(this.costPerByte * bytes, { symbol: 'SOL', decimals: 9 });
   }
   async upload(file) {
-    const uri = `${this.baseUrl}${file.uniqueName}`;
+    const uri = `${this.baseUrl}meta/${file.uniqueName}`;
     await fetch(uri, {
       method: 'PUT',
       headers: {

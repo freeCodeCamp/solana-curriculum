@@ -1105,7 +1105,7 @@ assert.exists(
   variableDeclaration,
   'You should declare a variable named `metaplex`'
 );
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(minifiedCode, /metaplex=Metaplex\.make\(\)/);
@@ -1165,7 +1165,7 @@ const babelisedCode = new __helpers.Babeliser(codeString);
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'metaplex';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(minifiedCode, /metaplex=Metaplex\.make\(connection\)/);
@@ -1195,7 +1195,7 @@ You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'metaplex';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1277,7 +1277,7 @@ You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'metaplex';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1337,7 +1337,7 @@ const babelisedCode = new __helpers.Babeliser(codeString);
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'metaplex';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1362,7 +1362,7 @@ You can use `const imageBuffer = await readFile('assets/pic.png');` in `create-n
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'imageBuffer';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1442,7 +1442,7 @@ You should have `const file = toMetaplexFile(imageBuffer, 'pic.png');` in `creat
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'file';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1505,7 +1505,7 @@ const babelisedCode = new __helpers.Babeliser(codeString);
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'image';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -1596,7 +1596,7 @@ const metaplex = {
       }
   })
 };
-let image, name, description, uri;
+let image, name, description;
 `;
 const testString = `${metaplex}\n${codeString}`;
 
@@ -1661,7 +1661,7 @@ create(
      * This is useful if you already have a generated Keypair
      * for the mint account of the NFT to create.
      *
-     * @defaultValue `Keypair.generate()`
+     * @defaultValue `Keypair.generateCode()`
      */
     useNewMint?: Signer;
     /**
@@ -1952,7 +1952,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -2022,7 +2022,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -2138,7 +2138,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -2178,6 +2178,14 @@ The `--reset` flag is used to clear the `test-ledger` directory. This is where t
 
 ### --tests--
 
+You should be in the `learn-the-metaplex-sdk-by-minting-an-nft` directory.
+
+```js
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-the-metaplex-sdk-by-minting-an-nft');
+```
+
 You should run `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset` in the terminal.
 
 ```js
@@ -2216,15 +2224,16 @@ For ease, this command has been added to the `package.json` file as a script. St
 npm run start:validator
 ```
 
+**Note:** You might need to manually run the tests.
+
 ### --tests--
 
 You should run `npm run start:validator` in the terminal.
 
 ```js
-// TODO: Fix with .temp.log
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(
-  lastCommand?.trim(),
+const lastCommand = await __helpers.getTemp();
+assert.include(
+  lastCommand,
   'npm run start:validator',
   'Run `npm run start:validator` in the terminal'
 );
@@ -2234,6 +2243,43 @@ The validator should be running at `http://127.0.0.1:8899`.
 
 ```js
 const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 37
+
+### --description--
+
+Restarting the validator with the `--reset` flag deletes any previous ledger data. This means you will need to airdrop some SOL into the account associated with `wallet.json` again.
+
+Do so.
+
+### --tests--
+
+The `wallet.json` account should have at least 2 SOL.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ./learn-the-metaplex-sdk-by-minting-an-nft/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  2,
+  'Try running `solana airdrop 2 ./wallet.json`'
+);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
@@ -2279,7 +2325,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -2359,12 +2405,12 @@ try {
     {
       filters: [
         {
-          dataSize: 82
+          dataSize: 165
         },
         {
           memcmp: {
-            offset: 4,
-            bytes: packageJson.env.MINT_ADDRESS
+            offset: 32,
+            bytes: packageJson.env.WALLET_ADDRESS
           }
         }
       ]
@@ -2372,7 +2418,8 @@ try {
   );
 
   const mintAccount = mintAccounts.find(
-    ({ pubkey }) => pubkey === packageJson.env.MINT_ADDRESS
+    ({ account }) =>
+      account?.data?.parsed?.info?.mint === packageJson.env.MINT_ACCOUNT_ADDRESS
   );
   assert.exists(
     mintAccount,
@@ -2478,7 +2525,7 @@ You should have `const metaplex = Metaplex.make(connection).use(keypairIdentity(
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'metaplex';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -2585,7 +2632,7 @@ You should have `const mintAddress = new PublicKey(pkg.env.MINT_ACCOUNT_ADDRESS)
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'mintAddress';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -2672,7 +2719,7 @@ const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'nft';
 });
 assert.exists(variableDeclaration, 'An `nft` variable should exist');
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -2759,7 +2806,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
@@ -2802,7 +2849,7 @@ const babelisedCode = new __helpers.Babeliser(codeString);
 const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
   return v.declarations?.[0]?.id?.name === 'imageData';
 });
-const minifiedCode = babelisedCode.generate(variableDeclaration, {
+const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
   minified: true
 });
 assert.match(
@@ -2822,20 +2869,23 @@ Log the `imageData` variable to the console.
 You should have `console.log(imageData);` in `get-nft.js`.
 
 ```js
-const consoleLogCallExpression = babelisedCode
+const consoleLogCallExpressions = babelisedCode
   .getType('CallExpression')
-  .find(c => {
+  .filter(c => {
     return (
       c.callee.object?.name === 'console' && c.callee.property?.name === 'log'
     );
   });
-assert.exists(consoleLogCallExpression, 'A `console.log` call should exist');
-const consoleLogArguments = consoleLogCallExpression.arguments;
-const ident = consoleLogArguments.find(a => {
-  return a.name === 'imageData';
+assert.exists(consoleLogCallExpressions, 'A `console.log` call should exist');
+const is_ident = consoleLogCallExpressions.some(c => {
+  const consoleLogArguments = c.arguments;
+  const ident = consoleLogArguments.find(a => {
+    return a.name === 'imageData';
+  });
+  return ident;
 });
 assert.exists(
-  ident,
+  is_ident,
   'One of the arguments to `console.log` should be `imageData`'
 );
 ```
@@ -2888,7 +2938,7 @@ The local storage driver should be running at `http://127.0.0.1:3001`.
 
 ```js
 try {
-  const res = await fetch('http://127.0.0.1:3001/ping');
+  const res = await fetch('http://127.0.0.1:3001/status/ping');
   // Response should be 200 with text "pong"
   if (res.status === 200) {
     const text = await res.text();
