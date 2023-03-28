@@ -99,13 +99,13 @@ export function App() {
     }
   };
   const getNFTs: GetNFTsF = async () => {
-    if (!payer || !ownerAddress) {
-      setInvalidInputs(['payer', 'ownerAddress']);
+    if (!ownerAddress) {
+      setInvalidInputs(['ownerAddress']);
       return;
     }
     setInvalidInputs([]);
     try {
-      const nfts = await camperGetNFTs({ payer, ownerAddress });
+      const nfts = await camperGetNFTs({ ownerAddress });
       console.log(nfts);
       setOutput(JSON.stringify(nfts, null, 2));
     } catch (e) {

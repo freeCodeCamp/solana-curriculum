@@ -33,11 +33,6 @@ export async function rustTest(path, filePath, test, cb) {
 
 export const Babeliser = B;
 
-export async function importSansCache(p) {
-  const cacheBustingModulePath = `${p}?update=${Date.now()}`;
-  return await import(cacheBustingModulePath);
-}
-
 // Test wallet: 8rK533RnqBtNPxwCHsPLZe8H89DwZxo3MhhEo4pKCfAw
 // Program ID: FxcSjVwaWZPkNndA6RS9yZTjomF69AS1JZs6kvuEEp8v
 // ProgramData Address: 34QiTA3zqEQ72mfmtANBu5M4zguBs9Xa4QCCyXcZQKnG

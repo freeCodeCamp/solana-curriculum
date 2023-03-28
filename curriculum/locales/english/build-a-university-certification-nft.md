@@ -38,7 +38,6 @@ You have been contacted by Solana University to build an NFT that will be used t
     9. `mintToken` should mint an NFT with an mint authority set to the provided `payer` parameter
 15. You should export a function named `getNFTs` from `index.js` with the signature defined in `index.d.ts`
     1. `getNFTs` should return all NFTs owned by the provided `ownerAddress` parameter
-    2. `getNFTs` should use the provided `payer` parameter to pay for the transaction fee
 16. You should use the Solana Univeristy Dashboard (`client/` _see below_) to create a new mint account
     1. The `payer` should be the `solana-university-wallet.json` keypair
 17. You should use the Solana University Dashboard to create two token accounts associated with the new mint account, and owned by `student-1.json` and `student-2.json` respectively
@@ -402,7 +401,7 @@ assert.isTrue(
 );
 ```
 
-The `getMintAccounts` function should return all mint accounts owned by the `payer` argument type `ParsedProgramAccounts`.
+The `getMintAccounts` function should return all mint accounts owned by the `payer` argument.
 
 ```js
 try {
@@ -542,13 +541,92 @@ const functionIsExported = exports.some(e => {
 assert.isTrue(functionIsExported, 'The `getNFTs` function should be exported');
 ```
 
-<!-- TODO: Add tests for getNFTs -->
+The `getNFTs` function should return all NFTs owned by the `ownerAddress` argument.
+
+```js
+try {
+  const { Connection, Keypair } = await import('@solana/web3.js');
+  const { Metaplex } = await import('@metaplex-foundation/js');
+  const { getNFTs } = await __helpers.importSansCache(
+    './' + join(__projectDir, 'index.js')
+  );
+
+  // Create two NFTs owned by `ownerAddress`
+  const connection = new Connection('http://127.0.0.1:8899');
+  const payer = Keypair.generate();
+  const owner = Keypair.generate();
+  const ownerAddress = owner.publicKey;
+
+  async function airdrop(acc) {
+    const airdropSignature = await connection.requestAirdrop(
+      acc.publicKey,
+      1000000000
+    );
+    // Confirm transaction
+    await connection.confirmTransaction(airdropSignature);
+  }
+
+  await airdrop(payer);
+  await airdrop(owner);
+
+  const metaplex = Metaplex.make(connection);
+
+  const createResponse = await metaplex.nfts().create(
+    {
+      tokenOwner: ownerAddress,
+      uri: 'http://localhost:1213',
+      name: `Test`,
+      sellerFeeBasisPoints: 0,
+      maxSupply: 1,
+      symbol: 'fCCTest',
+      isMutable: false,
+      updateAuthority: payer,
+      mintAuthority: payer
+    },
+    { payer }
+  );
+
+  // Call `getNFTs`
+
+  const nfts = await getNFTs({ ownerAddress, payer });
+  assert.isArray(nfts, '`getNFTs` should return an array');
+  assert.equal(
+    nfts.length,
+    1,
+    'The `getNFTs` function should return all NFTs owned by the `ownerAddress` argument'
+  );
+
+  const createResponse2 = await metaplex.nfts().create(
+    {
+      tokenOwner: ownerAddress,
+      uri: 'http://localhost:1213',
+      name: `Test2`,
+      sellerFeeBasisPoints: 0,
+      maxSupply: 1,
+      symbol: 'fCCTest',
+      isMutable: false,
+      updateAuthority: payer,
+      mintAuthority: payer
+    },
+    { payer }
+  );
+
+  const nfts2 = await getNFTs({ ownerAddress, payer });
+  assert.isArray(nfts2, '`getNFTs` should return an array');
+  assert.equal(
+    nfts2.length,
+    2,
+    'The `getNFTs` function should return all NFTs owned by the `ownerAddress` argument'
+  );
+} catch (e) {
+  assert.fail(e);
+}
+```
 
 ### --before-all--
 
 ```js
 const __projectDir = 'build-a-university-certification-nft';
-console.log('./' + join(__projectDir, 'index.js'));
 const codeString = await __helpers.getFile(
   './' + join(__projectDir, 'index.js')
 );

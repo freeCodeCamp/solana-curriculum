@@ -52,9 +52,7 @@ declare function mintToken({
 }): Promise<MintNftOutput>;
 
 declare function getNFTs({
-  payer,
   ownerAddress
 }: {
-  payer: Signer;
   ownerAddress: PublicKey;
 }): Promise<MintNftOutput[]>;
