@@ -547,7 +547,7 @@ assert.isTrue(functionIsExported, 'The `getNFTs` function should be exported');
 ### --before-all--
 
 ```js
-const __projectDir = 'build-a-university-certification-nft/_answer';
+const __projectDir = 'build-a-university-certification-nft';
 console.log('./' + join(__projectDir, 'index.js'));
 const codeString = await __helpers.getFile(
   './' + join(__projectDir, 'index.js')
