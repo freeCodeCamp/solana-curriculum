@@ -76,21 +76,23 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     "id": 1,
     "method": "getProgramAccounts",
     "params": [
-      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+      "BPFLoader2111111111111111111111111111111111", {
+        "encoding": "base64",
+        "dataSlice": {
+          "length": 0,
+          "offset": 0
+        }
+      }
     ]
 }'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
 try {
   const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, {
-    result: [
-      {
-        account: {
-          owner: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-        }
-      }
-    ]
-  });
+  assert.exists(
+    jsonOut.result.find(
+      r => r.pubkey === 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    )
+  );
 } catch (e) {
   assert.fail(
     e,
@@ -102,9 +104,9 @@ try {
 The `~/.config/solana/cli/config.yml` file should have the URL set to `localhost`.
 
 ```js
-const file = await __helpers.readFile('~/.config/solana/cli/config.yml');
-const toMatch = 'json_rpc_url: http://localhost:8899';
-assert.include(file, toMatch);
+const { stdout } = await __helpers.getCommandOutput('solana config get');
+const toMatch = 'RPC URL: http://localhost:8899';
+assert.include(stdout, toMatch);
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.
@@ -218,7 +220,7 @@ The `index.js` file should export a `createMintAccount` function.
 
 ```js
 const { createMintAccount } = await __helpers.importSansCache(
-  join(__projectDir, 'index.js')
+  './' + join(__projectDir, 'index.js')
 );
 assert.isFunction(createMintAccount);
 ```
@@ -255,13 +257,13 @@ The `createMintAccount` function should create a new mint account for an NFT.
 // The mint should have 0 decimal places
 try {
   const { createMintAccount } = await __helpers.importSansCache(
-    join(__projectDir, 'index.js')
+    './' + join(__projectDir, 'index.js')
   );
-  const { Keypair, Connection } = await __helpers.importSansCache(
-    '@solana/web3.js'
-  );
+  const { Keypair, Connection } = await import('@solana/web3.js');
+  const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
 
   const connection = new Connection('http://127.0.0.1:8899');
+  const payer = Keypair.generate();
 
   async function airdrop() {
     const airdropSignature = await connection.requestAirdrop(
@@ -273,7 +275,6 @@ try {
   }
   await airdrop();
 
-  const payer = Keypair.generate();
   const mint = await createMintAccount({ payer });
 
   const mintAccounts = await connection.getParsedProgramAccounts(
@@ -319,13 +320,14 @@ The `createMintAccount` function should return the `PublicKey` of the mint accou
 ```js
 try {
   const { createMintAccount } = await __helpers.importSansCache(
-    join(__projectDir, 'index.js')
+    './' + join(__projectDir, 'index.js')
   );
-  const { Keypair, Connection } = await __helpers.importSansCache(
-    '@solana/web3.js'
-  );
+  const { Keypair, Connection } = await import('@solana/web3.js');
+  const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
 
   const connection = new Connection('http://127.0.0.1:8899');
+
+  const payer = Keypair.generate();
 
   async function airdrop() {
     const airdropSignature = await connection.requestAirdrop(
@@ -337,7 +339,6 @@ try {
   }
   await airdrop();
 
-  const payer = Keypair.generate();
   const mint = await createMintAccount({ payer });
 
   const mintAccounts = await connection.getParsedProgramAccounts(
@@ -372,7 +373,7 @@ The `index.js` file should export a `getMintAcconuts` function.
 
 ```js
 const { getMintAccounts } = await __helpers.importSansCache(
-  join(__projectDir, 'index.js')
+  './' + join(__projectDir, 'index.js')
 );
 assert.isFunction(getMintAccounts);
 ```
@@ -406,13 +407,13 @@ The `getMintAccounts` function should return all mint accounts owned by the `pay
 ```js
 try {
   const { getMintAcconuts, createMintAccount } =
-    await __helpers.importSansCache(join(__projectDir, 'index.js'));
-  const { Keypair, Connection } = await __helpers.importSansCache(
-    '@solana/web3.js'
-  );
-  const { createMint } = await __helpers.importSansCache('@solana/spl-token');
+    await __helpers.importSansCache('./' + join(__projectDir, 'index.js'));
+  const { Keypair, Connection } = await import('@solana/web3.js');
+  const { createMint } = await import('@solana/spl-token');
 
   const connection = new Connection('http://127.0.0.1:8899');
+
+  const payer = Keypair.generate();
 
   async function airdrop() {
     const airdropSignature = await connection.requestAirdrop(
@@ -424,7 +425,6 @@ try {
   }
   await airdrop();
 
-  const payer = Keypair.generate();
   const mintAuthority = payer.publicKey;
   const freezeAuthority = payer.publicKey;
   const mint = await createMint(
@@ -456,7 +456,7 @@ The `index.js` file should export a `createTokenAccount` function.
 
 ```js
 const { createTokenAccount } = await __helpers.importSansCache(
-  join(__projectDir, 'index.js')
+  './' + join(__projectDir, 'index.js')
 );
 assert.isFunction(createTokenAccount);
 ```
@@ -478,7 +478,7 @@ const functionIsExported = exports.some(e => {
     e.declaration?.id?.name === 'createTokenAccount' ||
     e.specifiers?.find(s => s.exported.name === 'createTokenAccount')
   );
-);
+});
 assert.isTrue(
   functionIsExported,
   'The `createTokenAccount` function should be exported'
@@ -489,7 +489,7 @@ The `index.js` file should export a `mintToken` function.
 
 ```js
 const { mintToken } = await __helpers.importSansCache(
-  join(__projectDir, 'index.js')
+  './' + join(__projectDir, 'index.js')
 );
 assert.isFunction(mintToken);
 ```
@@ -519,7 +519,7 @@ The `index.js` file should export a `getNFTs` function.
 
 ```js
 const { getNFTs } = await __helpers.importSansCache(
-  join(__projectDir, 'index.js')
+  './' + join(__projectDir, 'index.js')
 );
 assert.isFunction(getNFTs);
 ```
@@ -547,9 +547,11 @@ assert.isTrue(functionIsExported, 'The `getNFTs` function should be exported');
 ### --before-all--
 
 ```js
-const __projectDir = 'build-a-university-certification-nft';
-
-const codeString = await __helpers.getFile(join(__projectDir, 'index.js'));
+const __projectDir = 'build-a-university-certification-nft/_answer';
+console.log('./' + join(__projectDir, 'index.js'));
+const codeString = await __helpers.getFile(
+  './' + join(__projectDir, 'index.js')
+);
 const babelisedCode = new __helpers.Babeliser(codeString);
 
 global.__projectDir = __projectDir;
