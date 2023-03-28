@@ -2289,7 +2289,7 @@ try {
 }
 ```
 
-## 37
+## 38
 
 ### --description--
 
@@ -2340,7 +2340,7 @@ try {
 }
 ```
 
-## 38
+## 39
 
 ### --description--
 
@@ -2430,7 +2430,7 @@ try {
 }
 ```
 
-## 39
+## 40
 
 ### --description--
 
@@ -2449,7 +2449,7 @@ const fileExists = __helpers.fileExists(
 assert.isTrue(fileExists, 'You should have a `get-nft.js` file.');
 ```
 
-## 40
+## 41
 
 ### --description--
 
@@ -2511,7 +2511,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 41
+## 42
 
 ### --description--
 
@@ -2616,7 +2616,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 42
+## 43
 
 ### --description--
 
@@ -2687,7 +2687,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 43
+## 44
 
 ### --description--
 
@@ -2728,7 +2728,7 @@ assert.match(
 );
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -2770,7 +2770,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -2821,7 +2821,7 @@ try {
 }
 ```
 
-## 46
+## 47
 
 ### --description--
 
@@ -2858,7 +2858,7 @@ assert.match(
 );
 ```
 
-## 47
+## 48
 
 ### --description--
 
@@ -2906,7 +2906,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 48
+## 49
 
 ### --description--
 
@@ -2953,7 +2953,7 @@ try {
 }
 ```
 
-## 49
+## 50
 
 ### --description--
 
@@ -3011,7 +3011,7 @@ global.babelisedCode = babelisedCode;
 delete global.babelisedCode;
 ```
 
-## 50
+## 51
 
 ### --description--
 
