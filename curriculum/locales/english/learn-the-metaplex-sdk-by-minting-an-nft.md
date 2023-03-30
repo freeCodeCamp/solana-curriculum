@@ -1938,7 +1938,7 @@ delete global.babelisedCode;
 
 ### --description--
 
-The local storage driver points to is a simple REST API that stores the metadata on your local machine. It is useful for testing purposes.
+The local storage driver points to a simple REST API that stores the metadata on your local machine. It is useful for testing purposes.
 
 Start the local storage driver in a new terminal:
 
@@ -2165,7 +2165,7 @@ Instead, you can start the local cluster with the program pre-deployed at a spec
 solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset
 ```
 
-Stop you existing local cluster, and start a new one with the above command.
+Stop your existing local cluster, and start a new one with the above command.
 
 <details>
   <summary>About the Command</summary>
@@ -2218,7 +2218,7 @@ try {
 
 ### --description--
 
-For ease, this command has been added to the `package.json` file as a script. Stop your existling local cluster, and start a new one with the following command:
+For ease, this command has been added to the `package.json` file as a script. Stop your existing local cluster, and start a new one with the following command:
 
 ```bash
 npm run start:validator
@@ -2957,7 +2957,7 @@ try {
 
 ### --description--
 
-Now, with the buffer data, use the `writeFile` function from the `fs/promises` module to reconstruct the image file.
+Now, with the buffer data, use the `writeFile` function from the `fs/promises` module to reconstruct the image file. Re-run the script to generate the image file.
 
 ### --tests--
 
