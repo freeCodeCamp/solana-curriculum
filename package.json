@@ -10,7 +10,7 @@
   "type": "module",
   "dependencies": {
     "@babel/parser": "7.21.3",
-    "@freecodecamp/freecodecamp-os": "1.8.2",
+    "@freecodecamp/freecodecamp-os": "1.8.3",
     "@metaplex-foundation/js": "0.18.3",
     "@solana/spl-token": "0.3.7",
     "@solana/web3.js": "1.74.0",
