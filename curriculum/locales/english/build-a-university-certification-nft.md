@@ -261,7 +261,7 @@ try {
   const { Keypair, Connection } = await import('@solana/web3.js');
   const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
 
-  const connection = new Connection('http://127.0.0.1:8899');
+  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
   const payer = Keypair.generate();
 
   async function airdrop() {
@@ -324,7 +324,7 @@ try {
   const { Keypair, Connection } = await import('@solana/web3.js');
   const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
 
-  const connection = new Connection('http://127.0.0.1:8899');
+  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
 
   const payer = Keypair.generate();
 
@@ -410,7 +410,7 @@ try {
   const { Keypair, Connection } = await import('@solana/web3.js');
   const { createMint } = await import('@solana/spl-token');
 
-  const connection = new Connection('http://127.0.0.1:8899');
+  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
 
   const payer = Keypair.generate();
 
@@ -552,7 +552,7 @@ try {
   );
 
   // Create two NFTs owned by `ownerAddress`
-  const connection = new Connection('http://127.0.0.1:8899');
+  const connection = new Connection('http://127.0.0.1:8899', 'finalized');
   const payer = Keypair.generate();
   const owner = Keypair.generate();
   const ownerAddress = owner.publicKey;
