@@ -33,6 +33,38 @@
   },
   {
     "id": 3,
+    "title": "Learn Solana's Token Program by Minting a Fungible Token",
+    "dashedName": "learn-solanas-token-program-by-minting-a-fungible-token",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use Solana's token program by minting a fungible token.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 52
+  },
+  {
+    "id": 4,
+    "title": "Learn the Metaplex SDK by Minting an NFT",
+    "dashedName": "learn-the-metaplex-sdk-by-minting-an-nft",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use the Metaplex JS SDK to mint an NFT.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 50
+  },
+  {
+    "id": 5,
+    "title": "Build a University Certification NFT",
+    "dashedName": "build-a-university-certification-nft",
+    "isIntegrated": true,
+    "description": "In this integrated project, you will use what you previously learnt to build-out the logic for an NFT-issuing system for university certifications.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "numberOfLessons": 1
+  },
+  {
+    "id": 6,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,

@@ -24,7 +24,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
   /etc/sudoers
 
 # Install packages for projects
-RUN sudo apt-get install -y curl git bash-completion man-db firefox
+RUN sudo apt-get install -y curl git bash-completion man-db htop nano
 
 # Install Node LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -36,7 +36,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.14.7/install)"
+RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global
