@@ -3,7 +3,7 @@
   "type": "module",
   "dependencies": {
     "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.73.3"
+    "@solana/web3.js": "1.75.0"
   },
   "scripts": {
     "solana:dump": "solana program dump -u mainnet-beta $(npm pkg get env.METAPLEX_TOKEN_METADATA_PROGRAM_ID | tr -d \\\") ./mlp_token.so",
