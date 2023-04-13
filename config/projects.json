@@ -65,6 +65,38 @@
   },
   {
     "id": 6,
+    "title": "Learn Anchor by Building Tic-Tac-Toe",
+    "dashedName": "learn-anchor-by-building-tic-tac-toe",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use Solana's token program by minting a fungible token.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 52
+  },
+  {
+    "id": 7,
+    "title": "Learn Anchor by Building Something Secure",
+    "dashedName": "learn-anchor-by-building-something-secure",
+    "isIntegrated": false,
+    "description": "In this course, you will learn how to use the Metaplex JS SDK to mint an NFT.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 50
+  },
+  {
+    "id": 8,
+    "title": "Build an Anchor Leaderboard",
+    "dashedName": "build-an-anchor-leaderboard",
+    "isIntegrated": true,
+    "description": "In this integrated project, you will use what you previously learnt to build-out the logic for an NFT-issuing system for university certifications.",
+    "isPublic": true,
+    "currentLesson": 1,
+    "numberOfLessons": 1
+  },
+  {
+    "id": 9,
     "title": "More Coming Soon...",
     "dashedName": "build-x-using-y",
     "isIntegrated": true,

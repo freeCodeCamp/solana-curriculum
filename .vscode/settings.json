@@ -45,5 +45,5 @@
     "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml",
     "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml"
   ],
-  "workbench.colorTheme": "freeCodeCamp Dark Theme"
+  "//workbench.colorTheme": "freeCodeCamp Dark Theme"
 }
