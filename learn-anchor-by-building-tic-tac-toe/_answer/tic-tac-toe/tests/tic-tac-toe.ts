@@ -2,7 +2,8 @@ import {
   AnchorError,
   Program,
   AnchorProvider,
-  setProvider
+  setProvider,
+  workspace
 } from '@coral-xyz/anchor';
 import { TicTacToe } from '../target/types/tic_tac_toe';
 import { expect } from 'chai';
@@ -13,13 +14,13 @@ describe('tic-tac-toe', () => {
   // Configure the client to use the local cluster.
   setProvider(AnchorProvider.env());
 
-  const program = anchor.workspace.TicTacToe as Program<TicTacToe>;
+  const program = workspace.TicTacToe as Program<TicTacToe>;
   const programProvider = program.provider as AnchorProvider;
 
   it('setup game!', async () => {
-    const gameKeypair = anchor.web3.Keypair.generate();
+    const gameKeypair = Keypair.generate();
     const playerOne = programProvider.wallet;
-    const playerTwo = anchor.web3.Keypair.generate();
+    const playerTwo = Keypair.generate();
 
     await program.methods
       .setupGame(playerTwo.publicKey)
@@ -47,9 +48,9 @@ describe('tic-tac-toe', () => {
   });
 
   it('player one wins!', async () => {
-    const gameKeypair = anchor.web3.Keypair.generate();
+    const gameKeypair = Keypair.generate();
     const playerOne = programProvider.wallet;
-    const playerTwo = anchor.web3.Keypair.generate();
+    const playerTwo = Keypair.generate();
     await program.methods
       .setupGame(playerTwo.publicKey)
       .accounts({
@@ -238,9 +239,9 @@ describe('tic-tac-toe', () => {
   });
 
   it('tie', async () => {
-    const gameKeypair = anchor.web3.Keypair.generate();
+    const gameKeypair = Keypair.generate();
     const playerOne = programProvider.wallet;
-    const playerTwo = anchor.web3.Keypair.generate();
+    const playerTwo = Keypair.generate();
     await program.methods
       .setupGame(playerTwo.publicKey)
       .accounts({

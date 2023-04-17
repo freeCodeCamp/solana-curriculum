@@ -166,7 +166,120 @@ The public key of your `tic-tac-toe` program should be printed to the console.
 assert.fail();
 ```
 
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
 ## 8
+
+### --description--
+
+The Anchor CLI provides an `anchor test` command that:
+
+1. Builds all programs
+2. Starts a local Solana cluster
+3. Deploys the programs to the cluster
+4. Calls the `test` script in the `scripts` table in `Anchor.toml`
+5. Cleans up the local Solana cluster
+
+Run the `anchor test` command:
+
+```bash
+anchor test
+```
+
+### --tests--
+
+The `anchor test` command should error.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+## 9
+
+### --description--
+
+You should see the following error:
+
+```bash
+Error: failed to send transaction: Transaction simulation failed: This program may not be used for executing instructions
+```
+
+For your program, you will need to manually start a local Solana validator. Do so, in a new terminal.
+
+### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 10
+
+### --description--
+
+With the local validator running, use the `--skip-local-validator` flag to tell Anchor to not start its own local validator.
+
+### --tests--
+
+The `anchor test --skip-local-validator` command should error.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+## 11
+
+### --description--
+
+You should see the following error:
+
+```bash
+Error: AnchorError occurred. Error Code: DeclaredProgramIdMismatch. Error Number: 4100. Error Message: The declared program id does not match the actual program id.
+```
+
+Double-check the program id in the `Anchor.toml` file.
+
+Run `anchor keys list` again to see if it matches the `programs.localnet.tic_tac_toe` value.
+
+### --tests--
+
+You should run `anchor keys list` and see the program id printed to the console.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+## 12
 
 ### --description--
 
@@ -189,7 +302,7 @@ The `Anchor.toml` file should contain the program id as the value for the `tic_t
 assert.fail();
 ```
 
-## 9
+## 13
 
 ### --description--
 
