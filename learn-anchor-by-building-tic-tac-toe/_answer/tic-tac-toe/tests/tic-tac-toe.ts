@@ -2,12 +2,12 @@ import {
   AnchorError,
   Program,
   AnchorProvider,
-  setProvider,
-  Wallet
+  setProvider
 } from '@coral-xyz/anchor';
 import { TicTacToe } from '../target/types/tic_tac_toe';
 import { expect } from 'chai';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider';
 
 describe('tic-tac-toe', () => {
   // Configure the client to use the local cluster.
@@ -394,7 +394,7 @@ describe('tic-tac-toe', () => {
 async function play(
   program: Program<TicTacToe>,
   game: PublicKey,
-  player: AnchorProvider['wallet'] | Keypair,
+  player: Wallet | Keypair,
   tile: { row: number; column: number },
   expectedTurn: number,
   expectedGameState:
@@ -409,8 +409,7 @@ async function play(
       player: player.publicKey,
       game
     })
-    // @ts-expect-error TODO: fix this
-    .signers(player instanceof AnchorProvider['wallet'] ? [] : [player])
+    .signers(player instanceof Keypair ? [player] : [])
     .rpc();
 
   const gameState = await program.account.game.fetch(game);
