@@ -251,6 +251,19 @@ You should be in the `tic-tac-toe` directory.
 assert.fail();
 ```
 
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
 ## 11
 
 ### --description--
@@ -303,6 +316,155 @@ assert.fail();
 ```
 
 ## 13
+
+### --description--
+
+Run the test command again:
+
+```bash
+anchor test --skip-local-validator
+```
+
+### --tests--
+
+The `anchor test --skip-local-validator` command should succeed.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 14
+
+### --description--
+
+Shifting focus to the `lib.rs` file, you will see a few similarities to the native Solana program development workflow.
+
+Instead of an entrypoint function, the `program` attribute defines the module containing all instruction handlers defining all entries into a Solana program.
+
+The `initialize` function is an instruction handler. It is a function that takes a `Context` as an argument. The context contains the program id, and the accounts passed into the function. Anchor expects all accounts to be fully declared as inputs to the handler.
+
+Rename the `initialize` function to `setup_game`.
+
+### --tests--
+
+The `setup_game` function should exist in the `lib.rs` file.
+
+```js
+assert.fail();
+```
+
+## 15
+
+### --description--
+
+The `Initialize` struct is annotated to derive `Accounts`. This means that the `Initialize` struct will be used to deserialize the accounts passed into the `setup_game` function. If a client does not pass in the correct accounts, the deserialization will fail. This is one of the ways that Anchor ensures that the client is passing in the correct accounts.
+
+Rename the `Initialize` struct to `SetupGame`.
+
+### --tests--
+
+The `SetupGame` struct should exist in the `lib.rs` file.
+
+```js
+assert.fail();
+```
+
+The `setup_game` function should take a `Context<SetupGame>` as an argument.
+
+```js
+assert.fail();
+```
+
+## 16
+
+### --description--
+
+Setting up the game will require creating an account to store the game state. This account will be owned by the system program, and will be created with a program derived address (PDA).
+
+You could manually calculate the rent required, validate a passed in account can pay, create the account, and send the create transaction. However, Anchor provides a convenient attribute macro to automate this process:
+
+```rust
+#[derive(Accounts)]
+pub struct AccountsInContext<'info> {
+    #[account(init)]
+    pub derived_account: Account<'info, AccountStruct>
+}
+```
+
+The `#[account(init)]` attribute will create the account when required. The `AccountStruct` is a struct that will be used to deserialize the account data. The `AccountStruct` must implement the `AnchorSerialize` and `AnchorDeserialize` traits.
+
+Within `SetupGame`, add a public field `game` with a type of `Account<'info, Game>`. Annotate the field such that it is initialized when required.
+
+### --tests--
+
+`SetupGame` should contain a field `game`.
+
+```js
+assert.fail();
+```
+
+`game` should be typed `Account<'info, Game>`.
+
+```js
+assert.fail();
+```
+
+`game` should be annotated with `#[account(init)]`.
+
+```js
+assert.fail();
+```
+
+`SetupGame` should be punctuated with a lifetime `'info`.
+
+```js
+assert.fail();
+```
+
+## 17
+
+### --description--
+
+When an account is initialized, another account must pay for the rent and transaction fees.
+
+Declare another account in `SetupGame` called `player_one`. Give `player_one` a type of `Signer<'info>`.
+
+**Note:** The `Signer` trait is a special trait that indicates that the account is a signer. This is required for lamports to be transferred **from** the account.
+
+### --tests--
+
+`SetupGame` should contain a field `player_one`.
+
+```js
+assert.fail();
+```
+
+`player_one` should be typed `Signer<'info>`.
+
+```js
+assert.fail();
+```
+
+`player_one` should be annotated with `#[account()]`.
+
+```js
+assert.fail();
+```
+
+## 18
 
 ### --description--
 
