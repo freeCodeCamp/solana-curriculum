@@ -51,23 +51,14 @@ pub struct Play<'info> {
     pub player: Signer<'info>,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
 pub enum GameState {
     Active,
     Tie,
     Won { winner: Pubkey },
 }
 
-#[derive(
-    AnchorSerialize,
-    AnchorDeserialize,
-    num_derive::FromPrimitive,
-    num_derive::ToPrimitive,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-)]
+#[derive(AnchorSerialize, AnchorDeserialize, num_derive::FromPrimitive, Copy, Clone, PartialEq)]
 pub enum Sign {
     X,
     O,
