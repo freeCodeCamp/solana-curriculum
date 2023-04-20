@@ -841,7 +841,7 @@ declare_id!("BUfb6FXLkiSpMnJnMR4Q5uGZYZkaNGytjhLwiiJQsE8F");
 pub mod tic_tac_toe {
     use super::*;
 
-    pub fn setup_game(ctx: Context<SetupGame>, player_two: Pubkey) -> Result<()> {
+    pub fn setup_game(ctx: Context<SetupGame>) -> Result<()> {
       Ok(())
     }
 }
@@ -1012,5 +1012,334 @@ Second, in order to be able to match the correct `Sign` variant with the current
 To derive `FromPrimitive`, you need to add `num-traits` and `num-derive` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
 
 **Note:** `num-derive` allows you to use `#[derive(FromPrimitive)]` on a struct or enum.
+
+### --tests--
+
+You should add `num-traits` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
+
+```js
+assert.fail();
+```
+
+You should add `num-derive` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
+
+```js
+assert.fail();
+```
+
+## 35
+
+### --description--
+
+Now, derive `num_derive::FromPrimitive` for `Sign`.
+
+### --tests--
+
+`Sign` should derive `num_derive::FromPrimitive`.
+
+```js
+assert.fail();
+```
+
+`num_traits::FromPrimitive` should be brought into the module scope.
+
+```js
+assert.fail();
+```
+
+`num_derive` should be brought into the module scope.
+
+```js
+assert.fail();
+```
+
+## 36
+
+### --description--
+
+The third fix is to add errors to the `play` method.
+
+Define a public enum `TicTacToeError` with the variants `TileAlreadySet` and `TileOutOfBounds`.
+
+### --tests--
+
+A `TicTacToeError` enum should be defined.
+
+```js
+assert.fail();
+```
+
+`TicTacToeError` should have the variant `TileAlreadySet`.
+
+```js
+assert.fail();
+```
+
+`TicTacToeError` should have the variant `TileOutOfBounds`.
+
+```js
+assert.fail();
+```
+
+## 37
+
+### --description--
+
+In the appropriate location, return the `TileAlreadySet` error.
+
+### --tests--
+
+The first `return Err()` should return the `TileAlreadySet` error.
+
+```js
+assert.fail();
+```
+
+## 38
+
+### --description--
+
+Anchor does not understand the type `TicTacToeError` yet. To convert it into an error Anchor understands, use the `error_code` attribute macro above the `TicTacToeError` enum.
+
+```rust
+#[error_code]
+pub enum MyCustomError { ... }
+```
+
+### --tests--
+
+Your `TicTacToeError` enum should have the `error_code` attribute macro.
+
+```js
+assert.fail();
+```
+
+## 39
+
+### --description--
+
+Convert the `TileAlreadySet` error into an `anchor_lang::error::Error` by calling the derived `into` method on it.
+
+### --tests--
+
+You should have `return Err(TicTacToeError::TileAlreadySet.into());`.
+
+```js
+assert.fail();
+```
+
+## 40
+
+### --description--
+
+In the appropriate location, return the `TileOutOfBounds` error.
+
+### --tests--
+
+The second `return Err()` should return the `TileOutOfBounds` error.
+
+```js
+assert.fail();
+```
+
+The `TileOutOfBounds` error should be converted into an `anchor_lang::error::Error`.
+
+```js
+assert.fail();
+```
+
+## 41
+
+### --description--
+
+Another way to return an error is to use the `require!` macro:
+
+```rust
+require!(condition, MyCustomError::MyCustomErrorVariant);
+```
+
+In the appropriate location, use the `require!` macro to return early if the game state is not `Active`. Add the following variant and return with `TicTacToeError::GameAlreadyOver`.
+
+### --tests--
+
+The `require!` macro should be used to return early if the game state is not `Active`.
+
+```js
+assert.fail();
+```
+
+The `require!` condition should use the provided `is_active` method.
+
+```js
+assert.fail();
+```
+
+The `require!` macro should return the `GameAlreadyOver` error.
+
+```js
+assert.fail();
+```
+
+The `TicTacToeError` enum should have the variant `GameAlreadyOver`.
+
+```js
+assert.fail();
+```
+
+## 42
+
+### --description--
+
+The final _TODO_ in the game logic is to return early if the `start` method is called when the `turn` is greater than `0`.
+
+Within the `start` method, use the `require_eq!` macro to return early if the `turn` is not equal to `0`. Add the following variant and return with `TicTacToeError::GameAlreadyStarted`.
+
+### --tests--
+
+The `require_eq!` macro should be used to return early if the `turn` is not equal to `0`.
+
+```js
+assert.fail();
+```
+
+The `require_eq!` macro should return the `GameAlreadyStarted` error.
+
+```js
+assert.fail();
+```
+
+The `TicTacToeError` enum should have the variant `GameAlreadyStarted`.
+
+```js
+assert.fail();
+```
+
+## 43
+
+### --description--
+
+Focussing your attention back to the program, the Context provides all the accounts as defined in the generic passed to `Context`. These accounts can be accessed by name:
+
+```rust
+#[derive(Accounts)]
+pub struct AccountsStruct<'info> {
+    pub account_1: AccountInfo<'info>,
+    pub account_2: AccountInfo<'info>,
+    pub account_3: ProgramAccount<'info, TicTacToe>,
+}
+pub fn instruction_handler(ctx: Context<AccountsStruct>) -> Result<()> {
+    let account_1 = &ctx.accounts.account_1;
+    let account_2 = &ctx.accounts.account_2;
+    let account_3 = &ctx.accounts.account_3;
+}
+```
+
+Within the `setup_game` instruction handler, declare a variable `player_one` and assign the corresponding account reference to it.
+
+### --tests--
+
+The `player_one` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `player_one` variable should be assigned `&ctx.accounts.player_one`.
+
+```js
+assert.fail();
+```
+
+## 44
+
+### --description--
+
+Setting up the game requires three steps:
+
+1. The public address of the first player
+2. The public address of the second player
+3. To call the `start` method on the `game` account
+
+Withing `setup_game` declare a variable `player_one_pubkey` and assign the return of the `key` method provided by the `player_one` account to it.
+
+### --tests--
+
+The `player_one_pubkey` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `player_one_pubkey` variable should be assigned `player_one.key()`.
+
+```js
+assert.fail();
+```
+
+## 45
+
+### --description--
+
+Instruction handlers can be called with arguments, and the values accessed through parameters:
+
+```rust
+pub fn instruction_handler(ctx: Context<AccountsStruct>, arg1: u8, arg2: u8) -> Result<()> {}
+```
+
+In order to get the second player's public key, add a `player_two_pubkey` parameter to the `setup_game` instruction handler. Type it with `Pubkey`.
+
+### --tests--
+
+The `setup_game` instruction handler should have a `player_two_pubkey` parameter.
+
+```js
+assert.fail();
+```
+
+The `player_two_pubkey` parameter should be of type `Pubkey`.
+
+```js
+assert.fail();
+```
+
+## 46
+
+### --description--
+
+Within the `setup_game` instruction handler, declare a variable `game`, and assign a mutable reference to the `game` account to it.
+
+### --tests--
+
+The `game` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `game` variable should be assigned `&mut ctx.accounts.game`.
+
+```js
+assert.fail();
+```
+
+## 47
+
+### --description--
+
+Within the `setup_game` instruction handler, replace the `Ok(())` witha call to the `start` method on the `game` account, passing in the `player_one_pubkey` and `player_two_pubkey` variables in the expected format.
+
+### --tests--
+
+`setup_game` should have `game.start(player_one_pubkey, player_two_pubkey)`.
+
+```js
+assert.fail();
+```
+
+## 48
+
+### --description--
+
+<!-- Get Test Ready to Run -->
 
 ## --fcc-end--
