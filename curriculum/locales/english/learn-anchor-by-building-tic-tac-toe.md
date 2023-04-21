@@ -1340,6 +1340,55 @@ assert.fail();
 
 ### --description--
 
-<!-- Get Test Ready to Run -->
+Anchor automatically generated some test boilerplate for the `tic-tac-toe` program in the `tests/` directory.
+
+Within `tests/tic-tac-toe.ts`, immediately below the `program` variable declaration, declare a `programProvider` variable and assign the following to it:
+
+```typescript
+program.provider as AnchorProvider;
+```
+
+### --tests--
+
+The `programProvider` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `programProvider` variable should be assigned `program.provider as AnchorProvider`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --force--
+
+#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+
+```typescript
+import {
+  AnchorProvider,
+  workspace,
+  setProvider,
+  Program
+} from '@coral-xyz/anchor';
+import { TicTacToe } from '../target/types/tic_tac_toe';
+
+describe('TicTacToe', () => {
+  // Configure the client to use the local cluster.
+  setProvider(AnchorProvider.env());
+
+  const program = workspace.TicTacToe as Program<TicTacToe>;
+
+  it('Is initialized!', async () => {
+    // Add your test here.
+    const tx = await program.methods.initialize().rpc();
+    console.log('Your transaction signature', tx);
+  });
+});
+```
 
 ## --fcc-end--
