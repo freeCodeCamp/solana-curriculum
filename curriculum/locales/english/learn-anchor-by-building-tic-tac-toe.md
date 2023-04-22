@@ -1391,4 +1391,400 @@ describe('TicTacToe', () => {
 });
 ```
 
+## 49
+
+### --description--
+
+To get autocomplete for the program, build your program with:
+
+```bash
+anchor build
+```
+
+Anchor creates an IDL from your program, and stores it in the `target/types/tic_tac_toe.ts` file.
+
+### --tests--
+
+The `target/types/tic_tac_toe.ts` file should exist.
+
+```js
+assert.fail();
+```
+
+## 50
+
+### --description--
+
+Within the `it` callback, change the `initialize` call to `setupGame`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame().rpc();`.
+
+```js
+assert.fail();
+```
+
+## 51
+
+### --description--
+
+Now, you need to create the accounts to pass to the `setupGame` instruction handler.
+
+At the top of the `it` callback, generate three new keypairs, and assign them to three new variables: `playerOne`, `playerTwo`, and `gameKeypair`.
+
+### --tests--
+
+The `playerOne` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `playerOne` variable should be assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+The `playerTwo` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `playerTwo` variable should be assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+The `gameKeypair` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `gameKeypair` variable should be assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+The `Keypair` class should be imported from `@solana/web3.js`.
+
+```js
+assert.fail();
+```
+
+## 52
+
+### --description--
+
+Pass the public key of `playerTwo` as an argument to the `setupGame` instruction call.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 53
+
+### --description--
+
+In a new terminal, start a clean local cluster:
+
+```bash
+solana-test-validator --reset
+```
+
+### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 54
+
+### --description--
+
+Run the tests, using the local validator you just started:
+
+```bash
+anchor test --skip-local-validator
+```
+
+### --tests--
+
+`anchor test` should error with `Error Code: TryingToInitPayerAsProgramAccount`.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 55
+
+### --description--
+
+You called `setupGame` without passing in any accounts. So, Anchor tried to create the `game` account using the transaction payer - your local Solana wallet.
+
+Chain a `.accounts` call to the `setupGame` call, and pass in:
+
+```typescript
+{
+  game: gameKeypair.publicKey,
+  playerOne: playerOne.publicKey,
+}
+```
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 56
+
+### --description--
+
+Run the tests again.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The test should error with `Error: Signature verification failed`.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 57
+
+### --description--
+
+Seeing as the `game` and `playerOne` accounts are mutated (e.g. funds taken for fees, data changed), these accounts need to sign the transaction.
+
+Chain a `.signers` call to the `setupGame` call, and pass in an array of the `gameKeypair` and `playerOne` keypairs.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).signers([gameKeypair, playerOne]).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 58
+
+### --description--
+
+Run the tests again.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The test should error with `Error: failed to send transaction`.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 59
+
+### --description--
+
+This time, the transaction failed, because `playerOne` is used as the payer, but has not even been added to the blockchain, let alone have any funds 😱
+
+Within the `it` callback, before the transaction is sent, declare a variable `sg` and assign the transaction signature for requesting an airdrop of 1 SOL to `playerOne`:
+
+```typescript
+await programProvider.connection.requestAirdrop(<PUBLIC_KEY>, <AMOUNT_IN_LAMPORTS>);
+```
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const sg = await programProvider.connection.requestAirdrop(playerOne.publicKey, 1_000_000_000);`.
+
+```js
+assert.fail();
+```
+
+## 60
+
+### --description--
+
+Before trying to spend any funds, you need to ensure the transaction has been confirmed.
+
+Below the `requestAirdrop` call, add:
+
+```typescript
+await programProvider.connection.confirmTransaction(<TRANSACTION_SIGNATURE>);
+```
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await programProvider.connection.confirmTransaction(sg);`.
+
+```js
+assert.fail();
+```
+
+## 61
+
+### --description--
+
+Finally, run the tests again.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 62
+
+### --description--
+
+To clarify what is happening behind the scenes when Anchor calls your program, split your instruction and transaction up into two lines:
+
+```typescript
+const ix = program.methods.<PROGRAM_METHOD>(<PROGRAM_METHOD_ARGS>).accounts(<PROGRAM_METHOD_ACCOUNTS>).signers(<PROGRAM_METHOD_SIGNERS>);
+await ix.rpc();
+```
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const ix = program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).signers([gameKeypair, playerOne]);`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have `await ix.rpc();`.
+
+```js
+assert.fail();
+```
+
+## 63
+
+### --description--
+
+Run the tests again to ensure everything still works.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 64
+
+### --description--
+
 ## --fcc-end--

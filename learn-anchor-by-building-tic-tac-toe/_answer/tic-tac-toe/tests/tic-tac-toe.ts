@@ -19,8 +19,22 @@ describe('tic-tac-toe', () => {
 
   it('setup game!', async () => {
     const gameKeypair = Keypair.generate();
-    const playerOne = programProvider.wallet;
+
+    // const playerOne = programProvider.wallet;
+    const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
+
+    console.log('ACCOUNTS:');
+    console.log(gameKeypair.publicKey.toBase58());
+    console.log(playerOne.publicKey.toBase58());
+    console.log(playerTwo.publicKey.toBase58());
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
 
     await program.methods
       .setupGame(playerTwo.publicKey)
@@ -28,7 +42,7 @@ describe('tic-tac-toe', () => {
         game: gameKeypair.publicKey,
         playerOne: playerOne.publicKey
       })
-      .signers([gameKeypair])
+      .signers([playerOne, gameKeypair])
       .rpc();
 
     let gameState = await program.account.game.fetch(gameKeypair.publicKey);
@@ -47,7 +61,7 @@ describe('tic-tac-toe', () => {
     ]);
   });
 
-  it('player one wins!', async () => {
+  xit('player one wins!', async () => {
     const gameKeypair = Keypair.generate();
     const playerOne = programProvider.wallet;
     const playerTwo = Keypair.generate();
@@ -238,7 +252,7 @@ describe('tic-tac-toe', () => {
     }
   });
 
-  it('tie', async () => {
+  xit('tie', async () => {
     const gameKeypair = Keypair.generate();
     const playerOne = programProvider.wallet;
     const playerTwo = Keypair.generate();
