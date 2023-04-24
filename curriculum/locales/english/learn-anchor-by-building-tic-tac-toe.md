@@ -1787,4 +1787,266 @@ try {
 
 ### --description--
 
+After the transaction is sent, you can fetch an account's data to see if it was correctly set up:
+
+```typescript
+const accountData = await program.account.<ACCOUNT_NAME>.fetch(<ACCOUNT_PUBLIC_KEY>);
+```
+
+Declare a variable `gameData` and assign it the `game` account's data.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const gameData = await program.account.game.fetch(gameKeypair.publicKey);`.
+
+```js
+assert.fail();
+```
+
+## 65
+
+### --description--
+
+Assert the `game` account has a `turn` property equal to `1`.
+
+_Hint:_ The boilerplate created by Anchor comes with `chai.js`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData.turn !== 1`.
+
+```js
+assert.fail();
+```
+
+## 66
+
+### --description--
+
+Assert the `game` account has a `players` property equal to an array of the public keys of `playerOne` and `playerTwo`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData.players[0] !== playerOne.publicKey`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should throw if `gameData.players[1] !== playerTwo.publicKey`.
+
+```js
+assert.fail();
+```
+
+## 67
+
+### --description--
+
+Assert the `game` account has a `state` property equal to `active: {}`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData.state.active !== {}`.
+
+```js
+assert.fail();
+```
+
+## 68
+
+### --description--
+
+Assert the `game` account has a `board` property equal to a 3x3 array of `null` values.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData.board !== [[null,null,null],[null,null,null],[null,null,null]]`.
+
+```js
+assert.fail();
+```
+
+## 69
+
+### --description--
+
+Run the tests again to ensure everything still works.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 70
+
+### --description--
+
+Currently, the first player has to provide a separate keypair for the `game` account. Then, the first player would also need to share this with the second player in order for them to play.
+
+Instead, you can make use of a PDA to generate a deterministic address for the `game` account:
+
+```rust
+#[derive(Accounts)]
+pub struct InitialisePDAAccount<'info> {
+    #[account(
+      init,
+      payer = payer,
+      seeds = [b"<SEED>", payer.key().as_ref()],
+      bump
+      )
+    ]
+    pub pda_account: Account<'info, PDAAccount>,
+}
+```
+
+Within `lib.rs`, initialize the `game` account using two seeds: the first the byte string `"game"`, and the second the payer's public key.
+
+### --tests--
+
+`SetupGame` should annotate the `game` field with `#[account(seeds = [b"game", player_one.key().as_ref()])]`.
+
+```js
+assert.fail();
+```
+
+## 71
+
+### --description--
+
+The seeds are used to hash the address of the `game` account. Being a PDA, the address is deterministic, meaning that the same seeds will always produce the same address. Also, the produced public key must **not** be on the <dfn title="an elliptic curve compatible with 32-byte slices to generate.">ed25519 curve</dfn>.
+
+To ensure this, an extra seed is added. This is called the <dfn title="an extra seed used to push an address off of a curve.">bump seed</dfn>.
+
+Explicitly tell Anchor to generate the bump seed, by annotating the `game` field with `#[account(bump)]`.
+
+### --tests--
+
+`SetupGame` should annotate the `game` field with `#[account(bump)]`.
+
+```js
+assert.fail();
+```
+
+## 72
+
+### --description--
+
+Run the tests again to see the error.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should fail ❌.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 73
+
+### --description--
+
+One of the main benefits with PDAs is the owner is the program. So, it does not need to sign transactions mutating it within the owner program.
+
+Remove the `gameKeypair` from the signers array.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should not have `gameKeypair` in the signers array.
+
+```js
+assert.fail();
+```
+
+## 74
+
+### --description--
+
+Run the tests again. You will see another error.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should fail ❌.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 75
+
+### --description--
+
+Anchor is failing the test, because you are passing in a public key for the `game` account that does not match the one generated by the program. You need to pass in the public key generated by the program.
+
+Now, PDA's will make more sense - they can be <dfn title="You can generate the same public key before the program is initialized">repeatably, programmatically generated</dfn>:
+
+```typescript
+const [pda, bump] = PublicKey.findProgramAddressSync(
+  [anchor.utils.bytes.utf8.encode(seed), publicKey.toBuffer()],
+  program.programId
+);
+```
+
+Remove the `gameKeypair` variable, destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, using `"game"` and the payer's public key as seeds.
+
 ## --fcc-end--

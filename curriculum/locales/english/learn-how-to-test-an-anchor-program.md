@@ -1,4 +1,4 @@
-# Solana - Learn Anchor by Building Security
+# Solana - Learn How to Test an Anchor Program
 
 ## 1
 

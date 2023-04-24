@@ -13,7 +13,7 @@
     ".vscode": false,
     "bash": true,
     "client": true,
-    "config": true,
+    "config": false,
     "curriculum": false,
     "tooling": true,
     "Dockerfile": true,
@@ -32,7 +32,7 @@
     "learn-the-metaplex-sdk-by-minting-an-nft": true,
     "build-a-university-certification-nft": true,
     "learn-anchor-by-building-tic-tac-toe": false,
-    "learn-anchor-by-building-security": true,
+    "learn-how-to-test-an-anchor-program": false,
     "build-an-anchor-leaderboard": true
   },
   "terminal.integrated.profiles.linux": {
@@ -46,7 +46,8 @@
   "rust-analyzer.linkedProjects": [
     "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml",
     "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml",
-    "learn-anchor-by-building-tic-tac-toe/_answer/tic-tac-toe/Cargo.toml"
+    "learn-anchor-by-building-tic-tac-toe/_answer/tic-tac-toe/Cargo.toml",
+    "learn-anchor-by-building-tic-tac-toe/_answer/at/Cargo.toml"
   ],
   "//workbench.colorTheme": "freeCodeCamp Dark Theme"
 }
