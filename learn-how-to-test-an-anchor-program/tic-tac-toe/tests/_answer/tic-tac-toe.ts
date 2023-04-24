@@ -5,7 +5,7 @@ import {
   setProvider,
   workspace
 } from '@coral-xyz/anchor';
-import { TicTacToe } from '../target/types/tic_tac_toe';
+import { TicTacToe } from '../../target/types/tic_tac_toe';
 import { expect } from 'chai';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider';
