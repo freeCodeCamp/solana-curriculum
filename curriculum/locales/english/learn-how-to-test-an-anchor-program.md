@@ -663,4 +663,6 @@ const [pda, bump] = PublicKey.findProgramAddressSync(
 
 Remove the `gameKeypair` variable, destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, using `"game"` and the payer's public key as seeds.
 
+<!-- TODO: Change `lib.rs` to not use PDA from seeds and bump. Player can only play once as player_one -->
+
 ## --fcc-end--
