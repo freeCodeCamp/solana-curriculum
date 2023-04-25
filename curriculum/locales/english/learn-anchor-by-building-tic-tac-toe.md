@@ -48,7 +48,7 @@ assert.fail();
 
 ### --description--
 
-Instruct `avm` to use the latest version of the Anchor CLI.
+Instruct `avm` to use the latest version of the Anchor CLI:
 
 ```bash
 avm use latest
@@ -66,7 +66,7 @@ assert.fail();
 
 ### --description--
 
-Verify you are using the latest version of the Anchor CLI.
+Verify you are using the latest version of the Anchor CLI:
 
 ```bash
 anchor --version
@@ -97,6 +97,12 @@ anchor init --no-git tic-tac-toe
 ### --tests--
 
 You should be in the `learn-anchor-by-building-tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+You should run `anchor init --no-git tic-tac-toe` in the terminal.
 
 ```js
 assert.fail();
@@ -150,7 +156,7 @@ assert.fail();
 
 The `app` directory is a placeholder for a web app that would interact with the program. The `migrations/deploy.ts` script is run on `anchor migrate`. The `programs` directory contains all the programs (smart contracts) that will be deployed to the Solana blockchain. The `tests` directory contains the client-side tests for your programs.
 
-You will be mostly working in `programs/tic_tac_toe/src/lib.rs` and `tests/tic_tac_toe.ts`.
+You will be mostly working in `programs/tic_tac_toe/src/lib.rs`.
 
 Get the program id (public key) of the `tic-tac-toe` program:
 
@@ -192,7 +198,7 @@ anchor test
 
 ### --tests--
 
-The `anchor test` command should error.
+The `anchor test` command should error ❌.
 
 ```js
 assert.fail();
@@ -442,7 +448,7 @@ When an account is initialized, another account must pay for the rent and transa
 
 Declare another account in `SetupGame` called `player_one`. Give `player_one` a type of `Signer<'info>`.
 
-**Note:** The `Signer` trait is a special trait that indicates that the account is a signer. This is required for lamports to be transferred **from** the account.
+**Note:** The `Signer` trait is a special trait that indicates the account is a signer. This is required for lamports to be transferred **from** the account.
 
 ### --tests--
 
@@ -485,7 +491,7 @@ pub struct AccountsInContext<'info> {
 
 ### --tests--
 
-`derived_account` should be annotated with `payer = player_one`.
+`game` should be annotated with `payer = player_one`.
 
 ```js
 assert.fail();
@@ -863,13 +869,6 @@ pub struct Game {
     state: GameState,              // 32 + 1
 }
 
-#[derive(Accounts)]
-pub struct Play<'info> {
-    #[account(mut)]
-    pub game: Account<'info, Game>,
-    pub player: Signer<'info>,
-}
-
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub enum GameState {
     Active,
@@ -1011,7 +1010,7 @@ Second, in order to be able to match the correct `Sign` variant with the current
 
 To derive `FromPrimitive`, you need to add `num-traits` and `num-derive` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
 
-**Note:** `num-derive` allows you to use `#[derive(FromPrimitive)]` on a struct or enum.
+**Note:** `num-derive` enables the use of `#[derive(FromPrimitive)]` on a struct or enum.
 
 ### --tests--
 
@@ -1384,6 +1383,332 @@ Explicitly tell Anchor to generate the bump seed, by annotating the `game` field
 
 ```js
 assert.fail();
+```
+
+## 50
+
+### --description--
+
+Run the tests to see if the `setup_game` instruction handler is working correctly.
+
+### --tests--
+
+The test for `setup_game` should pass when `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 50
+
+### --description--
+
+Within `lib.rs`, define another instruction handler called `play`. It should take a `ctx` parameter of type `Context<Play>`, and return a `Result<()>`.
+
+### --tests--
+
+The `play` instruction handler should be defined.
+
+```js
+assert.fail();
+```
+
+The `play` instruction handler should take a `ctx` parameter of type `Context<Play>`.
+
+```js
+assert.fail();
+```
+
+The `play` instruction handler should return a `Result<()>`.
+
+```js
+assert.fail();
+```
+
+## 51
+
+### --description--
+
+Within `lib.rs`, define a new public struct `Play` that implements the `Accounts` trait.
+
+### --tests--
+
+The `Play` struct should be defined.
+
+```js
+assert.fail();
+```
+
+The `Play` struct should implement the `Accounts` trait.
+
+```js
+assert.fail();
+```
+
+## 52
+
+### --description--
+
+The `play` instruction handler will need access to the `game` account.
+
+Within `Play`, define a field called `game` of type `Account<'info, Game>`.
+
+### --tests--
+
+The `game` field should be defined.
+
+```js
+assert.fail();
+```
+
+The `game` field should be of type `Account<'info, Game>`.
+
+```js
+assert.fail();
+```
+
+The `Play` struct should take a generic lifetime parameter `'info`.
+
+```js
+assert.fail();
+```
+
+## 53
+
+### --description--
+
+The `play` instruction handler will need access to the player who called it.
+
+Within `Play`, define a field called `player` of type `Signer<'info>`.
+
+### --tests--
+
+The `player` field should be defined.
+
+```js
+assert.fail();
+```
+
+The `player` field should be of type `Signer<'info>`.
+
+```js
+assert.fail();
+```
+
+## 54
+
+### --description--
+
+Within the `play` instruction handler, declare a variable `game`, and assign a mutable reference to the `game` account to it.
+
+### --tests--
+
+The `game` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `game` variable should be assigned `&mut ctx.accounts.game`.
+
+```js
+assert.fail();
+```
+
+## 55
+
+### --description--
+
+Along with the `require!` macro, Anchor provides a `require_keys_eq!` macro. This macro takes two public keys, and ensures they are equal:
+
+```rust
+require_keys_eq!(
+  ctx.accounts.account_1.key(),
+  ctx.accounts.account_2.key(),
+  OptionalCustomError::MyError
+);
+```
+
+**Note:** This is specifically provided, because the `require_eq!` macro should not be used to compare public keys.
+
+Within the `play` instruction handler, use the `require_keys_eq!` macro to ensure the expected current player is the same as the player who called the instruction.
+
+### --tests--
+
+`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key());`.
+
+```js
+assert.fail();
+```
+
+## 56
+
+### --description--
+
+Add a third argument of `TicTacToeError::NotPlayersTurn` to the `require_keys_eq!` macro. Also, define the `NotPlayersTurn` error variant in the `TicTacToeError` enum.
+
+### --tests--
+
+`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key(), TicTacToeError::NotPlayersTurn);`.
+
+```js
+assert.fail();
+```
+
+`TicTacToeError` should have a `NotPlayersTurn` variant.
+
+```js
+assert.fail();
+```
+
+## 57
+
+### --description--
+
+Within the `play` instruction handler, call the `play` method on the `game` account. Pass in a reference to a variable `tile`.
+
+### --tests--
+
+`play` should have `game.play(&tile);`.
+
+```js
+assert.fail();
+```
+
+## 58
+
+### --description--
+
+Adjust the `play` instruction handler signature to take a `tile` parameter of type `Tile`.
+
+### --tests--
+
+`play` should take a `tile` parameter of type `Tile`.
+
+```js
+assert.fail();
+```
+
+## 59
+
+### --description--
+
+Run the tests.
+
+### --tests--
+
+The tests for the `play` instruction handler should error ❌.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 60
+
+### --description--
+
+The tests failed, because a mutable reference to the `game` account is required, but the account is not marked as `mut`.
+
+Mark the `game` account as `mut`.
+
+### --tests--
+
+The `Play` struct should have `game` annotated with `#[account(mut)]`.
+
+```js
+assert.fail();
+```
+
+## 61
+
+### --description--
+
+Run the tests to ensure everything is working as expected.
+
+### --tests--
+
+All tests should pass for the `anchor test --skip-local-validator` command ✅.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 62
+
+### --description--
+
+**Summary**
+
+<!-- TODO -->
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
 ```
 
 ## --fcc-end--
