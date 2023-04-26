@@ -1,4 +1,4 @@
-# Solana - Learn How to Test an Anchor Program
+# Solana - Learn How to Test an Anchor Program: Part 2
 
 ## 1
 

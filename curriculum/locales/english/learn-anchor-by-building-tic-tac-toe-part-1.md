@@ -1,4 +1,4 @@
-# Solana - Learn Anchor by Building Tic-Tac-Toe
+# Solana - Learn Anchor by Building Tic-Tac-Toe: Part 1
 
 ## 1
 
@@ -1696,7 +1696,15 @@ try {
 
 **Summary**
 
-<!-- TODO -->
+- Derive `Accounts` for context structs
+- Annotate custom accounts with `#[account]`
+- Annotate custom errors with `#[error_code]`
+- Anchor provides various account constraints:
+  - `init` - Initialises an account, setting the owner field of the created account to the currently executing program
+  - `mut` - Checks the given account is mutable, and persists any state changes
+- The `Account` struct verifies program ownership
+- The `Signer` struct verifies the account in the transaction also signed the transaction
+- The `Program` struct validates the account provided is the given program
 
 🎆
 
