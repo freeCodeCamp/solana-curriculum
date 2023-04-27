@@ -4,9 +4,27 @@
 
 ### --description--
 
-Anchor automatically generated some test boilerplate for the `tic-tac-toe` program in the `tests/` directory.
+In the previous project, you used Anchor to create a program with instructions to play a game of Tic-Tac-Toe. This same program has been carried over as the boilerplate for this project.
 
-Within `tests/tic-tac-toe.ts`, immediately below the `program` variable declaration, declare a `programProvider` variable and assign the following to it:
+Anchor automatically generated some test boilerplate for the `tic-tac-toe` program in the `tests/` directory. You will be mostly working in this directory.
+
+Within a new terminal, change into the `tic-tac-toe` directory.
+
+### --tests--
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+## 2
+
+### --description--
+
+The boilerplate includes a `program` variable that uses the generated `TicTacToe` IDL to create a program instance. The program can send transactions, fetch deserialized accounts, decode instruction data, subscribe to account changes, and listen to events.
+
+Within `tic-tac-toe/tests/tic-tac-toe.ts`, immediately below the `program` variable declaration, declare a `programProvider` variable and assign the following to it:
 
 ```typescript
 program.provider as AnchorProvider;
@@ -55,7 +73,7 @@ describe('TicTacToe', () => {
 });
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -75,7 +93,7 @@ The `target/types/tic_tac_toe.ts` file should exist.
 assert.fail();
 ```
 
-## 3
+## 4
 
 ### --description--
 
@@ -89,7 +107,7 @@ Within the `it` callback, change the `initialize` call to `setupGame`.
 assert.fail();
 ```
 
-## 4
+## 5
 
 ### --description--
 
@@ -141,7 +159,7 @@ The `Keypair` class should be imported from `@solana/web3.js`.
 assert.fail();
 ```
 
-## 5
+## 6
 
 ### --description--
 
@@ -155,7 +173,7 @@ Pass the public key of `playerTwo` as an argument to the `setupGame` instruction
 assert.fail();
 ```
 
-## 6
+## 7
 
 ### --description--
 
@@ -180,7 +198,7 @@ try {
 }
 ```
 
-## 7
+## 8
 
 ### --description--
 
@@ -211,7 +229,7 @@ try {
 }
 ```
 
-## 8
+## 9
 
 ### --description--
 
@@ -234,7 +252,7 @@ Chain a `.accounts` call to the `setupGame` call, and pass in:
 assert.fail();
 ```
 
-## 9
+## 10
 
 ### --description--
 
@@ -267,7 +285,7 @@ try {
 }
 ```
 
-## 10
+## 11
 
 ### --description--
 
@@ -283,7 +301,7 @@ Chain a `.signers` call to the `setupGame` call, and pass in an array of the `ga
 assert.fail();
 ```
 
-## 11
+## 12
 
 ### --description--
 
@@ -316,7 +334,7 @@ try {
 }
 ```
 
-## 12
+## 13
 
 ### --description--
 
@@ -336,7 +354,7 @@ await programProvider.connection.requestAirdrop(<PUBLIC_KEY>, <AMOUNT_IN_LAMPORT
 assert.fail();
 ```
 
-## 13
+## 14
 
 ### --description--
 
@@ -356,7 +374,7 @@ await programProvider.connection.confirmTransaction(<TRANSACTION_SIGNATURE>);
 assert.fail();
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -389,7 +407,7 @@ try {
 }
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -414,7 +432,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -447,7 +465,7 @@ try {
 }
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -467,7 +485,7 @@ Declare a variable `gameData` and assign it the `game` account's data.
 assert.fail();
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -483,7 +501,7 @@ _Hint:_ The boilerplate created by Anchor comes with `chai.js`.
 assert.fail();
 ```
 
-## 19
+## 20
 
 ### --description--
 
@@ -503,7 +521,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -517,7 +535,7 @@ Assert the `game` account has a `state` property equal to `active: {}`.
 assert.fail();
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -531,7 +549,7 @@ Assert the `game` account has a `board` property equal to a 3x3 array of `null` 
 assert.fail();
 ```
 
-## 22
+## 23
 
 ### --description--
 
@@ -564,7 +582,7 @@ try {
 }
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -597,7 +615,7 @@ try {
 }
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -613,7 +631,7 @@ Remove the `gameKeypair` from the signers array.
 assert.fail();
 ```
 
-## 25
+## 26
 
 ### --description--
 
@@ -646,7 +664,7 @@ try {
 }
 ```
 
-## 26
+## 27
 
 ### --description--
 

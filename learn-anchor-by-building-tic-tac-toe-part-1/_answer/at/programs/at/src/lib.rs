@@ -8,7 +8,11 @@ declare_id!("EHDaxcfEEWQdgVU233gnr8M1UHeFouqsnDMKG8QEoFJL");
 pub mod at {
     use super::*;
 
-    pub fn setup_game(ctx: Context<SetupGame>, player_two_pubkey: Pubkey) -> Result<()> {
+    pub fn setup_game(
+        ctx: Context<SetupGame>,
+        player_two_pubkey: Pubkey,
+        _game_id: String,
+    ) -> Result<()> {
         let player_one = &ctx.accounts.player_one;
         let player_one_pubkey = player_one.key();
         let game = &mut ctx.accounts.game;
@@ -18,9 +22,10 @@ pub mod at {
 }
 
 #[derive(Accounts)]
+#[instruction(player_two_pubkey: Pubkey, _game_id: String)]
 pub struct SetupGame<'info> {
     #[account(init, payer = player_one, space = 8 + Game::MAXIMUM_SIZE,
-    seeds = [b"game", player_one.key().as_ref()])]
+    seeds = [b"game", player_one.key().as_ref(), _game_id.as_bytes()])]
     #[account(bump)]
     pub game: Account<'info, Game>,
     #[account(mut)]

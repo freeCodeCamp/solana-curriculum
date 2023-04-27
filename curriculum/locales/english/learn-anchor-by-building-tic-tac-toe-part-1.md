@@ -1418,7 +1418,597 @@ try {
 }
 ```
 
-## 50
+## 51
+
+### --description--
+
+Using a constant string, and the first player's public key as seeds only allows one game to be played. Dynamic seeds can be added to the `game` account to allow for multiple games to be played with the same player accounts, using the `instruction` attribute:
+
+```rust
+pub fn initialize(ctx: Context<Init>, arg_1: String, arg_2: u8) -> Result<()> {}
+
+#[derive(Accounts)]
+#[instruction(arg_1: String, arg_2: u8)]
+pub struct Init<'info> {
+    #[account(
+      init,
+      payer = payer,
+      seeds = [arg_1.as_bytes(), payer.key().as_ref(), arg_2],
+      bump
+    )]
+    pub pda: Account<'info, Game>,
+    pub payer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+```
+
+The `instruction` attribute provides access to the instruction's arugments. You have to list them in the same order as in the instruction but you can omit all arguments after the last one you need.
+
+Within `lib.rs`, add a third parameter `game_id` of type `String` to the `setup_game` instruction handler.
+
+### --tests--
+
+The `setup_game` instruction handler should have a `game_id` parameter.
+
+```js
+assert.fail();
+```
+
+The `game_id` parameter should be of type `String`.
+
+```js
+assert.fail();
+```
+
+## 52
+
+### --description--
+
+Within `lib.rs`, annotate the `SetupGame` struct with the `instruction` attribute, passing in the required parameters to access the `game_id` parameter.
+
+### --tests--
+
+The `SetupGame` struct should be annotated with `#[instruction(player_two_pubkey: Pubkey, game_id: String)]`.
+
+```js
+assert.fail();
+```
+
+## 53
+
+### --description--
+
+Within `lib.rs`, add the `game_id` parameter as a seed to the `seeds` value of the `game` account.
+
+### --tests--
+
+The `game` field should be annotated with `#[account(seeds = [b"game", player_one.key().as_ref(), game_id.as_bytes()])]`.
+
+```js
+assert.fail();
+```
+
+## 54
+
+### --description--
+
+To prevent Rust from complaining about the `game_id` parameter not being used, prefix it with an underscore.
+
+### --tests--
+
+The `game_id` parameter should be prefixed with an underscore in the `setup_game` instruction handler.
+
+```js
+assert.fail();
+```
+
+The `game_id` parameter should be prefixed with an underscore in the `instruction` attribute.
+
+```js
+assert.fail();
+```
+
+The `game_id` parameter should be prefixed with an underscore in the `game` account's `seeds` value.
+
+```js
+assert.fail();
+```
+
+## 55
+
+### --description--
+
+Run the tests to see if the `setup_game` instruction handler is working correctly.
+
+### --tests--
+
+The test for `setup_game` should pass when `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+
+```typescript
+import {
+  AnchorError,
+  Program,
+  AnchorProvider,
+  setProvider,
+  workspace
+} from '@coral-xyz/anchor';
+import { TicTacToe } from '../target/types/tic_tac_toe';
+import { expect } from 'chai';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider';
+
+describe('tic-tac-toe', () => {
+  // Configure the client to use the local cluster.
+  setProvider(AnchorProvider.env());
+
+  const program = workspace.TicTacToe as Program<TicTacToe>;
+  const programProvider = program.provider as AnchorProvider;
+
+  it('setup game!', async () => {
+    // const playerOne = programProvider.wallet;
+    const playerOne = Keypair.generate();
+    const playerTwo = Keypair.generate();
+
+    const gameId = 'game-1';
+
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode(seed),
+        publicKey.toBuffer(),
+        gameId.toBuffer()
+      ],
+      program.programId
+    );
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
+    await program.methods
+      .setupGame(playerTwo.publicKey, gameId)
+      .accounts({
+        playerOne: playerOne.publicKey
+      })
+      .signers([playerOne])
+      .rpc();
+
+    const gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
+    expect(gameData.players).to.eql([playerOne.publicKey, playerTwo.publicKey]);
+
+    expect(gameData.state).to.eql({ active: {} });
+    expect(gameData.board).to.eql([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+  });
+
+  xit('player one wins!', async () => {
+    const playerOne = programProvider.wallet;
+    const playerTwo = Keypair.generate();
+
+    const gameId = 'game-2';
+
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode(seed),
+        publicKey.toBuffer(),
+        gameId.toBuffer()
+      ],
+      program.programId
+    );
+
+    await program.methods
+      .setupGame(playerTwo.publicKey, gameId)
+      .accounts({
+        playerOne: playerOne.publicKey
+      })
+      // .signers([playerOne])
+      .rpc();
+
+    let gameState = await program.account.game.fetch(gamePublicKey);
+    expect(gameState.turn).to.equal(1);
+    expect(gameState.players).to.eql([
+      playerOne.publicKey,
+      playerTwo.publicKey
+    ]);
+    expect(gameState.state).to.eql({ active: {} });
+    expect(gameState.board).to.eql([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 0 },
+      2,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [null, null, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne, // same player in subsequent turns
+        // change sth about the tx because
+        // duplicate tx that come in too fast
+        // after each other may get dropped
+        { row: 1, column: 0 },
+        2,
+        { active: {} },
+        [
+          [{ x: {} }, null, null],
+          [null, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.code).to.equal('NotPlayersTurn');
+      expect(err.error.errorCode.number).to.equal(6003);
+      expect(err.program.equals(program.programId)).is.true;
+      expect(err.error.comparedValues).to.deep.equal([
+        playerTwo.publicKey,
+        playerOne.publicKey
+      ]);
+    }
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 0 },
+      3,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 1 },
+      4,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerTwo,
+        { row: 5, column: 1 }, // out of bounds row
+        4,
+        { active: {} },
+        [
+          [{ x: {} }, { x: {} }, null],
+          [{ o: {} }, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6000);
+      expect(err.error.errorCode.code).to.equal('TileOutOfBounds');
+    }
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 1 },
+      5,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne,
+        { row: 0, column: 0 },
+        5,
+        { active: {} },
+        [
+          [{ x: {} }, { x: {} }, null],
+          [{ o: {} }, { o: {} }, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6001);
+    }
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 2 },
+      5,
+      { won: { winner: playerOne.publicKey } },
+      [
+        [{ x: {} }, { x: {} }, { x: {} }],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne,
+        { row: 0, column: 2 },
+        5,
+        { won: { winner: playerOne.publicKey } },
+        [
+          [{ x: {} }, { x: {} }, { x: {} }],
+          [{ o: {} }, { o: {} }, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6002);
+    }
+  });
+
+  xit('tie', async () => {
+    const playerOne = programProvider.wallet;
+    const playerTwo = Keypair.generate();
+
+    const gameId = 'game-3';
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode(seed),
+        publicKey.toBuffer(),
+        gameId.toBuffer()
+      ],
+      program.programId
+    );
+
+    await program.methods
+      .setupGame(playerTwo.publicKey, gameId)
+      .accounts({
+        playerOne: playerOne.publicKey
+      })
+      // .signers([gameKeypair])
+      .rpc();
+
+    let gameState = await program.account.game.fetch(gamePublicKey);
+    expect(gameState.turn).to.equal(1);
+    expect(gameState.players).to.eql([
+      playerOne.publicKey,
+      playerTwo.publicKey
+    ]);
+    expect(gameState.state).to.eql({ active: {} });
+    expect(gameState.board).to.eql([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 0 },
+      2,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [null, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 1 },
+      3,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [null, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 2, column: 0 },
+      4,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [null, { o: {} }, null],
+        [{ x: {} }, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 0 },
+      5,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [{ o: {} }, { o: {} }, null],
+        [{ x: {} }, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 1, column: 2 },
+      6,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [{ o: {} }, { o: {} }, { x: {} }],
+        [{ x: {} }, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 0, column: 1 },
+      7,
+      { active: {} },
+      [
+        [{ x: {} }, { o: {} }, null],
+        [{ o: {} }, { o: {} }, { x: {} }],
+        [{ x: {} }, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 2, column: 1 },
+      8,
+      { active: {} },
+      [
+        [{ x: {} }, { o: {} }, null],
+        [{ o: {} }, { o: {} }, { x: {} }],
+        [{ x: {} }, { x: {} }, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 2, column: 2 },
+      9,
+      { active: {} },
+      [
+        [{ x: {} }, { o: {} }, null],
+        [{ o: {} }, { o: {} }, { x: {} }],
+        [{ x: {} }, { x: {} }, { o: {} }]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 2 },
+      9,
+      { tie: {} },
+      [
+        [{ x: {} }, { o: {} }, { x: {} }],
+        [{ o: {} }, { o: {} }, { x: {} }],
+        [{ x: {} }, { x: {} }, { o: {} }]
+      ]
+    );
+  });
+});
+
+async function play(
+  program: Program<TicTacToe>,
+  game: PublicKey,
+  player: Wallet | Keypair,
+  tile: { row: number; column: number },
+  expectedTurn: number,
+  expectedGameState:
+    | { active: {} }
+    | { won: { winner: PublicKey } }
+    | { tie: {} },
+  expectedBoard: Array<Array<{ x: {} } | { o: {} } | null>>
+) {
+  await program.methods
+    .play(tile)
+    .accounts({
+      player: player.publicKey,
+      game
+    })
+    .signers(player instanceof Keypair ? [player] : [])
+    .rpc();
+
+  const gameState = await program.account.game.fetch(game);
+
+  expect(gameState.turn).to.equal(expectedTurn);
+  expect(gameState.state).to.eql(expectedGameState);
+  expect(gameState.board).to.eql(expectedBoard);
+}
+```
+
+## 56
 
 ### --description--
 
@@ -1444,7 +2034,7 @@ The `play` instruction handler should return a `Result<()>`.
 assert.fail();
 ```
 
-## 51
+## 57
 
 ### --description--
 
@@ -1464,7 +2054,7 @@ The `Play` struct should implement the `Accounts` trait.
 assert.fail();
 ```
 
-## 52
+## 58
 
 ### --description--
 
@@ -1492,7 +2082,7 @@ The `Play` struct should take a generic lifetime parameter `'info`.
 assert.fail();
 ```
 
-## 53
+## 59
 
 ### --description--
 
@@ -1514,7 +2104,7 @@ The `player` field should be of type `Signer<'info>`.
 assert.fail();
 ```
 
-## 54
+## 60
 
 ### --description--
 
@@ -1534,7 +2124,7 @@ The `game` variable should be assigned `&mut ctx.accounts.game`.
 assert.fail();
 ```
 
-## 55
+## 61
 
 ### --description--
 
@@ -1560,7 +2150,7 @@ Within the `play` instruction handler, use the `require_keys_eq!` macro to ensur
 assert.fail();
 ```
 
-## 56
+## 62
 
 ### --description--
 
@@ -1580,7 +2170,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 57
+## 63
 
 ### --description--
 
@@ -1594,7 +2184,7 @@ Within the `play` instruction handler, call the `play` method on the `game` acco
 assert.fail();
 ```
 
-## 58
+## 64
 
 ### --description--
 
@@ -1608,7 +2198,7 @@ Adjust the `play` instruction handler signature to take a `tile` parameter of ty
 assert.fail();
 ```
 
-## 59
+## 65
 
 ### --description--
 
@@ -1641,7 +2231,7 @@ try {
 }
 ```
 
-## 60
+## 66
 
 ### --description--
 
@@ -1657,7 +2247,7 @@ The `Play` struct should have `game` annotated with `#[account(mut)]`.
 assert.fail();
 ```
 
-## 61
+## 67
 
 ### --description--
 
@@ -1690,7 +2280,7 @@ try {
 }
 ```
 
-## 62
+## 68
 
 ### --description--
 
@@ -1699,6 +2289,7 @@ try {
 - Derive `Accounts` for context structs
 - Annotate custom accounts with `#[account]`
 - Annotate custom errors with `#[error_code]`
+- Use the `instruction` attribute to access the instruction data
 - Anchor provides various account constraints:
   - `init` - Initialises an account, setting the owner field of the created account to the currently executing program
   - `mut` - Checks the given account is mutable, and persists any state changes
