@@ -1549,6 +1549,8 @@ try {
 
 ### --seed--
 
+#### --force--
+
 #### --"tic-tac-toe/tests/tic-tac-toe.ts"--
 
 ```typescript
