@@ -8,7 +8,7 @@ declare_id!("BUfb6FXLkiSpMnJnMR4Q5uGZYZkaNGytjhLwiiJQsE8F");
 pub mod tic_tac_toe {
     use super::*;
 
-    pub fn setup_game(ctx: Context<SetupGame>, player_two: Pubkey) -> Result<()> {
+    pub fn setup_game(ctx: Context<SetupGame>, player_two: Pubkey, _game_id: String) -> Result<()> {
         ctx.accounts
             .game
             .start([ctx.accounts.player_one.key(), player_two])
@@ -28,8 +28,15 @@ pub mod tic_tac_toe {
 }
 
 #[derive(Accounts)]
+#[instruction(player_two_pubkey: Pubkey, _game_id: String)]
 pub struct SetupGame<'info> {
-    #[account(init, payer = player_one, space = 8 + Game::MAXIMUM_SIZE)]
+    #[account(
+        init,
+        payer = player_one,
+        space = 8 + Game::MAXIMUM_SIZE,
+        seeds = [b"game", player_one.key().as_ref(), _game_id.as_bytes()],
+        bump
+    )]
     pub game: Account<'info, Game>,
     #[account(mut)]
     pub player_one: Signer<'info>,

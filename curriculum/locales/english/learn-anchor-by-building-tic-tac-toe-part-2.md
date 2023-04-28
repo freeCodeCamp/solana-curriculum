@@ -113,7 +113,7 @@ assert.fail();
 
 Now, you need to create the accounts to pass to the `setupGame` instruction handler.
 
-At the top of the `it` callback, generate three new keypairs, and assign them to three new variables: `playerOne`, `playerTwo`, and `gameKeypair`.
+At the top of the `it` callback, generate two new keypairs, and assign them to two new variables: `playerOne`, and `playerTwo`.
 
 ### --tests--
 
@@ -141,18 +141,6 @@ The `playerTwo` variable should be assigned `Keypair.generate()`.
 assert.fail();
 ```
 
-The `gameKeypair` variable should be declared.
-
-```js
-assert.fail();
-```
-
-The `gameKeypair` variable should be assigned `Keypair.generate()`.
-
-```js
-assert.fail();
-```
-
 The `Keypair` class should be imported from `@solana/web3.js`.
 
 ```js
@@ -160,6 +148,49 @@ assert.fail();
 ```
 
 ## 6
+
+### --description--
+
+Within the `it` callback, create a new `gameId` variable, and assign it a value of `"game-1"`.
+
+### --tests--
+
+The `gameId` variable should be declared.
+
+```js
+assert.fail();
+```
+
+The `gameId` variable should be assigned `"game-1"`.
+
+```js
+assert.fail();
+```
+
+## 7
+
+### --description--
+
+Now, PDA's will make more sense - they can be <dfn title="You can generate the same public key before the program is initialized">repeatably, programmatically generated</dfn>:
+
+```typescript
+const [pda, bump] = PublicKey.findProgramAddressSync(
+  [Buffer.from(seed)],
+  program.programId
+);
+```
+
+Destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, using `"game"`, the payer's public key, and `gameId` as seeds.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const [gamePublicKey, _] = PublicKey.findProgramAddressSync([Buffer.from("game"), payer.publicKey.toBuffer(), Buffer.from(gameId)], program.programId);`.
+
+```js
+assert.fail();
+```
+
+## 8
 
 ### --description--
 
@@ -173,7 +204,21 @@ Pass the public key of `playerTwo` as an argument to the `setupGame` instruction
 assert.fail();
 ```
 
-## 7
+## 9
+
+### --description--
+
+Pass `gameId` as the second argument to the `setupGame` instruction call.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 10
 
 ### --description--
 
@@ -198,7 +243,7 @@ try {
 }
 ```
 
-## 8
+## 11
 
 ### --description--
 
@@ -210,7 +255,7 @@ anchor test --skip-local-validator
 
 ### --tests--
 
-`anchor test` should error with `Error Code: TryingToInitPayerAsProgramAccount`.
+`anchor test` should error with `Error: Invalid arguments: game not provided`.
 
 ```js
 assert.fail();
@@ -229,7 +274,7 @@ try {
 }
 ```
 
-## 9
+## 12
 
 ### --description--
 
@@ -239,20 +284,20 @@ Chain a `.accounts` call to the `setupGame` call, and pass in:
 
 ```typescript
 {
-  game: gameKeypair.publicKey,
+  game: gamePublicKey,
   playerOne: playerOne.publicKey,
 }
 ```
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).rpc();`.
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).rpc();`.
 
 ```js
 assert.fail();
 ```
 
-## 10
+## 13
 
 ### --description--
 
@@ -285,23 +330,25 @@ try {
 }
 ```
 
-## 11
+## 14
 
 ### --description--
 
 Seeing as the `game` and `playerOne` accounts are mutated (e.g. funds taken for fees, data changed), these accounts need to sign the transaction.
 
-Chain a `.signers` call to the `setupGame` call, and pass in an array of the `gameKeypair` and `playerOne` keypairs.
+However, one of the main benefits with PDAs is the owner is the program. So, a PDA does not need to sign transactions mutating it within the owner program.
+
+Chain a `.signers` call to the `setupGame` call, and pass in an array of the `playerOne` keypair.
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).signers([gameKeypair, playerOne]).rpc();`.
+`tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).signers([playerOne]).rpc();`.
 
 ```js
 assert.fail();
 ```
 
-## 12
+## 15
 
 ### --description--
 
@@ -334,7 +381,7 @@ try {
 }
 ```
 
-## 13
+## 16
 
 ### --description--
 
@@ -354,7 +401,7 @@ await programProvider.connection.requestAirdrop(<PUBLIC_KEY>, <AMOUNT_IN_LAMPORT
 assert.fail();
 ```
 
-## 14
+## 17
 
 ### --description--
 
@@ -374,7 +421,7 @@ await programProvider.connection.confirmTransaction(<TRANSACTION_SIGNATURE>);
 assert.fail();
 ```
 
-## 15
+## 18
 
 ### --description--
 
@@ -407,7 +454,7 @@ try {
 }
 ```
 
-## 16
+## 19
 
 ### --description--
 
@@ -420,7 +467,7 @@ await ix.rpc();
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const ix = program.methods.setupGame(playerTwo.publicKey).accounts({ game: gameKeypair.publicKey, playerOne: playerOne.publicKey }).signers([gameKeypair, playerOne]);`.
+`tests/tic-tac-toe.ts` should have `const ix = program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).signers([playerOne]);`.
 
 ```js
 assert.fail();
@@ -432,7 +479,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 17
+## 20
 
 ### --description--
 
@@ -465,7 +512,7 @@ try {
 }
 ```
 
-## 18
+## 21
 
 ### --description--
 
@@ -479,13 +526,13 @@ Declare a variable `gameData` and assign it the `game` account's data.
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const gameData = await program.account.game.fetch(gameKeypair.publicKey);`.
+`tests/tic-tac-toe.ts` should have `const gameData = await program.account.game.fetch(gamePublicKey);`.
 
 ```js
 assert.fail();
 ```
 
-## 19
+## 22
 
 ### --description--
 
@@ -501,7 +548,7 @@ _Hint:_ The boilerplate created by Anchor comes with `chai.js`.
 assert.fail();
 ```
 
-## 20
+## 23
 
 ### --description--
 
@@ -521,7 +568,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 21
+## 24
 
 ### --description--
 
@@ -535,7 +582,7 @@ Assert the `game` account has a `state` property equal to `active: {}`.
 assert.fail();
 ```
 
-## 22
+## 25
 
 ### --description--
 
@@ -549,7 +596,7 @@ Assert the `game` account has a `board` property equal to a 3x3 array of `null` 
 assert.fail();
 ```
 
-## 23
+## 26
 
 ### --description--
 
@@ -564,88 +611,6 @@ assert.fail();
 ```
 
 The tests should pass ✅.
-
-```js
-assert.fail();
-```
-
-The validator should be running at `http://localhost:8899`.
-
-```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
-const { stdout, stderr } = await __helpers.getCommandOutput(command);
-try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
-} catch (e) {
-  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
-}
-```
-
-## 24
-
-### --description--
-
-Run the tests again to see the error.
-
-### --tests--
-
-You should run `anchor test --skip-local-validator`.
-
-```js
-assert.fail();
-```
-
-The tests should fail ❌.
-
-```js
-assert.fail();
-```
-
-The validator should be running at `http://localhost:8899`.
-
-```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
-const { stdout, stderr } = await __helpers.getCommandOutput(command);
-try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
-} catch (e) {
-  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
-}
-```
-
-## 25
-
-### --description--
-
-One of the main benefits with PDAs is the owner is the program. So, it does not need to sign transactions mutating it within the owner program.
-
-Remove the `gameKeypair` from the signers array.
-
-### --tests--
-
-`tests/tic-tac-toe.ts` should not have `gameKeypair` in the signers array.
-
-```js
-assert.fail();
-```
-
-## 26
-
-### --description--
-
-Run the tests again. You will see another error.
-
-### --tests--
-
-You should run `anchor test --skip-local-validator`.
-
-```js
-assert.fail();
-```
-
-The tests should fail ❌.
 
 ```js
 assert.fail();
@@ -667,20 +632,5 @@ try {
 ## 27
 
 ### --description--
-
-Anchor is failing the test, because you are passing in a public key for the `game` account that does not match the one generated by the program. You need to pass in the public key generated by the program.
-
-Now, PDA's will make more sense - they can be <dfn title="You can generate the same public key before the program is initialized">repeatably, programmatically generated</dfn>:
-
-```typescript
-const [pda, bump] = PublicKey.findProgramAddressSync(
-  [anchor.utils.bytes.utf8.encode(seed), publicKey.toBuffer()],
-  program.programId
-);
-```
-
-Remove the `gameKeypair` variable, destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, using `"game"` and the payer's public key as seeds.
-
-<!-- TODO: Change `lib.rs` to not use PDA from seeds and bump. Player can only play once as player_one -->
 
 ## --fcc-end--

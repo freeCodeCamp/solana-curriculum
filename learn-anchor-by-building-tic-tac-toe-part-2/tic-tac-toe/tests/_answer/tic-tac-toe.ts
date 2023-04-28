@@ -18,14 +18,22 @@ describe('tic-tac-toe', () => {
   const programProvider = program.provider as AnchorProvider;
 
   it('setup game!', async () => {
-    const gameKeypair = Keypair.generate();
-
-    // const playerOne = programProvider.wallet;
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
+    const gameId = 'game-1';
+
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
+      ],
+      program.programId
+    );
+
     console.log('ACCOUNTS:');
-    console.log(gameKeypair.publicKey.toBase58());
+    console.log(gamePublicKey.toBase58());
     console.log(playerOne.publicKey.toBase58());
     console.log(playerTwo.publicKey.toBase58());
 
@@ -37,15 +45,15 @@ describe('tic-tac-toe', () => {
     await programProvider.connection.confirmTransaction(sg);
 
     await program.methods
-      .setupGame(playerTwo.publicKey)
+      .setupGame(playerTwo.publicKey, gameId)
       .accounts({
-        // game: gameKeypair.publicKey,
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
       .signers([playerOne])
       .rpc();
 
-    const gameData = await program.account.game.fetch(gameKeypair.publicKey);
+    const gameData = await program.account.game.fetch(gamePublicKey);
 
     expect(gameData.turn).to.equal(1);
     expect(gameData.players).to.eql([playerOne.publicKey, playerTwo.publicKey]);
@@ -59,19 +67,42 @@ describe('tic-tac-toe', () => {
   });
 
   xit('player one wins!', async () => {
-    const gameKeypair = Keypair.generate();
-    const playerOne = programProvider.wallet;
+    const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
+
+    const gameId = 'game-2';
+
+    const [gamePublicKey, _bump] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
+      ],
+      program.programId
+    );
+
+    console.log('ACCOUNTS:');
+    console.log(gamePublicKey.toBase58());
+    console.log(playerOne.publicKey.toBase58());
+    console.log(playerTwo.publicKey.toBase58());
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
     await program.methods
-      .setupGame(playerTwo.publicKey)
+      .setupGame(playerTwo.publicKey, gameId)
       .accounts({
-        game: gameKeypair.publicKey,
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
-      .signers([gameKeypair])
+      .signers([playerOne])
       .rpc();
 
-    let gameState = await program.account.game.fetch(gameKeypair.publicKey);
+    let gameState = await program.account.game.fetch(gamePublicKey);
     expect(gameState.turn).to.equal(1);
     expect(gameState.players).to.eql([
       playerOne.publicKey,
@@ -86,7 +117,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 0, column: 0 },
       2,
@@ -101,7 +132,7 @@ describe('tic-tac-toe', () => {
     try {
       await play(
         program,
-        gameKeypair.publicKey,
+        gamePublicKey,
         playerOne, // same player in subsequent turns
         // change sth about the tx because
         // duplicate tx that come in too fast
@@ -130,7 +161,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 1, column: 0 },
       3,
@@ -144,7 +175,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 0, column: 1 },
       4,
@@ -159,7 +190,7 @@ describe('tic-tac-toe', () => {
     try {
       await play(
         program,
-        gameKeypair.publicKey,
+        gamePublicKey,
         playerTwo,
         { row: 5, column: 1 }, // out of bounds row
         4,
@@ -180,7 +211,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 1, column: 1 },
       5,
@@ -195,7 +226,7 @@ describe('tic-tac-toe', () => {
     try {
       await play(
         program,
-        gameKeypair.publicKey,
+        gamePublicKey,
         playerOne,
         { row: 0, column: 0 },
         5,
@@ -215,7 +246,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 0, column: 2 },
       5,
@@ -230,7 +261,7 @@ describe('tic-tac-toe', () => {
     try {
       await play(
         program,
-        gameKeypair.publicKey,
+        gamePublicKey,
         playerOne,
         { row: 0, column: 2 },
         5,
@@ -250,19 +281,42 @@ describe('tic-tac-toe', () => {
   });
 
   xit('tie', async () => {
-    const gameKeypair = Keypair.generate();
-    const playerOne = programProvider.wallet;
+    const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
+
+    const gameId = 'game-3';
+
+    const [gamePublicKey, _bump] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
+      ],
+      program.programId
+    );
+
+    console.log('ACCOUNTS:');
+    console.log(gamePublicKey.toBase58());
+    console.log(playerOne.publicKey.toBase58());
+    console.log(playerTwo.publicKey.toBase58());
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
     await program.methods
-      .setupGame(playerTwo.publicKey)
+      .setupGame(playerTwo.publicKey, gameId)
       .accounts({
-        game: gameKeypair.publicKey,
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
-      .signers([gameKeypair])
+      .signers([playerOne])
       .rpc();
 
-    let gameState = await program.account.game.fetch(gameKeypair.publicKey);
+    let gameState = await program.account.game.fetch(gamePublicKey);
     expect(gameState.turn).to.equal(1);
     expect(gameState.players).to.eql([
       playerOne.publicKey,
@@ -277,7 +331,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 0, column: 0 },
       2,
@@ -291,7 +345,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 1, column: 1 },
       3,
@@ -305,7 +359,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 2, column: 0 },
       4,
@@ -319,7 +373,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 1, column: 0 },
       5,
@@ -333,7 +387,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 1, column: 2 },
       6,
@@ -347,7 +401,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 0, column: 1 },
       7,
@@ -361,7 +415,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 2, column: 1 },
       8,
@@ -375,7 +429,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerTwo,
       { row: 2, column: 2 },
       9,
@@ -389,7 +443,7 @@ describe('tic-tac-toe', () => {
 
     await play(
       program,
-      gameKeypair.publicKey,
+      gamePublicKey,
       playerOne,
       { row: 0, column: 2 },
       9,
