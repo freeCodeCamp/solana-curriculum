@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "0.2.3",
-    "@types/react": "18.0.38",
-    "@types/react-dom": "18.0.11",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.1",
     "@vitejs/plugin-react": "3.1.0",
     "assert": "2.0.0",
     "crypto-browserify": "3.12.0",
