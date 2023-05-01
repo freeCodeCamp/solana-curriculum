@@ -633,4 +633,402 @@ try {
 
 ### --description--
 
+Within the `tic-tac-toe.ts` file, within the `describe` callback, add a new `it` function call with a title of `"has player one win"`, and an empty, asynchronous callback function.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `it('has player one win', async () => {});`.
+
+```js
+assert.fail();
+```
+
+## 28
+
+### --description--
+
+Within the second `it` callback, generate two keypairs, and assign them to new variables `playerOne` and `playerTwo`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const playerOne = Keypair.generate();`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have `const playerTwo = Keypair.generate();`.
+
+```js
+assert.fail();
+```
+
+## 29
+
+### --description--
+
+Declare a variable `gameId`, and assign `"game-2"` to it.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const gameId = "game-2";`.
+
+```js
+assert.fail();
+```
+
+## 30
+
+### --description--
+
+Destructure a `gamePublicKey` variable from deriving the program address.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const [gamePublicKey] = await PublicKey.findProgramAddress([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)], program.programId);`.
+
+```js
+assert.fail();
+```
+
+## 31
+
+### --description--
+
+Request an airdrop for the first player, and await confirmation.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const sg = await programProvider.connection.requestAirdrop(playerOne.publicKey, 1_000_000_000)`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have `await programProvider.connection.confirmTransaction(sg);`.
+
+```js
+assert.fail();
+```
+
+## 32
+
+### --description--
+
+Call your program's `setupGame` method, passing in the required arguments, and adding the necessary accounts and signers.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).signers([playerOne]).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 33
+
+### --description--
+
+Fetch the `game` account's data, and assign it to a variable `gameData`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const gameData = await program.account.game.fetch(gamePublicKey);`.
+
+```js
+assert.fail();
+```
+
+## 34
+
+### --description--
+
+Assert the `game` account has a `turn` property equal to `1`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData.turn !== 1`.
+
+```js
+assert.fail();
+```
+
+## 35
+
+### --description--
+
+Now, to play a move, call the `play` method of your program. Pass in `{ row: 0, column: 0 }` as the tile to play.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await program.methods.play({ row: 0, column: 0 });`.
+
+```js
+assert.fail();
+```
+
+## 36
+
+### --description--
+
+Off of the `play` method call, chain a call to `accounts`, passing in the `game` and correct `player` public keys.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await program.methods.play({ row: 0, column: 0 }).accounts({ game: gamePublicKey, player: playerOne.publicKey });`.
+
+```js
+assert.fail();
+```
+
+## 37
+
+### --description--
+
+Off of the `accounts` method call, chain a call to `signers`, passing in the correct keypair.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await program.methods.play({ row: 0, column: 0 }).accounts({ game: gamePublicKey, player: playerOne.publicKey }).signers([playerOne]);`.
+
+```js
+assert.fail();
+```
+
+## 38
+
+### --description--
+
+Off of the `signers` method call, chain the `rpc` method call in order to send the transaction to the network.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await program.methods.play({ row: 0, column: 0 }).accounts({ game: gamePublicKey, player: playerOne.publicKey }).signers([playerOne]).rpc();`.
+
+```js
+assert.fail();
+```
+
+## 39
+
+### --description--
+
+After the `play` method call, fetch the `game` account's data, and assign it to a variable `gameData2`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `const gameData2 = await program.account.game.fetch(gamePublicKey);`.
+
+```js
+assert.fail();
+```
+
+## 40
+
+### --description--
+
+Assert the `game` account has a `turn` property equal to `2`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData2.turn !== 2`.
+
+```js
+assert.fail();
+```
+
+## 41
+
+### --description--
+
+Assert the `game` account has a `board` property equal to `[[{x:{}}, null, null], [null, null, null], [null, null, null]]`.
+
+**Note:** The Rust code uses an enum to denote `X` and `O` tiles. This is deserialized to a JavaScript object with a single key, `x` or `o`, depending on the tile. This is why the `x` tile is represented as `{x:{}}` in the assertion.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData2.board !== [[{x:{}}, null, null], [null, null, null], [null, null, null]]`.
+
+```js
+assert.fail();
+```
+
+## 42
+
+### --description--
+
+Assert the `game` account has a `state` property equal to `{ active: {} }`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should throw if `gameData2.state !== { active: {} }`.
+
+```js
+assert.fail();
+```
+
+## 43
+
+### --description--
+
+Run the tests to see if everything is working as expected.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 44
+
+### --description--
+
+You will be making many of these `play` calls. So, abstract the logic into a function.
+
+Outwith the `describe` call, define an async function `play` with the following signature:
+
+```ts
+async function play(
+  program: Program<TicTacToe>,
+  game: PublicKey,
+  player: Keypair,
+  tile: { row: number; column: number },
+  expectedTurn: number,
+  extectedGameState:
+    | { active: {} }
+    | { won: { winner: PublicKey } }
+    | { tied: {} },
+  expectedBoard: Array<Array<{ x: {} } | { o: {} } | null>>
+): Promise<void>;
+```
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have an async function `play` with the correct signature.
+
+```js
+assert.fail();
+```
+
+## 44
+
+### --description--
+
+Cut the `play` call from the `it` block, and paste it into the `play` function, as well as the `fetch` call and subsequent assertions.
+
+Change the arugments to use the `play` function parameters, and rename `gameData2` to `gameData`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `play` function that calls `await program.methods.play(tile).accounts({player: player.publicKey, game}).signers([player]).rpc();`
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `play` function that calls `const gameData = await program.account.game.fetch(game);`
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.turn === expectedTurn`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.state === expectedGameState`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.board === expectedBoard`.
+
+```js
+assert.fail();
+```
+
+## 45
+
+### --description--
+
+Back within the second `it` callback, use the `play` function to play that same move for `playerOne`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should call `await play(program, gamePublicKey, playerOne, { row: 0, column: 0 }, 2, { active: {} }, [[{x:{}}, null, null], [null, null, null], [null, null, null]]);`.
+
+```js
+assert.fail();
+```
+
+## 46
+
+### --description--
+
+To test whether the `play` method correctly throws an error when a player tries to play out of turn, wrap a `play` call in a `try...catch` block.
+
+The `try` should throw an error if the `play` call does not throw an error.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:1,column:0}, 2, {acive:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);` in the `try` block.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `try...catch` block that throws if `play` does not throw.
+
+```js
+assert.fail();
+```
+
+## 47
+
+### --description--
+
+Within the `catch` block, assert the caught error is an instance of `AnchorError`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e instanceof AnchorError`.
+
+```js
+assert.fail();
+```
+
+`AnchorError` should be imported from `@coral-xyz/anchor`.
+
+```js
+assert.fail();
+```
+
+## 48
+
+### --description--
+
 ## --fcc-end--

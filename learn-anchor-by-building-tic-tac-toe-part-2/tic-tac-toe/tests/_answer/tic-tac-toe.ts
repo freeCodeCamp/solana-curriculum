@@ -17,7 +17,7 @@ describe('tic-tac-toe', () => {
   const program = workspace.TicTacToe as Program<TicTacToe>;
   const programProvider = program.provider as AnchorProvider;
 
-  it('setup game!', async () => {
+  xit('initializes a game', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -66,7 +66,7 @@ describe('tic-tac-toe', () => {
     ]);
   });
 
-  xit('player one wins!', async () => {
+  it('has player one win', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -102,18 +102,9 @@ describe('tic-tac-toe', () => {
       .signers([playerOne])
       .rpc();
 
-    let gameState = await program.account.game.fetch(gamePublicKey);
-    expect(gameState.turn).to.equal(1);
-    expect(gameState.players).to.eql([
-      playerOne.publicKey,
-      playerTwo.publicKey
-    ]);
-    expect(gameState.state).to.eql({ active: {} });
-    expect(gameState.board).to.eql([
-      [null, null, null],
-      [null, null, null],
-      [null, null, null]
-    ]);
+    let gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
 
     await play(
       program,
@@ -460,7 +451,7 @@ describe('tic-tac-toe', () => {
 async function play(
   program: Program<TicTacToe>,
   game: PublicKey,
-  player: Wallet | Keypair,
+  player: Keypair,
   tile: { row: number; column: number },
   expectedTurn: number,
   expectedGameState:
@@ -475,12 +466,12 @@ async function play(
       player: player.publicKey,
       game
     })
-    .signers(player instanceof Keypair ? [player] : [])
+    .signers([player])
     .rpc();
 
-  const gameState = await program.account.game.fetch(game);
+  const gameData = await program.account.game.fetch(game);
 
-  expect(gameState.turn).to.equal(expectedTurn);
-  expect(gameState.state).to.eql(expectedGameState);
-  expect(gameState.board).to.eql(expectedBoard);
+  expect(gameData.turn).to.equal(expectedTurn);
+  expect(gameData.state).to.eql(expectedGameState);
+  expect(gameData.board).to.eql(expectedBoard);
 }
