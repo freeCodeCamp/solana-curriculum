@@ -931,7 +931,7 @@ async function play(
 assert.fail();
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -971,7 +971,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -985,7 +985,146 @@ Back within the second `it` callback, use the `play` function to play that same 
 assert.fail();
 ```
 
-## 46
+## 47
+
+### --description--
+
+Run the tests to confirm everything is still working.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 48
+
+### --description--
+
+Call the play function two more times. Once for player two at `{row: 1, column: 0}`, and once for player one at `{row: 0, column: 1}`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should call `await play(program, gamePublicKey, playerTwo, {row:1,column:0}, 3, {active:{}}, [[{x:{}},null,null],[{o:{}},null,null],[null,null,null]]);`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should call `await play(program, gamePublicKey, playerOne, {row:0,column:1}, 4, {active:{}}, [[{x:{}},{x:{}},null],[{o:{}},null,null],[null,null,null]]);`.
+
+```js
+assert.fail();
+```
+
+## 49
+
+### --description--
+
+Run the tests to confirm everything is still working.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 50
+
+### --description--
+
+Call the play function two more times. Once for player two at `{row: 1, column: 1}`, and once for player one at `{row: 0, column: 2}`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should call `await play(program, gamePublicKey, playerTwo, {row:1,column:1}, 5, {active:{}}, [[{x:{}},{x:{}},null],[{o:{}},{o:{}},null],[null,null,null]]);`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should call `await play(program, gamePublicKey, playerOne, {row:0,column:2}, 5, {won:{winner:playerOne.publicKey}}, [[{x:{}},{x:{}},{x:{}}],[{o:{}},{o:{}},null],[null,null,null]]);`.
+
+```js
+assert.fail();
+```
+
+## 51
+
+### --description--
+
+Run the tests to confirm everything is still working.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 52
 
 ### --description--
 
@@ -1007,7 +1146,67 @@ assert.fail();
 assert.fail();
 ```
 
-## 47
+## 53
+
+### --description--
+
+Within the `describe` callback, create a new `it` call with a title of `"handles ties"`, and an asynchroneous callback.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `describe` callback that calls `it` with a title of `"handles ties"`.
+
+```js
+assert.fail();
+```
+
+## 54
+
+### --description--
+
+Within the `"handles ties"` callback, set up a new game similarly to the previous tests, but with a `gameId` of `"game-3"`.
+
+### --tests--
+
+A `playerOne` variable should be declared and assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+A `playerTwo` variable should be declared and assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+A `gameId` variable should be declared and assigned `"game-3"`.
+
+```js
+assert.fail();
+```
+
+A `gamePublicKey` variable should be destructed from a `PublicKey.findProgramAddressSync` call.
+
+```js
+assert.fail();
+```
+
+An airdrop should be requested and confirmed for `playerOne`.
+
+```js
+assert.fail();
+```
+
+The `setupGame` method should be called on the program.
+
+```js
+assert.fail();
+```
+
+<!-- TODO: Add tie gameplay -->
+
+## 55
 
 ### --description--
 
@@ -1027,8 +1226,42 @@ assert.fail();
 assert.fail();
 ```
 
-## 48
+## 56
 
 ### --description--
+
+Anchor deserializes any Rust enum annotated with `error_code` into a JavaScript object consisting of a numeric code, and a string name matching the pascalcase enum variant.
+
+Within the `catch` block, assert the caught error has an `error.errorCode.code` property equal to `"NotPlayersTurn"`, and an `error.errorCode.number` property equal to `6003`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.code === "NotPlayersTurn"`.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.number === 6003`.
+
+```js
+assert.fail();
+```
+
+## 57
+
+### --description--
+
+If you have multiple programs, or a function involves multiple program calls, the Anchor error also provides a `program` property, which is the program that threw the error.
+
+Within the `catch` block, assert the program that threw the error is equal to `program.programId`.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.program === program.programId`.
+
+```js
+assert.fail();
+```
 
 ## --fcc-end--
