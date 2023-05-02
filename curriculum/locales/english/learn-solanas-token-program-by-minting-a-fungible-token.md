@@ -3685,7 +3685,7 @@ You should run the `transfer.js` script.
 const { tokenAccount } = await __helpers.importSansCache(
   './learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
-const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \d+`);
+const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \\d+`);
 const lastCommand = await __helpers.getLastCommand();
 assert.match(
   lastCommand,
