@@ -425,10 +425,10 @@ Your `establishConnection` function should return the new connection.
 
 ```js
 const { Connection } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/node_modules/@solana/web3.js/lib/index.cjs.js'
+  './learn-how-to-interact-with-on-chain-programs/node_modules/@solana/web3.js/lib/index.cjs.js'
 );
 const { establishConnection } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const connection = establishConnection();
 assert.instanceOf(
@@ -2045,7 +2045,7 @@ If the result is equal to `null`, throw an `Error` with a string message.
 
 ```js
 const { checkProgram } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const payer = {};
 const programId = 'programId';
@@ -2128,7 +2128,7 @@ Within `checkProgram`, make use of the `executable` (boolean) property of the `g
 
 ```js
 const { checkProgram } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const connection = {
   getAccountInfo: async () => ({
@@ -2229,7 +2229,7 @@ Within `checkProgram`, get the account info of the program **data** account (`ac
 
 ```js
 const { checkProgram } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 const connection = {
   getAccountInfo: async flip =>
@@ -4477,7 +4477,7 @@ You should no longer throw an error when the program data account is not found.
 
 ```js
 const { checkProgram } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 
 const connection = {
@@ -5413,7 +5413,7 @@ Your `sayHello` function should create a new `Transaction` instance
 
 ```js
 const { sayHello } = await __helpers.importSansCache(
-  '../learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
+  './learn-how-to-interact-with-on-chain-programs/src/client/hello-world.js'
 );
 assert.match(sayHello.toString(), /new\s+Transaction\s*\(/);
 ```
