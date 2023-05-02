@@ -2692,7 +2692,7 @@ The total supply of tokens should be at least `3_000_000_000`.
 
 ```js
 const { mintAddress } = await __helpers.importSansCache(
-  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+  './learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
 const { getMint } = await import('@solana/spl-token');
 const { Connection } = await import('@solana/web3.js');
@@ -3683,7 +3683,7 @@ You should run the `transfer.js` script.
 
 ```js
 const { tokenAccount } = await __helpers.importSansCache(
-  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+  './learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
 const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \d+`);
 const lastCommand = await __helpers.getLastCommand();
