@@ -16,7 +16,7 @@ describe('tic-tac-toe', () => {
   const program = workspace.TicTacToe as Program<TicTacToe>;
   const programProvider = program.provider as AnchorProvider;
 
-  xit('initializes a game', async () => {
+  it('initializes a game', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -30,11 +30,6 @@ describe('tic-tac-toe', () => {
       ],
       program.programId
     );
-
-    console.log('ACCOUNTS:');
-    console.log(gamePublicKey.toBase58());
-    console.log(playerOne.publicKey.toBase58());
-    console.log(playerTwo.publicKey.toBase58());
 
     // Airdrop to playerOne
     const sg = await programProvider.connection.requestAirdrop(
@@ -79,11 +74,6 @@ describe('tic-tac-toe', () => {
       ],
       program.programId
     );
-
-    console.log('ACCOUNTS:');
-    console.log(gamePublicKey.toBase58());
-    console.log(playerOne.publicKey.toBase58());
-    console.log(playerTwo.publicKey.toBase58());
 
     // Airdrop to playerOne
     const sg = await programProvider.connection.requestAirdrop(
@@ -176,7 +166,7 @@ describe('tic-tac-toe', () => {
     );
   });
 
-  xit('handles ties', async () => {
+  it('handles ties', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -337,7 +327,7 @@ describe('tic-tac-toe', () => {
     );
   });
 
-  xit('handles invalid plays', async () => {
+  it('handles invalid plays', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -351,11 +341,6 @@ describe('tic-tac-toe', () => {
       ],
       program.programId
     );
-
-    console.log('ACCOUNTS:');
-    console.log(gamePublicKey.toBase58());
-    console.log(playerOne.publicKey.toBase58());
-    console.log(playerTwo.publicKey.toBase58());
 
     // Airdrop to playerOne
     const sg = await programProvider.connection.requestAirdrop(
@@ -427,11 +412,11 @@ describe('tic-tac-toe', () => {
         gamePublicKey,
         playerTwo,
         { row: 5, column: 1 }, // out of bounds row
-        2,
+        3,
         { active: {} },
         [
-          [{ x: {} }, { x: {} }, null],
-          [{ o: {} }, null, null],
+          [{ x: {} }, null, null],
+          [null, null, null],
           [null, null, null]
         ]
       );
@@ -447,10 +432,88 @@ describe('tic-tac-toe', () => {
       await play(
         program,
         gamePublicKey,
-        playerOne,
+        playerTwo,
         { row: 0, column: 0 },
-        2,
+        3,
         { active: {} },
+        [
+          [{ x: {} }, null, null],
+          [null, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6001);
+      expect(err.error.errorCode.code).to.equal('TileAlreadySet');
+    }
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 0 },
+      3,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 1 },
+      4,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 1 },
+      5,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 2 },
+      5,
+      { won: { winner: playerOne.publicKey } },
+      [
+        [{ x: {} }, { x: {} }, { x: {} }],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne,
+        { row: 0, column: 2 },
+        6,
+        { won: { winner: playerOne.publicKey } },
         [
           [{ x: {} }, { x: {} }, null],
           [{ o: {} }, { o: {} }, null],
@@ -461,28 +524,8 @@ describe('tic-tac-toe', () => {
     } catch (_err) {
       expect(_err).to.be.instanceOf(AnchorError);
       const err: AnchorError = _err;
-      expect(err.error.errorCode.number).to.equal(6001);
-    }
-
-    try {
-      await play(
-        program,
-        gamePublicKey,
-        playerOne,
-        { row: 0, column: 2 },
-        2,
-        { won: { winner: playerOne.publicKey } },
-        [
-          [{ x: {} }, { x: {} }, { x: {} }],
-          [{ o: {} }, { o: {} }, null],
-          [null, null, null]
-        ]
-      );
-      chai.assert(false, "should've failed but didn't ");
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
       expect(err.error.errorCode.number).to.equal(6002);
+      expect(err.error.errorCode.code).to.equal('GameAlreadyOver');
     }
   });
 });

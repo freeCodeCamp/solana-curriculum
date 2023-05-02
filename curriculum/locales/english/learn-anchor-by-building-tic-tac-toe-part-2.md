@@ -1128,28 +1128,6 @@ try {
 
 ### --description--
 
-To test whether the `play` method correctly throws an error when a player tries to play out of turn, wrap a `play` call in a `try...catch` block.
-
-The `try` should throw an error if the `play` call does not throw an error.
-
-### --tests--
-
-`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:1,column:0}, 2, {acive:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);` in the `try` block.
-
-```js
-assert.fail();
-```
-
-`tests/tic-tac-toe.ts` should have a `try...catch` block that throws if `play` does not throw.
-
-```js
-assert.fail();
-```
-
-## 53
-
-### --description--
-
 Within the `describe` callback, create a new `it` call with a title of `"handles ties"`, and an asynchroneous callback.
 
 ### --tests--
@@ -1160,7 +1138,7 @@ Within the `describe` callback, create a new `it` call with a title of `"handles
 assert.fail();
 ```
 
-## 54
+## 53
 
 ### --description--
 
@@ -1204,9 +1182,148 @@ The `setupGame` method should be called on the program.
 assert.fail();
 ```
 
-<!-- TODO: Add tie gameplay -->
+## 54
+
+### --description--
+
+Within the `"handles ties"` callback, use the `play` function to play the game until the players tie each other.
+
+### --tests--
+
+TODO: No idea how to test this yet.
+
+```js
+assert.fail();
+```
 
 ## 55
+
+### --description--
+
+Run the tests to confirm everything is still working.
+
+### --tests--
+
+You should run `anchor test --skip-local-validator`.
+
+```js
+assert.fail();
+```
+
+The tests should pass ✅.
+
+```js
+assert.fail();
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+## 56
+
+### --description--
+
+Within the `describe` callback, create a new `it` call with a title of `"handles invalid plays"`, and an asynchroneous callback.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have a `describe` callback that calls `it` with a title of `"handles invalid plays"`.
+
+```js
+assert.fail();
+```
+
+## 57
+
+### --description--
+
+Within the `"handles invalid plays"` callback, set up a new game similarly to the previous tests, but with a `gameId` of `"game-4"`.
+
+### --tests--
+
+A `playerOne` variable should be declared and assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+A `playerTwo` variable should be declared and assigned `Keypair.generate()`.
+
+```js
+assert.fail();
+```
+
+A `gameId` variable should be declared and assigned `"game-4"`.
+
+```js
+assert.fail();
+```
+
+A `gamePublicKey` variable should be destructed from a `PublicKey.findProgramAddressSync` call.
+
+```js
+assert.fail();
+```
+
+An airdrop should be requested and confirmed for `playerOne`.
+
+```js
+assert.fail();
+```
+
+The `setupGame` method should be called on the program.
+
+```js
+assert.fail();
+```
+
+## 58
+
+### --description--
+
+Within the `"handles invalid plays"` callback, use the `play` function to have player one place an `X` in the top left corner.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:1,column:0}, 2, {acive:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);`.
+
+```js
+assert.fail();
+```
+
+## 59
+
+### --description--
+
+To test whether the `play` instruction handle correctly throws an error when a player tries to play out of turn, wrap a `play` call in a `try...catch` block.
+
+The `try` should throw an error if the `play` call does not throw an error.
+
+### --tests--
+
+`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:1,column:0}, 2, {acive:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);` in the `try` block.
+
+```js
+assert.fail();
+```
+
+`tests/tic-tac-toe.ts` should have a `try...catch` block that throws if `play` does not throw.
+
+```js
+assert.fail();
+```
+
+## 60
 
 ### --description--
 
@@ -1226,7 +1343,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 56
+## 61
 
 ### --description--
 
@@ -1248,7 +1365,7 @@ assert.fail();
 assert.fail();
 ```
 
-## 57
+## 62
 
 ### --description--
 
@@ -1262,6 +1379,181 @@ Within the `catch` block, assert the program that threw the error is equal to `p
 
 ```js
 assert.fail();
+```
+
+## 63
+
+### --description--
+
+Within the `"handles invalid plays"` callback, add another `try...catch` block testing for the case where a player tries to play in a tile that is out of bounds.
+
+### --tests--
+
+The `"handles invalid plays"` callback should have a second `try...catch` block.
+
+```js
+assert.fail();
+```
+
+The `try` block should call `play` with an invalid tile.
+
+```js
+assert.fail();
+```
+
+The `try` block should throw if the `play` call does not throw.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error is an instance of `AnchorError`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.number` property equal to `6000`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.code` property equal to `"TileOutOfBounds"`.
+
+```js
+assert.fail();
+```
+
+## 64
+
+### --description--
+
+Within the `"handles invalid plays"` callback, add another `try...catch` block testing for the case where a player tries to play in a tile that is already occupied.
+
+### --tests--
+
+The `"handles invalid plays"` callback should have a third `try...catch` block.
+
+```js
+assert.fail();
+```
+
+The `try` block should call `play` with a tile position that is already occupied.
+
+```js
+assert.fail();
+```
+
+The `try` block should throw if the `play` call does not throw.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error is an instance of `AnchorError`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.number` property equal to `6001`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.code` property equal to `"TileAlreadySet"`.
+
+```js
+assert.fail();
+```
+
+## 65
+
+### --description--
+
+Within the `"handles invalid plays"` callback, call the `play` function as many times as necessary to have a player win the game.
+
+### --tests--
+
+TODO: No idea how to test this.
+
+```js
+assert.fail();
+```
+
+## 66
+
+### --description--
+
+Within the `"handles invalid plays"` callback, add another `try...catch` block testing for the case where a player tries to play after the game is over.
+
+### --tests--
+
+The `"handles invalid plays"` callback should have a fourth `try...catch` block.
+
+```js
+assert.fail();
+```
+
+The `try` block should call `play` after the game is over.
+
+```js
+assert.fail();
+```
+
+The `try` block should throw if the `play` call does not throw.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error is an instance of `AnchorError`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.number` property equal to `6002`.
+
+```js
+assert.fail();
+```
+
+The `catch` block should assert the error has an `error.errorCode.code` property equal to `"GameAlreadyOver"`.
+
+```js
+assert.fail();
+```
+
+## 67
+
+### --description--
+
+**Summary**
+
+- The Anchor `workspace` contains all the programs in your project
+- Each program has a `methods` property containing all the program's instructions
+  - The `accounts` method is used to pass in all the required public keys for the chained instruction
+  - The `signers` method is used to pass in all the keypairs for the chained instruction
+  - The `rpc` method sends the transaction to the Solana cluster
+- Each program has an `account` property containing all the program's accounts
+  - An account's data can be fetched with: `program.account.<ACCOUNT_NAME>.fetch(<ACCOUNT_PUBKEY>)`
+- Program Derived Addresses are used to programmatically generate a public key for an account
+  - The `PublicKey.findProgramAddressSync` method can be used to derive a PDA
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
 ```
 
 ## --fcc-end--
