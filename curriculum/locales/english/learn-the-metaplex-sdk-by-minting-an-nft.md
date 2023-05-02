@@ -1367,7 +1367,7 @@ const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
 });
 assert.match(
   minifiedCode,
-  /imageBuffer=(await )?(readFile|readFileSync|read)\(('|"|`)(\.\/)?assets\/pic\.png\3\)/
+  /imageBuffer=(await readFile|readFileSync|read)\(('|"|`)(\.\/)?assets\/pic\.png\2\)/
 );
 ```
 
