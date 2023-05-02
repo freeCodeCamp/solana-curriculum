@@ -2699,7 +2699,7 @@ const { Connection } = await import('@solana/web3.js');
 const connection = new Connection('http://localhost:8899');
 
 const mint = await getMint(connection, mintAddress);
-assert.isTrue(mint.supply >= 3_000_000_000, '`mint.supply` should be at least `3_000_000_000`');
+assert.isAtLeast(Number(mint.supply), 3_000_000_000);
 ```
 
 The validator should be running at `http://localhost:8899`.
