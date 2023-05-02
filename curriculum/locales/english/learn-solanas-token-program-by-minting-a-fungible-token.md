@@ -801,7 +801,7 @@ The output of `node create-mint-account.js` should include the base-58 represent
 
 ```js
 const terminalOutput = await __helpers.getTerminalOutput();
-assert.match(terminalOutput, /[a-Z0-9]{44}/);
+assert.match(terminalOutput, /[A-z0-9]{44}/);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1273,7 +1273,7 @@ The output of `node create-token-account.js` should include the base-58 represen
 
 ```js
 const terminalOutput = await __helpers.getTerminalOutput();
-assert.match(terminalOutput, /[a-Z0-9]{44}/);
+assert.match(terminalOutput, /[A-z0-9]{44}/);
 ```
 
 The validator should be running at `http://localhost:8899`.
