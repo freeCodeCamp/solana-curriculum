@@ -51,7 +51,7 @@
     "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
-    "numberOfLessons": 50
+    "numberOfLessons": 51
   },
   {
     "id": 5,
@@ -70,20 +70,20 @@
     "isIntegrated": false,
     "description": "In this course, you will learn how to use Anchor, a framework for building smart contracts on Solana, to build an on-chain Tic-Tac-Toe game.",
     "isPublic": true,
-    "currentLesson": 1,
+    "currentLesson": 9,
     "runTestsOnWatch": true,
-    "numberOfLessons": 52
+    "numberOfLessons": 68
   },
   {
     "id": 7,
     "title": "Learn Anchor by Building Tic-Tac-Toe: Part 2",
-    "dashedName": "learn-how-to-test-an-anchor-program-part-2",
+    "dashedName": "learn-anchor-by-building-tic-tac-toe-part-2",
     "isIntegrated": false,
     "description": "In this course, you will learn how to test the previously built Tic-Tac-Toe game.",
     "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
-    "numberOfLessons": 50
+    "numberOfLessons": 67
   },
   {
     "id": 8,

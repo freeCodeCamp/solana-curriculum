@@ -19,7 +19,8 @@ cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 You should have `avm` installed.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput('avm --version');
+assert.include(stdout, 'avm');
 ```
 
 ## 2
@@ -41,7 +42,8 @@ avm install latest
 You should have the latest version of the Anchor CLI installed.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput('avm list');
+assert.include(stdout, '(latest, installed, current)');
 ```
 
 ## 3
@@ -59,7 +61,8 @@ avm use latest
 You should be using the latest version of the Anchor CLI.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput('avm list');
+assert.include(stdout, '(latest, installed, current)');
 ```
 
 ## 4
@@ -77,7 +80,9 @@ anchor --version
 You should see version `0.27` printed to the console.
 
 ```js
-assert.fail();
+// TODO: Might want to future-proof this in case of a new version.
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, '0.27');
 ```
 
 ## 5
@@ -86,7 +91,7 @@ assert.fail();
 
 You will be building a Tic-Tac-Toe game on the Solana blockchain.
 
-Within `learn-anchor-by-building-tic-tac-toe/`, create a new project named `tic-tac-toe`:
+Within `learn-anchor-by-building-tic-tac-toe-part-1/`, create a new project named `tic-tac-toe`:
 
 ```bash
 anchor init --no-git tic-tac-toe
@@ -96,22 +101,26 @@ anchor init --no-git tic-tac-toe
 
 ### --tests--
 
-You should be in the `learn-anchor-by-building-tic-tac-toe` directory.
+You should be in the `learn-anchor-by-building-tic-tac-toe-part-1` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 You should run `anchor init --no-git tic-tac-toe` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.trim(), 'anchor init --no-git tic-tac-toe');
 ```
 
 You should have a `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const exists = __helpers.fileExists(`${project.dashedName}/tic-tac-toe`);
+assert.isTrue(exists);
 ```
 
 ## 6
@@ -147,7 +156,9 @@ In your terminal, change into the `tic-tac-toe` directory.
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 ## 7
@@ -169,13 +180,22 @@ anchor keys list
 The public key of your `tic-tac-toe` program should be printed to the console.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const publicKey = stdout.match(/[^\s]{44}/)[0];
+
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, publicKey);
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 ## 8
@@ -201,13 +221,16 @@ anchor test
 The `anchor test` command should error ❌.
 
 ```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Error: failed to send transaction');
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 ## 9
@@ -248,13 +271,16 @@ With the local validator running, use the `--skip-local-validator` flag to tell 
 The `anchor test --skip-local-validator` command should error.
 
 ```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Error: AnchorError occurred.');
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -289,13 +315,22 @@ Run `anchor keys list` again to see if it matches the `programs.localnet.tic_tac
 You should run `anchor keys list` and see the program id printed to the console.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const publicKey = stdout.match(/[^\s]{44}/)?.[0];
+
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, publicKey);
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 ## 12
@@ -312,13 +347,31 @@ Copy the program id, and replace the default values with it in two locations:
 The `lib.rs` file should contain the program id within the `declare_id!()` call.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
+const actualProgramId = librs.match(/declare_id\("([^\)]+)"\)/)?.[1];
+assert.equal(actualProgramId, expectedProgramId);
 ```
 
 The `Anchor.toml` file should contain the program id as the value for the `tic_tac_toe` key.
 
 ```js
-assert.fail();
+const toml = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/Anchor.toml`
+);
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
+const actualProgramId = toml.match(/tic_tac_toe = "([^\)]+)"/)?.[1];
+assert.equal(actualProgramId, expectedProgramId);
 ```
 
 ## 13
@@ -336,7 +389,8 @@ anchor test --skip-local-validator
 The `anchor test --skip-local-validator` command should succeed.
 
 ```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Test Success');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -369,7 +423,19 @@ Rename the `initialize` function to `setup_game`.
 The `setup_game` function should exist in the `lib.rs` file.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+assert.match(librs, /fn setup_game/);
+```
+
+The `initialize` function should not exist in the `lib.rs` file.
+
+```js
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+assert.notMatch(librs, /fn initialize/);
 ```
 
 ## 15
