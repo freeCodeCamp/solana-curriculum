@@ -423,19 +423,28 @@ Rename the `initialize` function to `setup_game`.
 The `setup_game` function should exist in the `lib.rs` file.
 
 ```js
-const librs = await __helpers.getFile(
-  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
-);
-assert.match(librs, /fn setup_game/);
+assert.match(__librs, /fn setup_game/);
 ```
 
 The `initialize` function should not exist in the `lib.rs` file.
 
 ```js
-const librs = await __helpers.getFile(
+assert.notMatch(__librs, /fn initialize/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
   `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
 );
-assert.notMatch(librs, /fn initialize/);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 15
@@ -451,13 +460,29 @@ Rename the `Initialize` struct to `SetupGame`.
 The `SetupGame` struct should exist in the `lib.rs` file.
 
 ```js
-assert.fail();
+assert.match(__librs, /struct SetupGame/);
 ```
 
 The `setup_game` function should take a `Context<SetupGame>` as an argument.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub fn setup_game/);
+assert.match(__librs, /ctx: Context<SetupGame>/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 16
@@ -485,25 +510,40 @@ Within `SetupGame`, add a public field `game` with a type of `Account<'info, Gam
 `SetupGame` should contain a field `game`.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub game:/);
 ```
 
 `game` should be typed `Account<'info, Game>`.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub game: Account<Game>/);
 ```
 
 `game` should be annotated with `#[account(init)]`.
 
 ```js
-assert.fail();
+assert.match(__librs, /#\[\s*account\s*\(\s*init\s*\)\s*\]\s*pub game:/);
 ```
 
 `SetupGame` should be punctuated with a lifetime `'info`.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub struct SetupGame\s*<'info>/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 17
@@ -521,19 +561,34 @@ Declare another account in `SetupGame` called `player_one`. Give `player_one` a 
 `SetupGame` should contain a field `player_one`.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub player_one:/);
 ```
 
 `player_one` should be typed `Signer<'info>`.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub player_one: Signer\s<'info>/);
 ```
 
 `player_one` should be annotated with `#[account()]`.
 
 ```js
-assert.fail();
+assert.match(__librs, /#\[\s*account\s*\(\s*\)\s*\]\s*pub player_one:/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 18
@@ -560,7 +615,13 @@ pub struct AccountsInContext<'info> {
 `game` should be annotated with `payer = player_one`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+assert.match(
+  librs,
+  /#\[\s*account\s*\(\s*init\s*,\s*payer\s*=\s*player_one\s*\)\s*\]\s*pub game:/
+);
 ```
 
 ## 19
@@ -581,7 +642,10 @@ Mark the `player_one` account as mutable.
 `player_one` should be annotated with `#[account(mut)]`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+assert.match(librs, /#\[\s*account\s*\(\s*mut\s*\)\s*\]\s*pub player_one:/);
 ```
 
 ## 20
@@ -602,7 +666,13 @@ Add a `space` parameter to the `game` account with a value of `10`. This means t
 `game` should be annotated with `space = 10`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+assert.match(
+  librs,
+  /#\[\s*account\s*\(\s*init\s*,\s*space\s*=\s*10\s*\)\s*\]\s*pub game:/
+);
 ```
 
 ## 21
@@ -618,13 +688,28 @@ Define a public struct `Game`, and annotate it with `#[account]` to indicate it 
 `pub struct Game` should exist in the `lib.rs` file.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub struct Game/);
 ```
 
 `Game` should be annotated with `#[account]`.
 
 ```js
-assert.fail();
+assert.match(__librs, /#\[\s*account\s*\]\s*pub struct Game/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 22
@@ -640,13 +725,29 @@ Keep track of the players, by adding a `players` field in `Game` with a type of 
 `Game` should contain a field `players`.
 
 ```js
-assert.fail();
+const game = __librs.match(/pub struct Game\s*{([^}]*)}/s)?.[1];
+assert.match(game, /players:/);
 ```
 
 `players` should be typed `[Pubkey; 2]`.
 
 ```js
-assert.fail();
+assert.match(__librs, /players: \[\s*Pubkey\s*;\s*2\s*\]/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 23
@@ -660,13 +761,29 @@ Keep track of the current turn number, by adding a `turn` field in `Game` with a
 `Game` should contain a field `turn`.
 
 ```js
-assert.fail();
+const game = __librs.match(/pub struct Game\s*{([^}]*)}/s)?.[1];
+assert.match(game, /turn:/);
 ```
 
 `turn` should be typed `u8`.
 
 ```js
-assert.fail();
+assert.match(__librs, /turn: u8/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 24
@@ -680,13 +797,32 @@ Keep track of the board state (the value of each tile), by adding a `board` fiel
 `Game` should contain a field `board`.
 
 ```js
-assert.fail();
+const game = __librs.match(/pub struct Game\s*{([^}]*)}/s)?.[1];
+assert.match(game, /board:/);
 ```
 
 `board` should be typed `[[Option<Sign>; 3]; 3]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /board: \[\[\s*Option\s*<\s*Sign\s*>\s*;\s*3\s*\]\s*;\s*3\s*\]/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 25
@@ -700,13 +836,29 @@ Keep track of the current game condition, by adding a `state` field in `Game` wi
 `Game` should contain a field `state`.
 
 ```js
-assert.fail();
+const game = __librs.match(/pub struct Game\s*{([^}]*)}/s)?.[1];
+assert.match(game, /state:/);
 ```
 
 `state` should be typed `GameState`.
 
 ```js
-assert.fail();
+assert.match(__librs, /state: GameState/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 26
@@ -720,19 +872,36 @@ Define a public enum `Sign` with variants `X` and `O`.
 `pub enum Sign` should exist in the `lib.rs` file.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub enum Sign/);
 ```
 
 `Sign` should have a variant `X`.
 
 ```js
-assert.fail();
+const sign = __librs.match(/pub enum Sign\s*{([^}]*)}/s)?.[1];
+assert.match(sign, /X/);
 ```
 
 `Sign` should have a variant `O`.
 
 ```js
-assert.fail();
+const sign = __librs.match(/pub enum Sign\s*{([^}]*)}/s)?.[1];
+assert.match(sign, /O/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 27
@@ -746,25 +915,43 @@ Define a public enum `GameState` with variants `Active`, `Tie`, and `Won`. The `
 `pub enum GameState` should exist in the `lib.rs` file.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub enum GameState/);
 ```
 
 `GameState` should have a variant `Active`.
 
 ```js
-assert.fail();
+const gameState = __librs.match(/pub enum GameState\s*{([^}]*)}/s)?.[1];
+assert.match(gameState, /Active/);
 ```
 
 `GameState` should have a variant `Tie`.
 
 ```js
-assert.fail();
+const gameState = __librs.match(/pub enum GameState\s*{([^}]*)}/s)?.[1];
+assert.match(gameState, /Tie/);
 ```
 
 `GameState` should have a variant `Won { winner: Pubkey }`.
 
 ```js
-assert.fail();
+const gameState = __librs.match(/pub enum GameState\s*{([^}]*)}/s)?.[1];
+assert.match(gameState, /Won\s*{\s*winner:\s*Pubkey\s*}/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 28
@@ -780,13 +967,34 @@ Derive the `AnchorSerialize` and `AnchorDeserialize` traits for `GameState` and 
 `GameState` should be annotated with `#[derive(AnchorSerialize, AnchorDeserialize)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\(\s*AnchorSerialize\s*,\s*AnchorDeserialize\s*\)\s*\]\s*pub enum GameState/
+);
 ```
 
 `Sign` should be annotated with `#[derive(AnchorSerialize, AnchorDeserialize)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\(\s*AnchorSerialize\s*,\s*AnchorDeserialize\s*\)\s*\]\s*pub enum Sign/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 29
@@ -802,13 +1010,34 @@ Derive the `Clone` trait for `GameState` and `Sign`.
 `GameState` should be annotated with `#[derive(Clone)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\([^\]]*?Clone[^\]]*?\)\s*\]\s*pub enum GameState/
+);
 ```
 
 `Sign` should be annotated with `#[derive(Clone)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\([^\]]*?Clone[^\]]*?\)\s*\]\s*pub enum Sign/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 30
@@ -824,7 +1053,13 @@ Derive the `Copy` trait for `Sign`.
 `Sign` should be annotated with `#[derive(Copy)]`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+assert.match(
+  librs,
+  /#\[\s*derive\s*\([^\]]*?Copy[^\]]*?\)\s*\]\s*pub enum Sign/
+);
 ```
 
 ## 31
@@ -840,13 +1075,30 @@ Add a public `system_program` field to the `SetupGame` struct, and type it as `P
 `SetupGame` should contain a field `system_program`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+assert.match(setupGame, /system_program:/);
 ```
 
 `system_program` should be typed `Program<'info, System>`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+assert.match(setupGame, /system_program: Program\s*<\s*'info\s*,\s*System\s*>/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 32
@@ -870,10 +1122,27 @@ Replace the `10` bytes allocated for the `Game` account with the correct size.
 
 ### --tests--
 
-`Game` should be annotated with `#[account(size = 8 + (32*2) + (1) + ((1+1)*(3*3)) + (1+32))]`.
+The `game` field in `SetupGame` should be annotated with `#[account(space = 8 + (32*2) + (1) + ((1+1)*(3*3)) + (1+32))]`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+
+const setupGame = librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+const mat = setupGame.match(
+  /#\[\s*account\s*\([^\]]*?space\s*=\s*([^\]]+?)\s*\)\s*\]\s*pub game:/
+)?.[1];
+assert.exists(
+  mat,
+  `game field should be annotated with #[account(space = <SIZE>)]`
+);
+const math = eval(mat);
+assert.equal(
+  math,
+  8 + 32 * 2 + 1 + (1 + 1) * (3 * 3) + (1 + 32),
+  `space should sum up to correct size`
+);
 ```
 
 ## 33
@@ -889,13 +1158,34 @@ Just a few things to fix. First, derive `PartialEq` for `GameState` and `Sign`.
 `GameState` should be annotated with `#[derive(PartialEq)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\([^\]]*?PartialEq[^\]]*?\)\s*\]\s*pub enum GameState/
+);
 ```
 
 `Sign` should be annotated with `#[derive(PartialEq)]`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\([^\]]*?PartialEq[^\]]*?\)\s*\]\s*pub enum Sign/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1083,13 +1373,28 @@ To derive `FromPrimitive`, you need to add `num-traits` and `num-derive` to the 
 You should add `num-traits` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
 
 ```js
-assert.fail();
+assert.match(__cargo_toml, /num-traits/);
 ```
 
 You should add `num-derive` to the dependencies in `programs/tic-tac-toe/Cargo.toml`.
 
 ```js
-assert.fail();
+assert.match(__cargo_toml, /num-derive/);
+```
+
+### --before-all--
+
+```js
+const __cargo_toml = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/Cargo.toml`
+);
+global.__cargo_toml = __cargo_toml?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__cargo_toml;
 ```
 
 ## 35
@@ -1103,19 +1408,37 @@ Now, derive `num_derive::FromPrimitive` for `Sign`.
 `Sign` should derive `num_derive::FromPrimitive`.
 
 ```js
-assert.fail();
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\([^\]]*?num_derive\s*::\s*FromPrimitive[^\]]*?\)\s*\]\s*pub enum Sign/
+);
 ```
 
 `num_traits::FromPrimitive` should be brought into the module scope.
 
 ```js
-assert.fail();
+assert.match(__librs, /use num_traits::FromPrimitive;/);
 ```
 
 `num_derive` should be brought into the module scope.
 
 ```js
-assert.fail();
+assert.match(__librs, /use num_derive/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 36
@@ -1131,19 +1454,40 @@ Define a public enum `TicTacToeError` with the variants `TileAlreadySet` and `Ti
 A `TicTacToeError` enum should be defined.
 
 ```js
-assert.fail();
+assert.match(__librs, /pub enum TicTacToeError/);
 ```
 
 `TicTacToeError` should have the variant `TileAlreadySet`.
 
 ```js
-assert.fail();
+const ticTacToeError = __librs.match(
+  /pub enum TicTacToeError\s*{([^}]*)}/s
+)?.[1];
+assert.match(ticTacToeError, /TileAlreadySet/);
 ```
 
 `TicTacToeError` should have the variant `TileOutOfBounds`.
 
 ```js
-assert.fail();
+const ticTacToeError = __librs.match(
+  /pub enum TicTacToeError\s*{([^}]*)}/s
+)?.[1];
+assert.match(ticTacToeError, /TileOutOfBounds/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 37
@@ -1157,7 +1501,12 @@ In the appropriate location, return the `TileAlreadySet` error.
 The first `return Err()` should return the `TileAlreadySet` error.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+
+const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?))\),/)?.[1];
+assert.match(firstReturnErr, /TicTacToeError\s*::\s*TileAlreadySet/);
 ```
 
 ## 38
@@ -1176,7 +1525,11 @@ pub enum MyCustomError { ... }
 Your `TicTacToeError` enum should have the `error_code` attribute macro.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+
+assert.match(librs, /#\[\s*error_code\s*\]\s*pub enum TicTacToeError/);
 ```
 
 ## 39
@@ -1190,7 +1543,16 @@ Convert the `TileAlreadySet` error into an `anchor_lang::error::Error` by callin
 You should have `return Err(TicTacToeError::TileAlreadySet.into());`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+
+const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?))\),/)?.[1];
+
+assert.match(
+  firstReturnErr,
+  /TicTacToeError\s*::\s*TileAlreadySet\s*.\s*into\(\)/
+);
 ```
 
 ## 40
@@ -1204,13 +1566,37 @@ In the appropriate location, return the `TileOutOfBounds` error.
 The second `return Err()` should return the `TileOutOfBounds` error.
 
 ```js
-assert.fail();
+const secondReturnErr = [
+  ...__librs.matchAll(/return Err\s*\(([^\)]*?))\),/g)
+]?.[1]?.[1];
+assert.match(secondReturnErr, /TicTacToeError\s*::\s*TileOutOfBounds/);
 ```
 
 The `TileOutOfBounds` error should be converted into an `anchor_lang::error::Error`.
 
 ```js
-assert.fail();
+const secondReturnErr = [
+  ...__librs.matchAll(/return Err\s*\(([^\)]*?))\),/g)
+]?.[1]?.[1];
+assert.match(
+  secondReturnErr,
+  /TicTacToeError\s*::\s*TileOutOfBounds\s*.\s*into\(\)/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 41
