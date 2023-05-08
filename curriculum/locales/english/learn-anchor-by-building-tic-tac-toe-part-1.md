@@ -1130,7 +1130,7 @@ const librs = await __helpers
   ?.replaceAll(/[ \t]{2,}/g, ' ');
 
 const setupGame = librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
-const mat = setupGame.match(
+const mat = setupGame?.match(
   /#\[\s*account\s*\([^\]]*?space\s*=\s*([^\]]+?)\s*\)\s*\]\s*pub game:/
 )?.[1];
 assert.exists(
@@ -1505,7 +1505,7 @@ const librs = await __helpers
   .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
   ?.replaceAll(/[ \t]{2,}/g, ' ');
 
-const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?))\),/)?.[1];
+const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?)\),/)?.[1];
 assert.match(firstReturnErr, /TicTacToeError\s*::\s*TileAlreadySet/);
 ```
 
@@ -1547,7 +1547,7 @@ const librs = await __helpers
   .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
   ?.replaceAll(/[ \t]{2,}/g, ' ');
 
-const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?))\),/)?.[1];
+const firstReturnErr = librs.match(/return Err\s*\(([^\)]*?)\),/)?.[1];
 
 assert.match(
   firstReturnErr,
@@ -1567,7 +1567,7 @@ The second `return Err()` should return the `TileOutOfBounds` error.
 
 ```js
 const secondReturnErr = [
-  ...__librs.matchAll(/return Err\s*\(([^\)]*?))\),/g)
+  ...__librs.matchAll(/return Err\s*\(([^\)]*?)\),/g)
 ]?.[1]?.[1];
 assert.match(secondReturnErr, /TicTacToeError\s*::\s*TileOutOfBounds/);
 ```
@@ -1576,7 +1576,7 @@ The `TileOutOfBounds` error should be converted into an `anchor_lang::error::Err
 
 ```js
 const secondReturnErr = [
-  ...__librs.matchAll(/return Err\s*\(([^\)]*?))\),/g)
+  ...__librs.matchAll(/return Err\s*\(([^\)]*?)\),/g)
 ]?.[1]?.[1];
 assert.match(
   secondReturnErr,
@@ -1616,25 +1616,59 @@ In the appropriate location, use the `require!` macro to return early if the gam
 The `require!` macro should be used to return early if the game state is not `Active`.
 
 ```js
-assert.fail();
+// `require!(` comes after `-> Result<()> {`, and before `match tile {`
+const playFunction = __librs.match(
+  /pub fn play\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^}]*)}/s
+)?.[2];
+assert.match(playFunction, /require!\(/);
 ```
 
 The `require!` condition should use the provided `is_active` method.
 
 ```js
-assert.fail();
+const playFunction = __librs.match(
+  /pub fn play\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^}]*)}/s
+)?.[2];
+const requireCondition = playFunction?.match(
+  /require!\s*\(([^\)]*?)\)\s*;\s*match\s*tile\s*{/
+)?.[1];
+assert.match(requireCondition, /self\s*.\s*is_active\s*\(\s*\)/);
 ```
 
 The `require!` macro should return the `GameAlreadyOver` error.
 
 ```js
-assert.fail();
+const playFunction = __librs.match(
+  /pub fn play\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^}]*)}/s
+)?.[2];
+const requireCondition = playFunction?.match(
+  /require!\s*\(([^\)]*?)\)\s*;\s*match\s*tile\s*{/
+)?.[1];
+assert.match(requireCondition, /TickTacToeError\s*::\s*GameAlreadyOver/);
 ```
 
 The `TicTacToeError` enum should have the variant `GameAlreadyOver`.
 
 ```js
-assert.fail();
+const ticTacToeError = __librs.match(
+  /pub enum TicTacToeError\s*{([^}]*)}/s
+)?.[1];
+assert.match(ticTacToeError, /GameAlreadyOver/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 42
@@ -1650,19 +1684,54 @@ Within the `start` method, use the `require_eq!` macro to return early if the `t
 The `require_eq!` macro should be used to return early if the `turn` is not equal to `0`.
 
 ```js
-assert.fail();
+const startFn = __librs.match(
+  /pub fn start\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^}]*)}/s
+)?.[2];
+const requireEq = startFn?.match(/require_eq!\s*\(([^\)]*?)\)\s*;/)?.[1];
+assert.exists(requireEq, '`require_eq!` should be called');
+assert.match(
+  requireEq,
+  /self\s*.\s*turn\s*,\s*0/,
+  '`require_eq!` should be called with `self.turn` and `0`'
+);
 ```
 
 The `require_eq!` macro should return the `GameAlreadyStarted` error.
 
 ```js
-assert.fail();
+const startFn = __librs.match(
+  /pub fn start\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^}]*)}/s
+)?.[2];
+const requireEq = startFn?.match(/require_eq!\s*\(([^\)]*?)\)\s*;/)?.[1];
+assert.match(
+  requireEq,
+  /TicTacToeError\s*::\s*GameAlreadyStarted/,
+  'the third argument to `require_eq!` should be `TicTacToeError::GameAlreadyStarted`'
+);
 ```
 
 The `TicTacToeError` enum should have the variant `GameAlreadyStarted`.
 
 ```js
-assert.fail();
+const ticTacToeError = __librs.match(
+  /pub enum TicTacToeError\s*{([^}]*)}/s
+)?.[1];
+assert.match(ticTacToeError, /GameAlreadyStarted/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 43
@@ -1692,13 +1761,35 @@ Within the `setup_game` instruction handler, declare a variable `player_one` and
 The `player_one` variable should be declared.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /let\s*player_one/);
 ```
 
 The `player_one` variable should be assigned `&ctx.accounts.player_one`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+const playerOne = setupGame?.match(/let\s*player_one\s*=\s*([^\;]*?)\;/)?.[1];
+assert.match(playerOne, /&\s*ctx\.accounts\.player_one/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 44
@@ -1718,13 +1809,37 @@ Withing `setup_game` declare a variable `player_one_pubkey` and assign the retur
 The `player_one_pubkey` variable should be declared.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /let\s*player_one_pubkey/);
 ```
 
 The `player_one_pubkey` variable should be assigned `player_one.key()`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+const playerOnePubkey = setupGame?.match(
+  /let\s*player_one_pubkey\s*=\s*([^\;]*?)\;/
+)?.[1];
+assert.match(playerOnePubkey, /player_one\s*.\s*key\s*\(\s*\)/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 45
@@ -1744,13 +1859,34 @@ In order to get the second player's public key, add a `player_two_pubkey` parame
 The `setup_game` instruction handler should have a `player_two_pubkey` parameter.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /player_two_pubkey\s*:/);
 ```
 
 The `player_two_pubkey` parameter should be of type `Pubkey`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /player_two_pubkey\s*:\s*Pubkey/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 46
@@ -1764,13 +1900,35 @@ Within the `setup_game` instruction handler, declare a variable `game`, and assi
 The `game` variable should be declared.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /let\s*game/);
 ```
 
 The `game` variable should be assigned `&mut ctx.accounts.game`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+const game = setupGame?.match(/let\s+game\s*=\s*([^\;]*?)\;/)?.[1];
+assert.match(game, /&\s*mut\s+ctx\.accounts\.game/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 47
@@ -1781,10 +1939,20 @@ Within the `setup_game` instruction handler, replace the `Ok(())` witha call to 
 
 ### --tests--
 
-`setup_game` should have `game.start(player_one_pubkey, player_two_pubkey)`.
+`setup_game` should have `game.start([player_one_pubkey, player_two_pubkey])`.
 
 ```js
-assert.fail();
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+
+const setupGame = librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)}/s
+)?.[2];
+assert.match(
+  setupGame,
+  /game\s*.\s*start\s*\(\s*\[\s*player_one_pubkey\s*,\s*player_two_pubkey\s*\]\s*\)/
+);
 ```
 
 ## 48
@@ -1816,7 +1984,17 @@ Within `lib.rs`, initialize the `game` account using two seeds: the first the by
 `SetupGame` should annotate the `game` field with `#[account(seeds = [b"game", player_one.key().as_ref()])]`.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+const setupGameStruct = librs.match(/struct\s*SetupGame\s*{([^\}]*)}/s)?.[1];
+const accountAttribute = setupGameStruct?.match(
+  /#\[account\s*\(([^\]]*?)\]\s*pub\s*game/
+)?.[1];
+assert.match(
+  accountAttribute,
+  /seeds\s*=\s*\[\s*b"game"\s*,\s*player_one\s*.\s*key\s*\(\s*\)\s*.\s*as_ref\s*\(\s*\)\s*\]/
+);
 ```
 
 ## 49
@@ -1834,7 +2012,14 @@ Explicitly tell Anchor to generate the bump seed, by annotating the `game` field
 `SetupGame` should annotate the `game` field with `#[account(bump)]`.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+const setupGameStruct = librs.match(/struct\s*SetupGame\s*{([^\}]*)}/s)?.[1];
+const accountAttribute = setupGameStruct?.match(
+  /#\[account\s*\(([^\]]*?)\]\s*pub\s*game/
+)?.[1];
+assert.match(accountAttribute, /bump/);
 ```
 
 ## 50
@@ -1845,16 +2030,19 @@ Run the tests to see if the `setup_game` instruction handler is working correctl
 
 ### --tests--
 
-The test for `setup_game` should pass when `anchor test --skip-local-validator`.
+The test for `setup_game` should pass for `anchor test --skip-local-validator`.
 
 ```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '1 passing');
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1868,6 +2056,71 @@ try {
 } catch (e) {
   assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
 }
+```
+
+### --seed--
+
+#### --force--
+
+#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+
+```typescript
+import {
+  AnchorError,
+  Program,
+  AnchorProvider,
+  setProvider,
+  workspace
+} from '@coral-xyz/anchor';
+import { TicTacToe } from '../target/types/tic_tac_toe';
+import { expect } from 'chai';
+import { Keypair, PublicKey } from '@solana/web3.js';
+
+describe('tic-tac-toe', () => {
+  // Configure the client to use the local cluster.
+  setProvider(AnchorProvider.env());
+
+  const program = workspace.TicTacToe as Program<TicTacToe>;
+  const programProvider = program.provider as AnchorProvider;
+
+  it('initializes a game', async () => {
+    const playerOne = Keypair.generate();
+    const playerTwo = Keypair.generate();
+
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [Buffer.from('game'), playerOne.publicKey.toBuffer()],
+      program.programId
+    );
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
+    await program.methods
+      .setupGame(playerTwo.publicKey)
+      .accounts({
+        game: gamePublicKey,
+        playerOne: playerOne.publicKey
+      })
+      .signers([playerOne])
+      .rpc();
+
+    const gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
+    expect(gameData.players).to.eql([playerOne.publicKey, playerTwo.publicKey]);
+
+    expect(gameData.state).to.eql({ active: {} });
+    expect(gameData.board).to.eql([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+  });
+});
 ```
 
 ## 51
@@ -1903,13 +2156,34 @@ Within `lib.rs`, add a third parameter `game_id` of type `String` to the `setup_
 The `setup_game` instruction handler should have a `game_id` parameter.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/s
+)?.[1];
+assert.match(setupGame, /game_id\s*:/);
 ```
 
 The `game_id` parameter should be of type `String`.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/s
+)?.[1];
+assert.match(setupGame, /game_id\s*:\s*String/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 52
@@ -1923,7 +2197,13 @@ Within `lib.rs`, annotate the `SetupGame` struct with the `instruction` attribut
 The `SetupGame` struct should be annotated with `#[instruction(player_two_pubkey: Pubkey, game_id: String)]`.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+assert.match(
+  librs,
+  /(?<=#\[\s*instruction\s*\(\s*player_two_pubkey\s*:\s*Pubkey\s*,\s*game_id\s*:\s*String\s*\)\s*])\s*pub\s+struct\s+SetupGame/
+);
 ```
 
 ## 53
@@ -1937,7 +2217,17 @@ Within `lib.rs`, add the `game_id` parameter as a seed to the `seeds` value of t
 The `game` field should be annotated with `#[account(seeds = [b"game", player_one.key().as_ref(), game_id.as_bytes()])]`.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+const setupGameStruct = librs.match(/struct\s*SetupGame\s*{([^\}]*)}/s)?.[1];
+const accountAttribute = setupGameStruct?.match(
+  /#\[account\s*\(([^\]]*?)\]\s*pub\s*game/
+)?.[1];
+assert.match(
+  accountAttribute,
+  /seeds\s*=\s*\[\s*b"game"\s*,\s*player_one\s*.\s*key\s*\(\s*\)\s*.\s*as_ref\s*\(\s*\)\s*,\s*game_id\s*.\s*as_bytes\s*\(\s*\)\s*\]/
+);
 ```
 
 ## 54
@@ -1951,19 +2241,50 @@ To prevent Rust from complaining about the `game_id` parameter not being used, p
 The `game_id` parameter should be prefixed with an underscore in the `setup_game` instruction handler.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(setupGame, /_game_id\s*:/);
 ```
 
 The `game_id` parameter should be prefixed with an underscore in the `instruction` attribute.
 
 ```js
-assert.fail();
+const setupGame = __librs.match(
+  /pub fn setup_game\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+const instructionAttribute = setupGame?.match(
+  /#\[instruction\s*\(([^\]]*?)\)\s*\]/
+)?.[1];
+assert.match(instructionAttribute, /_game_id\s*:\s*String/);
 ```
 
 The `game_id` parameter should be prefixed with an underscore in the `game` account's `seeds` value.
 
 ```js
-assert.fail();
+const setupGameStruct = __librs.match(/struct\s*SetupGame\s*{([^\}]*)}/s)?.[1];
+const accountAttribute = setupGameStruct?.match(
+  /#\[account\s*\(([^\]]*?)\]\s*pub\s*game/
+)?.[1];
+assert.match(
+  accountAttribute,
+  /seeds\s*=\s*\[\s*b"game"\s*,\s*player_one\s*.\s*key\s*\(\s*\)\s*.\s*as_ref\s*\(\s*\)\s*,\s*_game_id\s*.\s*as_bytes\s*\(\s*\)\s*\]/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ## 55
@@ -1977,13 +2298,16 @@ Run the tests to see if the `setup_game` instruction handler is working correctl
 The test for `setup_game` should pass when `anchor test --skip-local-validator`.
 
 ```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '1 passing');
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2016,7 +2340,6 @@ import {
 import { TicTacToe } from '../target/types/tic_tac_toe';
 import { expect } from 'chai';
 import { Keypair, PublicKey } from '@solana/web3.js';
-import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider';
 
 describe('tic-tac-toe', () => {
   // Configure the client to use the local cluster.
@@ -2025,8 +2348,7 @@ describe('tic-tac-toe', () => {
   const program = workspace.TicTacToe as Program<TicTacToe>;
   const programProvider = program.provider as AnchorProvider;
 
-  it('setup game!', async () => {
-    // const playerOne = programProvider.wallet;
+  it('initializes a game', async () => {
     const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
@@ -2034,9 +2356,9 @@ describe('tic-tac-toe', () => {
 
     const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
       [
-        anchor.utils.bytes.utf8.encode(seed),
-        publicKey.toBuffer(),
-        gameId.toBuffer()
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
       ],
       program.programId
     );
@@ -2051,6 +2373,434 @@ describe('tic-tac-toe', () => {
     await program.methods
       .setupGame(playerTwo.publicKey, gameId)
       .accounts({
+        game: gamePublicKey,
+        playerOne: playerOne.publicKey
+      })
+      .signers([playerOne])
+      .rpc();
+
+    const gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
+    expect(gameData.players).to.eql([playerOne.publicKey, playerTwo.publicKey]);
+
+    expect(gameData.state).to.eql({ active: {} });
+    expect(gameData.board).to.eql([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+  });
+});
+```
+
+## 56
+
+### --description--
+
+Within `lib.rs`, define another instruction handler called `play`. It should take a `ctx` parameter of type `Context<Play>`, and return a `Result<()>`.
+
+### --tests--
+
+The `play` instruction handler should be defined.
+
+```js
+assert.match(__librs, /pub fn play\s*\([^\)]*?\)/);
+```
+
+The `play` instruction handler should take a `ctx` parameter of type `Context<Play>`.
+
+```js
+const playFn = __librs.match(/pub fn play\s*\(([^\)]*?)\)/)?.[1];
+assert.match(playFn, /ctx\s*:\s*Context\s*<\s*Play\s*>/);
+```
+
+The `play` instruction handler should return a `Result<()>`.
+
+```js
+const playReturn = __librs.match(/pub fn play\s*\([^\)]*?\)([^\{]*){/)?.[1];
+assert.match(playReturn, /->\s*Result\s*<\s*\(\s*\)\s*>\s*/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 57
+
+### --description--
+
+Within `lib.rs`, define a new public struct `Play` that implements the `Accounts` trait.
+
+### --tests--
+
+The `Play` struct should be defined.
+
+```js
+assert.match(__librs, /pub struct Play/);
+```
+
+The `Play` struct should implement the `Accounts` trait.
+
+```js
+assert.match(
+  __librs,
+  /(?<=#\[derive\s*\(\s*Accounts\s*\)\s*\])\s*pub struct Play/
+);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 58
+
+### --description--
+
+The `play` instruction handler will need access to the `game` account.
+
+Within `Play`, define a field called `game` of type `Account<'info, Game>`.
+
+### --tests--
+
+The `game` field should be defined.
+
+```js
+const playStruct = __librs.match(/pub struct Play[^\{]*?{([^\}]*)}/)?.[1];
+assert.match(playStruct, /game\s*:/);
+```
+
+The `game` field should be of type `Account<'info, Game>`.
+
+```js
+const playStruct = __librs.match(/pub struct Play[^\{]*?{([^\}]*?)}/)?.[1];
+assert.match(playStruct, /game\s*:\s*Account\s*<\s*'info\s*,\s*Game\s*>/);
+```
+
+The `Play` struct should take a generic lifetime parameter `'info`.
+
+```js
+assert.match(__librs, /pub struct Play\s*<'info>/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 59
+
+### --description--
+
+The `play` instruction handler will need access to the player who called it.
+
+Within `Play`, define a field called `player` of type `Signer<'info>`.
+
+### --tests--
+
+The `player` field should be defined.
+
+```js
+const playStruct = __librs.match(/pub struct Play[^\{]*?{([^\}]*)}/)?.[1];
+assert.match(playStruct, /player\s*:/);
+```
+
+The `player` field should be of type `Signer<'info>`.
+
+```js
+const playStruct = __librs.match(/pub struct Play[^\{]*?{([^\}]*?)}/)?.[1];
+assert.match(playStruct, /player\s*:\s*Signer\s*<\s*'info\s*>/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 60
+
+### --description--
+
+Within the `play` instruction handler, declare a variable `game`, and assign a mutable reference to the `game` account to it.
+
+### --tests--
+
+The `game` variable should be declared.
+
+```js
+const playFn = __librs.match(
+  /pub fn play\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(playFn, /let game/);
+```
+
+The `game` variable should be assigned `&mut ctx.accounts.game`.
+
+```js
+const playFn = __librs.match(
+  /pub fn play\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(playFn, /let game\s*=\s*&\s*mut\s*ctx\s*.\s*accounts\s*.\s*game/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 61
+
+### --description--
+
+Along with the `require!` macro, Anchor provides a `require_keys_eq!` macro. This macro takes two public keys, and ensures they are equal:
+
+```rust
+require_keys_eq!(
+  ctx.accounts.account_1.key(),
+  ctx.accounts.account_2.key(),
+  OptionalCustomError::MyError
+);
+```
+
+**Note:** This is specifically provided, because the `require_eq!` macro should not be used to compare public keys.
+
+Within the `play` instruction handler, use the `require_keys_eq!` macro to ensure the expected current player is the same as the player who called the instruction.
+
+### --tests--
+
+`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key());`.
+
+```js
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const playFn = librs.match(
+  /pub fn play\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(
+  playFn,
+  /require_keys_eq\s*!\s*\(\s*game\s*.\s*current_player\s*\(\s*\)\s*,\s*ctx\s*.\s*accounts\s*.\s*player\s*.\s*key\s*\(\s*\)\s*\)/
+);
+```
+
+## 62
+
+### --description--
+
+Add a third argument of `TicTacToeError::NotPlayersTurn` to the `require_keys_eq!` macro. Also, define the `NotPlayersTurn` error variant in the `TicTacToeError` enum.
+
+### --tests--
+
+`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key(), TicTacToeError::NotPlayersTurn);`.
+
+```js
+const playFn = __librs.match(
+  /pub fn play\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(
+  playFn,
+  /require_keys_eq\s*!\s*\(\s*game\s*.\s*current_player\s*\(\s*\)\s*,\s*ctx\s*.\s*accounts\s*.\s*player\s*.\s*key\s*\(\s*\)\s*,\s*TicTacToeError\s*::\s*NotPlayersTurn\s*\)/
+);
+```
+
+`TicTacToeError` should have a `NotPlayersTurn` variant.
+
+```js
+const ticTacToError = __librs.match(/enum\s*TicTacToeError\s*{([^\}]*)}/)?.[1];
+assert.match(ticTacToError, /NotPlayersTurn/);
+```
+
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+global.__librs = __librs?.replaceAll(/[ \t]{2,}/g, ' ');
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
+```
+
+## 63
+
+### --description--
+
+Within the `play` instruction handler, call the `play` method on the `game` account. Pass in a reference to a variable `tile`.
+
+### --tests--
+
+`play` should have `game.play(&tile);`.
+
+```js
+const librs = await __helpers
+  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
+  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const playFn = librs.match(
+  /pub fn play\s*\([^\)]*?\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(playFn, /game\s*.\s*play\s*\(\s*&\s*tile\s*\)/);
+```
+
+## 64
+
+### --description--
+
+Adjust the `play` instruction handler signature to take a `tile` parameter of type `Tile`.
+
+### --tests--
+
+`play` should take a `tile` parameter of type `Tile`.
+
+```js
+const playFnParams = __librs.match(
+  /pub fn play\s*\(([^\)]*?)\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{([^\}]*)\}/
+)?.[1];
+assert.match(playFnParams, /tile\s*:\s*Tile/);
+```
+
+## 65
+
+### --description--
+
+Run the tests.
+
+### --tests--
+
+The tests for the `play` instruction handler should error ❌.
+
+```js
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '3 failing');
+```
+
+You should be in the `tic-tac-toe` directory.
+
+```js
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
+```
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+### --seed--
+
+#### --force--
+
+#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+
+```typescript
+import {
+  AnchorError,
+  Program,
+  AnchorProvider,
+  setProvider,
+  workspace
+} from '@coral-xyz/anchor';
+import { TicTacToe } from '../target/types/tic_tac_toe';
+import { expect } from 'chai';
+import { Keypair, PublicKey } from '@solana/web3.js';
+
+describe('tic-tac-toe', () => {
+  // Configure the client to use the local cluster.
+  setProvider(AnchorProvider.env());
+
+  const program = workspace.TicTacToe as Program<TicTacToe>;
+  const programProvider = program.provider as AnchorProvider;
+
+  it('initializes a game', async () => {
+    const playerOne = Keypair.generate();
+    const playerTwo = Keypair.generate();
+
+    const gameId = 'game-1';
+
+    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
+      ],
+      program.programId
+    );
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
+    await program.methods
+      .setupGame(playerTwo.publicKey, gameId)
+      .accounts({
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
       .signers([playerOne])
@@ -2069,41 +2819,40 @@ describe('tic-tac-toe', () => {
     ]);
   });
 
-  xit('player one wins!', async () => {
-    const playerOne = programProvider.wallet;
+  it('has player one win', async () => {
+    const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
     const gameId = 'game-2';
 
-    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+    const [gamePublicKey, _bump] = PublicKey.findProgramAddressSync(
       [
-        anchor.utils.bytes.utf8.encode(seed),
-        publicKey.toBuffer(),
-        gameId.toBuffer()
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
       ],
       program.programId
     );
 
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
     await program.methods
       .setupGame(playerTwo.publicKey, gameId)
       .accounts({
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
-      // .signers([playerOne])
+      .signers([playerOne])
       .rpc();
 
-    let gameState = await program.account.game.fetch(gamePublicKey);
-    expect(gameState.turn).to.equal(1);
-    expect(gameState.players).to.eql([
-      playerOne.publicKey,
-      playerTwo.publicKey
-    ]);
-    expect(gameState.state).to.eql({ active: {} });
-    expect(gameState.board).to.eql([
-      [null, null, null],
-      [null, null, null],
-      [null, null, null]
-    ]);
+    let gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
 
     await play(
       program,
@@ -2118,36 +2867,6 @@ describe('tic-tac-toe', () => {
         [null, null, null]
       ]
     );
-
-    try {
-      await play(
-        program,
-        gamePublicKey,
-        playerOne, // same player in subsequent turns
-        // change sth about the tx because
-        // duplicate tx that come in too fast
-        // after each other may get dropped
-        { row: 1, column: 0 },
-        2,
-        { active: {} },
-        [
-          [{ x: {} }, null, null],
-          [null, null, null],
-          [null, null, null]
-        ]
-      );
-      chai.assert(false, "should've failed but didn't ");
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
-      expect(err.error.errorCode.code).to.equal('NotPlayersTurn');
-      expect(err.error.errorCode.number).to.equal(6003);
-      expect(err.program.equals(program.programId)).is.true;
-      expect(err.error.comparedValues).to.deep.equal([
-        playerTwo.publicKey,
-        playerOne.publicKey
-      ]);
-    }
 
     await play(
       program,
@@ -2177,28 +2896,6 @@ describe('tic-tac-toe', () => {
       ]
     );
 
-    try {
-      await play(
-        program,
-        gamePublicKey,
-        playerTwo,
-        { row: 5, column: 1 }, // out of bounds row
-        4,
-        { active: {} },
-        [
-          [{ x: {} }, { x: {} }, null],
-          [{ o: {} }, null, null],
-          [null, null, null]
-        ]
-      );
-      chai.assert(false, "should've failed but didn't ");
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
-      expect(err.error.errorCode.number).to.equal(6000);
-      expect(err.error.errorCode.code).to.equal('TileOutOfBounds');
-    }
-
     await play(
       program,
       gamePublicKey,
@@ -2213,27 +2910,6 @@ describe('tic-tac-toe', () => {
       ]
     );
 
-    try {
-      await play(
-        program,
-        gamePublicKey,
-        playerOne,
-        { row: 0, column: 0 },
-        5,
-        { active: {} },
-        [
-          [{ x: {} }, { x: {} }, null],
-          [{ o: {} }, { o: {} }, null],
-          [null, null, null]
-        ]
-      );
-      chai.assert(false, "should've failed but didn't ");
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
-      expect(err.error.errorCode.number).to.equal(6001);
-    }
-
     await play(
       program,
       gamePublicKey,
@@ -2247,63 +2923,41 @@ describe('tic-tac-toe', () => {
         [null, null, null]
       ]
     );
-
-    try {
-      await play(
-        program,
-        gamePublicKey,
-        playerOne,
-        { row: 0, column: 2 },
-        5,
-        { won: { winner: playerOne.publicKey } },
-        [
-          [{ x: {} }, { x: {} }, { x: {} }],
-          [{ o: {} }, { o: {} }, null],
-          [null, null, null]
-        ]
-      );
-      chai.assert(false, "should've failed but didn't ");
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
-      expect(err.error.errorCode.number).to.equal(6002);
-    }
   });
 
-  xit('tie', async () => {
-    const playerOne = programProvider.wallet;
+  it('handles ties', async () => {
+    const playerOne = Keypair.generate();
     const playerTwo = Keypair.generate();
 
     const gameId = 'game-3';
-    const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
+
+    const [gamePublicKey, _bump] = PublicKey.findProgramAddressSync(
       [
-        anchor.utils.bytes.utf8.encode(seed),
-        publicKey.toBuffer(),
-        gameId.toBuffer()
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
       ],
       program.programId
     );
 
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
     await program.methods
       .setupGame(playerTwo.publicKey, gameId)
       .accounts({
+        game: gamePublicKey,
         playerOne: playerOne.publicKey
       })
-      // .signers([gameKeypair])
+      .signers([playerOne])
       .rpc();
 
     let gameState = await program.account.game.fetch(gamePublicKey);
     expect(gameState.turn).to.equal(1);
-    expect(gameState.players).to.eql([
-      playerOne.publicKey,
-      playerTwo.publicKey
-    ]);
-    expect(gameState.state).to.eql({ active: {} });
-    expect(gameState.board).to.eql([
-      [null, null, null],
-      [null, null, null],
-      [null, null, null]
-    ]);
 
     await play(
       program,
@@ -2431,12 +3085,214 @@ describe('tic-tac-toe', () => {
       ]
     );
   });
+
+  it('handles invalid plays', async () => {
+    const playerOne = Keypair.generate();
+    const playerTwo = Keypair.generate();
+
+    const gameId = 'game-4';
+
+    const [gamePublicKey, _bump] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('game'),
+        playerOne.publicKey.toBuffer(),
+        Buffer.from(gameId)
+      ],
+      program.programId
+    );
+
+    // Airdrop to playerOne
+    const sg = await programProvider.connection.requestAirdrop(
+      playerOne.publicKey,
+      1_000_000_000
+    );
+    await programProvider.connection.confirmTransaction(sg);
+
+    await program.methods
+      .setupGame(playerTwo.publicKey, gameId)
+      .accounts({
+        game: gamePublicKey,
+        playerOne: playerOne.publicKey
+      })
+      .signers([playerOne])
+      .rpc();
+
+    let gameData = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData.turn).to.equal(1);
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 0 },
+      2,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [null, null, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne, // same player in subsequent turns
+        // change sth about the tx because
+        // duplicate tx that come in too fast
+        // after each other may get dropped
+        { row: 1, column: 0 },
+        2,
+        { active: {} },
+        [
+          [{ x: {} }, null, null],
+          [null, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.code).to.equal('NotPlayersTurn');
+      expect(err.error.errorCode.number).to.equal(6003);
+      expect(err.program.equals(program.programId)).is.true;
+      expect(err.error.comparedValues).to.deep.equal([
+        playerTwo.publicKey,
+        playerOne.publicKey
+      ]);
+    }
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerTwo,
+        { row: 5, column: 1 }, // out of bounds row
+        3,
+        { active: {} },
+        [
+          [{ x: {} }, null, null],
+          [null, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6000);
+      expect(err.error.errorCode.code).to.equal('TileOutOfBounds');
+    }
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerTwo,
+        { row: 0, column: 0 },
+        3,
+        { active: {} },
+        [
+          [{ x: {} }, null, null],
+          [null, null, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6001);
+      expect(err.error.errorCode.code).to.equal('TileAlreadySet');
+    }
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 0 },
+      3,
+      { active: {} },
+      [
+        [{ x: {} }, null, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 1 },
+      4,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, null, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerTwo,
+      { row: 1, column: 1 },
+      5,
+      { active: {} },
+      [
+        [{ x: {} }, { x: {} }, null],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    await play(
+      program,
+      gamePublicKey,
+      playerOne,
+      { row: 0, column: 2 },
+      5,
+      { won: { winner: playerOne.publicKey } },
+      [
+        [{ x: {} }, { x: {} }, { x: {} }],
+        [{ o: {} }, { o: {} }, null],
+        [null, null, null]
+      ]
+    );
+
+    try {
+      await play(
+        program,
+        gamePublicKey,
+        playerOne,
+        { row: 0, column: 2 },
+        6,
+        { won: { winner: playerOne.publicKey } },
+        [
+          [{ x: {} }, { x: {} }, null],
+          [{ o: {} }, { o: {} }, null],
+          [null, null, null]
+        ]
+      );
+      chai.assert(false, "should've failed but didn't ");
+    } catch (_err) {
+      expect(_err).to.be.instanceOf(AnchorError);
+      const err: AnchorError = _err;
+      expect(err.error.errorCode.number).to.equal(6002);
+      expect(err.error.errorCode.code).to.equal('GameAlreadyOver');
+    }
+  });
 });
 
 async function play(
   program: Program<TicTacToe>,
   game: PublicKey,
-  player: Wallet | Keypair,
+  player: Keypair,
   tile: { row: number; column: number },
   expectedTurn: number,
   expectedGameState:
@@ -2451,237 +3307,14 @@ async function play(
       player: player.publicKey,
       game
     })
-    .signers(player instanceof Keypair ? [player] : [])
+    .signers([player])
     .rpc();
 
-  const gameState = await program.account.game.fetch(game);
-
-  expect(gameState.turn).to.equal(expectedTurn);
-  expect(gameState.state).to.eql(expectedGameState);
-  expect(gameState.board).to.eql(expectedBoard);
-}
-```
-
-## 56
-
-### --description--
-
-Within `lib.rs`, define another instruction handler called `play`. It should take a `ctx` parameter of type `Context<Play>`, and return a `Result<()>`.
-
-### --tests--
-
-The `play` instruction handler should be defined.
-
-```js
-assert.fail();
-```
-
-The `play` instruction handler should take a `ctx` parameter of type `Context<Play>`.
-
-```js
-assert.fail();
-```
-
-The `play` instruction handler should return a `Result<()>`.
-
-```js
-assert.fail();
-```
-
-## 57
-
-### --description--
-
-Within `lib.rs`, define a new public struct `Play` that implements the `Accounts` trait.
-
-### --tests--
-
-The `Play` struct should be defined.
-
-```js
-assert.fail();
-```
-
-The `Play` struct should implement the `Accounts` trait.
-
-```js
-assert.fail();
-```
-
-## 58
-
-### --description--
-
-The `play` instruction handler will need access to the `game` account.
-
-Within `Play`, define a field called `game` of type `Account<'info, Game>`.
-
-### --tests--
-
-The `game` field should be defined.
-
-```js
-assert.fail();
-```
-
-The `game` field should be of type `Account<'info, Game>`.
-
-```js
-assert.fail();
-```
-
-The `Play` struct should take a generic lifetime parameter `'info`.
-
-```js
-assert.fail();
-```
-
-## 59
-
-### --description--
-
-The `play` instruction handler will need access to the player who called it.
-
-Within `Play`, define a field called `player` of type `Signer<'info>`.
-
-### --tests--
-
-The `player` field should be defined.
-
-```js
-assert.fail();
-```
-
-The `player` field should be of type `Signer<'info>`.
-
-```js
-assert.fail();
-```
-
-## 60
-
-### --description--
-
-Within the `play` instruction handler, declare a variable `game`, and assign a mutable reference to the `game` account to it.
-
-### --tests--
-
-The `game` variable should be declared.
-
-```js
-assert.fail();
-```
-
-The `game` variable should be assigned `&mut ctx.accounts.game`.
-
-```js
-assert.fail();
-```
-
-## 61
-
-### --description--
-
-Along with the `require!` macro, Anchor provides a `require_keys_eq!` macro. This macro takes two public keys, and ensures they are equal:
-
-```rust
-require_keys_eq!(
-  ctx.accounts.account_1.key(),
-  ctx.accounts.account_2.key(),
-  OptionalCustomError::MyError
-);
-```
-
-**Note:** This is specifically provided, because the `require_eq!` macro should not be used to compare public keys.
-
-Within the `play` instruction handler, use the `require_keys_eq!` macro to ensure the expected current player is the same as the player who called the instruction.
-
-### --tests--
-
-`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key());`.
-
-```js
-assert.fail();
-```
-
-## 62
-
-### --description--
-
-Add a third argument of `TicTacToeError::NotPlayersTurn` to the `require_keys_eq!` macro. Also, define the `NotPlayersTurn` error variant in the `TicTacToeError` enum.
-
-### --tests--
-
-`play` should have `require_keys_eq!(game.current_player(), ctx.accounts.player.key(), TicTacToeError::NotPlayersTurn);`.
-
-```js
-assert.fail();
-```
-
-`TicTacToeError` should have a `NotPlayersTurn` variant.
-
-```js
-assert.fail();
-```
-
-## 63
-
-### --description--
-
-Within the `play` instruction handler, call the `play` method on the `game` account. Pass in a reference to a variable `tile`.
-
-### --tests--
-
-`play` should have `game.play(&tile);`.
-
-```js
-assert.fail();
-```
-
-## 64
-
-### --description--
-
-Adjust the `play` instruction handler signature to take a `tile` parameter of type `Tile`.
-
-### --tests--
-
-`play` should take a `tile` parameter of type `Tile`.
-
-```js
-assert.fail();
-```
-
-## 65
-
-### --description--
-
-Run the tests.
-
-### --tests--
-
-The tests for the `play` instruction handler should error ❌.
-
-```js
-assert.fail();
-```
-
-You should be in the `tic-tac-toe` directory.
-
-```js
-assert.fail();
-```
-
-The validator should be running at `http://localhost:8899`.
-
-```js
-const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
-const { stdout, stderr } = await __helpers.getCommandOutput(command);
-try {
-  const jsonOut = JSON.parse(stdout);
-  assert.deepInclude(jsonOut, { result: 'ok' });
-} catch (e) {
-  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+  const gameData = await program.account.game.fetch(game);
+
+  expect(gameData.turn).to.equal(expectedTurn);
+  expect(gameData.state).to.eql(expectedGameState);
+  expect(gameData.board).to.eql(expectedBoard);
 }
 ```
 
@@ -2698,7 +3331,14 @@ Mark the `game` account as `mut`.
 The `Play` struct should have `game` annotated with `#[account(mut)]`.
 
 ```js
-assert.fail();
+const librs = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+);
+const playStruct = librs.match(/pub\s+struct\s+Play[^\{]*?{([^\}]*)}/)?.[1];
+assert.match(
+  playStruct,
+  /#[\s\n]*account[\s\n]*\([\s\n]*mut[\s\n]*\)\s*pub\s+game/
+);
 ```
 
 ## 67
@@ -2712,13 +3352,16 @@ Run the tests to ensure everything is working as expected.
 All tests should pass for the `anchor test --skip-local-validator` command ✅.
 
 ```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '4 passing');
 ```
 
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/tic-tac-toe/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 The validator should be running at `http://localhost:8899`.

@@ -8,10 +8,17 @@ declare_id!("BUfb6FXLkiSpMnJnMR4Q5uGZYZkaNGytjhLwiiJQsE8F");
 pub mod tic_tac_toe {
     use super::*;
 
-    pub fn setup_game(ctx: Context<SetupGame>, player_two: Pubkey, _game_id: String) -> Result<()> {
-        ctx.accounts
-            .game
-            .start([ctx.accounts.player_one.key(), player_two])
+    pub fn setup_game(
+        ctx: Context<SetupGame>,
+        player_two_pubkey: Pubkey,
+        _game_id: String,
+    ) -> Result<()> {
+        let player_one = &ctx.accounts.player_one;
+        let player_one_pubkey = player_one.key();
+
+        let game = &mut ctx.accounts.game;
+
+        game.start([player_one_pubkey, player_two_pubkey])
     }
 
     pub fn play(ctx: Context<Play>, tile: Tile) -> Result<()> {
