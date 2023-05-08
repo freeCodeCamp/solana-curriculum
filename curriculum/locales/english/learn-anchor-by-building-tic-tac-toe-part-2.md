@@ -15,7 +15,9 @@ Within a new terminal, change into the `tic-tac-toe` directory.
 You should be in the `tic-tac-toe` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+const dirRegex = new RegExp(`${project.dashedName}/?$`);
+assert.match(cwd, dirRegex);
 ```
 
 ## 2
@@ -35,13 +37,61 @@ program.provider as AnchorProvider;
 The `programProvider` variable should be declared.
 
 ```js
-assert.fail();
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'programProvider';
+});
+assert.exists(
+  variableDeclaration,
+  'A variable named `programProvider` should exist'
+);
 ```
 
 The `programProvider` variable should be assigned `program.provider as AnchorProvider`.
 
 ```js
-assert.fail();
+const variableDeclaration = babelisedCode.getVariableDeclarations().find(v => {
+  return v.declarations?.[0]?.id?.name === 'programProvider';
+});
+assert.exists(
+  variableDeclaration,
+  'A variable named `programProvider` should exist'
+);
+const tAsExpression = variableDeclaration.declarations?.[0]?.init;
+const { object, property } = tAsExpression.expression;
+assert.equal(
+  object.name,
+  'program',
+  'The `programProvider` variable should be assigned `program.provider`'
+);
+assert.equal(
+  property.name,
+  'provider',
+  'The `programProvider` variable should be assigned `program.provider`'
+);
+const tAnnotation = tAsExpression.typeAnnotation;
+assert.equal(
+  tAnnotation.typeName.name,
+  'AnchorProvider',
+  'The `programProvider` variable should be assigned `program.provider as AnchorProvider`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ### --seed--
