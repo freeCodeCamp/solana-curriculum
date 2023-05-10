@@ -140,7 +140,10 @@ Anchor creates an IDL from your program, and stores it in the `target/types/tic_
 The `target/types/tic_tac_toe.ts` file should exist.
 
 ```js
-assert.fail();
+const isFile = __helpers.fileExists(
+  `${project.dashedName}/tic-tac-toe/target/types/tic_tac_toe.ts`
+);
+assert.isTrue(isFile);
 ```
 
 ## 4
@@ -154,7 +157,37 @@ Within the `it` callback, change the `initialize` call to `setupGame`.
 `tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame().rpc();`.
 
 ```js
-assert.fail();
+const memberExpression = babelisedCode.getType('MemberExpression').find(m => {
+  return (
+    m.object?.object?.name === 'program' &&
+    m.object?.property?.name === 'methods'
+  );
+});
+assert.exists(memberExpression, '`program.methods.` should exist');
+const { property } = memberExpression;
+assert.equal(
+  property.name,
+  'setupGame',
+  '`program.methods.setupGame` should exist'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 5
@@ -170,31 +203,126 @@ At the top of the `it` callback, generate two new keypairs, and assign them to t
 The `playerOne` variable should be declared.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclarationNames = blockStatement?.body?.map(v => {
+  return v?.declarations?.[0]?.id?.name;
+});
+assert.include(
+  variableDeclarationNames,
+  'playerOne',
+  'A variable named `playerOne` should exist'
+);
 ```
 
 The `playerOne` variable should be assigned `Keypair.generate()`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclaration = blockStatement?.body?.find(v => {
+  return v?.declarations?.[0]?.id?.name === 'playerOne';
+});
+assert.exists(variableDeclaration, 'A variable named `playerOne` should exist');
+const memberExpression_playerOne =
+  variableDeclaration.declarations?.[0]?.init?.callee;
+const { property, object } = memberExpression_playerOne;
+assert.equal(
+  object.name,
+  'Keypair',
+  'The `playerOne` variable should be assigned `Keypair.generate()`'
+);
+assert.equal(
+  property.name,
+  'generate',
+  'The `playerOne` variable should be assigned `Keypair.generate()`'
+);
 ```
 
 The `playerTwo` variable should be declared.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclarationNames = blockStatement?.body?.map(v => {
+  return v?.declarations?.[0]?.id?.name;
+});
+assert.include(
+  variableDeclarationNames,
+  'playerTwo',
+  'A variable named `playerTwo` should exist'
+);
 ```
 
 The `playerTwo` variable should be assigned `Keypair.generate()`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclaration = blockStatement?.body?.find(v => {
+  return v?.declarations?.[0]?.id?.name === 'playerTwo';
+});
+assert.exists(variableDeclaration, 'A variable named `playerTwo` should exist');
+const memberExpression_playerTwo =
+  variableDeclaration.declarations?.[0]?.init?.callee;
+const { property, object } = memberExpression_playerTwo;
+assert.equal(
+  object.name,
+  'Keypair',
+  'The `playerTwo` variable should be assigned `Keypair.generate()`'
+);
+assert.equal(
+  property.name,
+  'generate',
+  'The `playerTwo` variable should be assigned `Keypair.generate()`'
+);
 ```
 
 The `Keypair` class should be imported from `@solana/web3.js`.
 
 ```js
-assert.fail();
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source?.value === '@solana/web3.js';
+});
+assert.exists(
+  importDeclaration,
+  'An import from `@solana/web3.js` should exist'
+);
+
+const specifierNames = importDeclaration.specifiers?.map(s => {
+  return s?.local?.name;
+});
+assert.include(
+  specifierNames,
+  'Keypair',
+  'The `Keypair` class should be imported from `@solana/web3.js`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 6
@@ -208,13 +336,55 @@ Within the `it` callback, create a new `gameId` variable, and assign it a value 
 The `gameId` variable should be declared.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclarationNames = blockStatement?.body?.map(v => {
+  return v?.declarations?.[0]?.id?.name;
+});
+assert.include(
+  variableDeclarationNames,
+  'gameId',
+  'A variable named `gameId` should exist'
+);
 ```
 
 The `gameId` variable should be assigned `"game-1"`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclaration = blockStatement?.body?.find(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameId';
+});
+assert.exists(variableDeclaration, 'A variable named `gameId` should exist');
+const { value } = variableDeclaration.declarations?.[0]?.init;
+assert.equal(
+  value,
+  'game-1',
+  'The `gameId` variable should be assigned `"game-1"`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 7
@@ -234,10 +404,36 @@ Destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, 
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const [gamePublicKey, _] = PublicKey.findProgramAddressSync([Buffer.from("game"), payer.publicKey.toBuffer(), Buffer.from(gameId)], program.programId);`.
+`tests/tic-tac-toe.ts` should have `const [gamePublicKey, _] = PublicKey.findProgramAddressSync([Buffer.from('game'), payer.publicKey.toBuffer(), Buffer.from(gameId)], program.programId);`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `const[gamePublicKey,_]=PublicKey.findProgramAddressSync([Buffer.from('game'),payer.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 8
@@ -251,7 +447,33 @@ Pass the public key of `playerTwo` as an argument to the `setupGame` instruction
 `tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey).rpc();`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `const tx=await program.methods.setupGame(playerTwo.publicKey).rpc()`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 9
@@ -265,7 +487,33 @@ Pass `gameId` as the second argument to the `setupGame` instruction call.
 `tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).rpc();`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `const tx=await program.methods.setupGame(playerTwo.publicKey,gameId).rpc()`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 10
@@ -344,7 +592,33 @@ Chain a `.accounts` call to the `setupGame` call, and pass in:
 `tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).rpc();`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `const tx=await program.methods.setupGame(playerTwo.publicKey,gameId).accounts({game:gamePublicKey,playerOne:playerOne.publicKey}).rpc()`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 13
@@ -395,7 +669,33 @@ Chain a `.signers` call to the `setupGame` call, and pass in an array of the `pl
 `tests/tic-tac-toe.ts` should have `const tx = await program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).signers([playerOne]).rpc();`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `const tx=await program.methods.setupGame(playerTwo.publicKey,gameId).accounts({game:gamePublicKey,playerOne:playerOne.publicKey}).signers([playerOne]).rpc()`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 15
@@ -448,7 +748,48 @@ await programProvider.connection.requestAirdrop(<PUBLIC_KEY>, <AMOUNT_IN_LAMPORT
 `tests/tic-tac-toe.ts` should have `const sg = await programProvider.connection.requestAirdrop(playerOne.publicKey, 1_000_000_000);`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const sg=await programProvider.connection.requestAirdrop(playerOne.publicKey,1_000_000_000)`,
+  `const sg=await programProvider.connection.requestAirdrop(playerOne.publicKey,1000000000)`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 17
@@ -468,7 +809,33 @@ await programProvider.connection.confirmTransaction(<TRANSACTION_SIGNATURE>);
 `tests/tic-tac-toe.ts` should have `await programProvider.connection.confirmTransaction(sg);`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `await programProvider.connection.confirmTransaction(sg)`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 18
@@ -520,13 +887,51 @@ await ix.rpc();
 `tests/tic-tac-toe.ts` should have `const ix = program.methods.setupGame(playerTwo.publicKey, gameId).accounts({ game: gamePublicKey, playerOne: playerOne.publicKey }).signers([playerOne]);`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const variableDeclaration = blockStatement?.body?.find(v => {
+  return v?.declarations?.[0]?.id?.name === 'tx';
+});
+assert.exists(variableDeclaration, 'A variable named `tx` should exist');
+const actualCodeString = babelisedCode.generateCode(variableDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const ix=program.methods.setupGame(playerTwo.publicKey,gameId).accounts({game:gamePublicKey,playerOne:playerOne.publicKey}).signers([playerOne])`;
+assert.deepInclude(actualCodeString, expectedCodeString);
 ```
 
 `tests/tic-tac-toe.ts` should have `await ix.rpc();`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const actualCodeString = babelisedCode.generateCode(blockStatement, {
+  compact: true
+});
+const expectedCodeString = `await ix.rpc()`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 20
@@ -579,7 +984,37 @@ Declare a variable `gameData` and assign it the `game` account's data.
 `tests/tic-tac-toe.ts` should have `const gameData = await program.account.game.fetch(gamePublicKey);`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[0]?.body;
+const variableDeclaration = blockStatement?.body?.find(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+assert.exists(variableDeclaration, 'A variable named `gameData` should exist');
+const actualCodeString = babelisedCode.generateCode(variableDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const gameData=await program.account.game.fetch(gamePublicKey)`;
+assert.deepInclude(actualCodeString, expectedCodeString);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 22
