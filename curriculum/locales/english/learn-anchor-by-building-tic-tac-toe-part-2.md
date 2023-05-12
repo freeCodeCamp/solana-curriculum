@@ -3208,10 +3208,83 @@ Within the `"handles ties"` callback, use the `play` function to play the game u
 
 ### --tests--
 
-TODO: No idea how to test this yet.
+The `"handles ties"` callback should all `play` until a tie.
 
 ```js
-assert.fail();
+// Get all tile plays in `it` callback
+// Compare to possible tie board states
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it' && c.arguments?.[0]?.value === 'handles ties';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const plays = blockStatement?.body?.filter(v => {
+  return v.expression?.argument?.callee?.name === 'play';
+});
+const assertionCodeString = babelisedCode.generateCode({
+  type: 'BlockStatement',
+  body: plays,
+  directives: []
+});
+
+let program,
+  gamePublicKey,
+  playerOne = 1,
+  playerTwo = 2;
+const board = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null]
+];
+const play = (p, g, pl, tile) => {
+  board[tile.row][tile.column] = pl;
+};
+await eval(`(async () => {${assertionCodeString}})()`);
+
+function checkTie(board) {
+  for (const row of board) {
+    for (const column of row) {
+      if (column === null) {
+        return false;
+      }
+    }
+  }
+
+  for (let i = 0; i < board.length; i++) {
+    if (board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
+      return false;
+    }
+    if (board[0][i] === board[1][i] && board[1][i] === board[2][i]) {
+      return false;
+    }
+    if (board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
+      return false;
+    }
+    if (board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+assert.isTrue(checkTie(board));
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 55
