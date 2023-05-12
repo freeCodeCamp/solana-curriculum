@@ -556,7 +556,8 @@ anchor test --skip-local-validator
 `anchor test` should error with `Error: Invalid arguments: game not provided`.
 
 ```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Error: Invalid arguments: game not provided');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -629,16 +630,11 @@ Run the tests again.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+You `anchor test --skip-local-validator` test should error with `Error: Signature verification failed`.
 
 ```js
-assert.fail();
-```
-
-The test should error with `Error: Signature verification failed`.
-
-```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Error: Signature verification failed');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -706,16 +702,11 @@ Run the tests again.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` test should error with `Error: failed to send transaction`.
 
 ```js
-assert.fail();
-```
-
-The test should error with `Error: failed to send transaction`.
-
-```js
-assert.fail();
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Error: failed to send transaction');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -846,16 +837,11 @@ Finally, run the tests again.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '1 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -942,16 +928,11 @@ Run the tests again to ensure everything still works.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` test should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '1 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1030,7 +1011,62 @@ _Hint:_ The boilerplate created by Anchor comes with `chai.js`.
 `tests/tic-tac-toe.ts` should throw if `gameData.turn !== 1`.
 
 ```js
-assert.fail();
+// Get all code in the `it` callback
+// Remove everything defined before `const gameData`, and remove the `gameData` declaration
+// Eval with fixture `gameData`, `playerOne`, and `playerTwo`
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const gameData = {
+    turn: 0
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  await eval(`(async () => {
+    const gameData= {
+      turn: 1
+    };
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 23
@@ -1044,13 +1080,111 @@ Assert the `game` account has a `players` property equal to an array of the publ
 `tests/tic-tac-toe.ts` should throw if `gameData.players[0] !== playerOne.publicKey`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[0]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: ['notPlayerOne', playerTwo.publicKey]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
 ```
 
 `tests/tic-tac-toe.ts` should throw if `gameData.players[1] !== playerTwo.publicKey`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[0]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, 'notPlayerOne']
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 24
@@ -1064,7 +1198,78 @@ Assert the `game` account has a `state` property equal to `active: {}`.
 `tests/tic-tac-toe.ts` should throw if `gameData.state.active !== {}`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[0]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey],
+    state: {
+      active: ''
+    }
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    "The `it` callback should throw when `gameData.state.active == ''"
+  );
+  logover.debug(e);
+}
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey],
+    state: {
+      active: {}
+    }
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(
+    e,
+    'The `it` callback should not throw when `gameData.state.active == {}'
+  );
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 25
@@ -1078,7 +1283,70 @@ Assert the `game` account has a `board` property equal to a 3x3 array of `null` 
 `tests/tic-tac-toe.ts` should throw if `gameData.board !== [[null,null,null],[null,null,null],[null,null,null]]`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return c.callee?.name === 'it';
+});
+const blockStatement = callExpression?.arguments?.[0]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey],
+    state: {
+      active: {}
+    },
+    board: [
+      [false, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'The `it` callback should throw when `gameData.state.board == [[false,null,null],[null,null,null],[null,null,null]]'
+  );
+  logover.debug(e);
+}
+try {
+  const playerOne = { publicKey: 'playerOne' };
+  const playerTwo = { publicKey: 'playerTwo' };
+  const gameData = {
+    turn: 1,
+    players: [playerOne.publicKey, playerTwo.publicKey],
+    state: {
+      active: {}
+    },
+    board: [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(
+    e,
+    'The `it` callback should not throw when `gameData.state.board == [[null,null,null],[null,null,null],[null,null,null]]'
+  );
+}
 ```
 
 ## 26
@@ -1089,16 +1357,11 @@ Run the tests again to ensure everything still works.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` test should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '1 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1132,8 +1395,23 @@ const blockStatement = callExpression?.arguments?.[1]?.body;
 const actualCodeString = babelisedCode.generateCode(blockStatement, {
   compact: true
 });
-const expectedCodeString = `it('has player one win',async()=>{})`;
-assert.deepInclude(actualCodeString, expectedCodeString);
+const expectedCodeStrings = [
+  `it('has player one win',async()=>{})`,
+  `it("has player one win",async()=>{})`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ### --before-all--
@@ -1507,7 +1785,61 @@ Assert the `game` account has a `turn` property equal to `1`.
 `tests/tic-tac-toe.ts` should throw if `gameData.turn !== 1`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' && c.arguments?.[0]?.value === 'has player one win'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const gameData = {
+    turn: 0
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const gameData = {
+    turn: 1
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 35
@@ -1801,7 +2133,61 @@ Assert the `game` account has a `turn` property equal to `2`.
 `tests/tic-tac-toe.ts` should throw if `gameData2.turn !== 2`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' && c.arguments?.[0]?.value === 'has player one win'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData2';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const gameData2 = {
+    turn: 1
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const gameData2 = {
+    turn: 2
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 41
@@ -1817,7 +2203,71 @@ Assert the `game` account has a `board` property equal to `[[{x:{}}, null, null]
 `tests/tic-tac-toe.ts` should throw if `gameData2.board !== [[{x:{}}, null, null], [null, null, null], [null, null, null]]`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' && c.arguments?.[0]?.value === 'has player one win'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData2';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const gameData2 = {
+    turn: 2,
+    board: [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const gameData2 = {
+    turn: 2,
+    board: [
+      [{ x: {} }, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 42
@@ -1831,7 +2281,73 @@ Assert the `game` account has a `state` property equal to `{ active: {} }`.
 `tests/tic-tac-toe.ts` should throw if `gameData2.state !== { active: {} }`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' && c.arguments?.[0]?.value === 'has player one win'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData2';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const gameData2 = {
+    turn: 2,
+    board: [
+      [{ x: {} }, null, null],
+      [null, null, null],
+      [null, null, null]
+    ],
+    state: { won: { winner: playerOne.publicKey } }
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const gameData2 = {
+    turn: 2,
+    board: [
+      [{ x: {} }, null, null],
+      [null, null, null],
+      [null, null, null]
+    ],
+    state: { active: {} }
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 43
@@ -1842,16 +2358,11 @@ Run the tests to see if everything is working as expected.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '2 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1985,19 +2496,185 @@ assert.deepInclude(actualCodeString, expectedCodeString);
 `tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.turn === expectedTurn`.
 
 ```js
-assert.fail();
+const functionDeclaration = babelisedCode
+  .getType('FunctionDeclaration')
+  .find(f => {
+    return f?.id?.name === 'play';
+  });
+const blockStatement = functionDeclaration?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { active: {} };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: 0,
+    board: expectedBoard,
+    state: expectedGameState
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { active: {} };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: expectedTurn,
+    board: expectedBoard,
+    state: expectedGameState
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
 ```
 
 `tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.state === expectedGameState`.
 
 ```js
-assert.fail();
+const functionDeclaration = babelisedCode
+  .getType('FunctionDeclaration')
+  .find(f => {
+    return f?.id?.name === 'play';
+  });
+const blockStatement = functionDeclaration?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { won: { winner: playerOne.publicKey } };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: expectedTurn,
+    board: expectedBoard,
+    state: { active: {} }
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { active: {} };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: expectedTurn,
+    board: expectedBoard,
+    state: expectedGameState
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
 ```
 
 `tests/tic-tac-toe.ts` should have a `play` function that asserts `gameData.board === expectedBoard`.
 
 ```js
-assert.fail();
+const functionDeclaration = babelisedCode
+  .getType('FunctionDeclaration')
+  .find(f => {
+    return f?.id?.name === 'play';
+  });
+const blockStatement = functionDeclaration?.body;
+const ind = blockStatement?.body?.findIndex(v => {
+  return v?.declarations?.[0]?.id?.name === 'gameData';
+});
+blockStatement?.body?.splice(0, ind + 1);
+const assertionCodeString = babelisedCode.generateCode(blockStatement);
+
+// Bring chai and `chai.expect` into scope for eval
+const chai = await import('chai');
+const { expect } = chai;
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { active: {} };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: expectedTurn,
+    board: [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ],
+    state: expectedGameState
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+  assert(false, 'fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'The `it` callback should throw');
+  logover.debug(e);
+}
+try {
+  const expectedTurn = 1;
+  const expectedGameState = { active: {} };
+  const expectedBoard = [
+    [{ x: {} }, null, null],
+    [null, null, null],
+    [null, null, null]
+  ];
+  const gameData = {
+    turn: expectedTurn,
+    board: expectedBoard,
+    state: expectedGameState
+  };
+  await eval(`(async () => {
+    ${assertionCodeString}
+  })()`);
+} catch (e) {
+  assert.fail(e, 'The `it` callback should not throw');
+}
 ```
 
 ### --before-all--
@@ -2083,16 +2760,11 @@ Run the tests to confirm everything is still working.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '2 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2204,16 +2876,11 @@ Run the tests to confirm everything is still working.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '2 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2325,16 +2992,11 @@ Run the tests to confirm everything is still working.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '2 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2560,16 +3222,11 @@ Run the tests to confirm everything is still working.
 
 ### --tests--
 
-You should run `anchor test --skip-local-validator`.
+The `anchor test --skip-local-validator` tests should pass ✅.
 
 ```js
-assert.fail();
-```
-
-The tests should pass ✅.
-
-```js
-assert.fail();
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, '3 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2910,7 +3567,40 @@ assert.fail();
 `AnchorError` should be imported from `@coral-xyz/anchor`.
 
 ```js
-assert.fail();
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source?.value === '@coral-xyz/anchor';
+});
+assert.exists(
+  importDeclaration,
+  'An import from `@coral-xyz/anchor` should exist'
+);
+
+const specifierNames = importDeclaration.specifiers?.map(s => {
+  return s?.local?.name;
+});
+assert.include(
+  specifierNames,
+  'AnchorError',
+  'The `Keypair` class should be imported from `@solana/web3.js`'
+);
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 61

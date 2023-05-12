@@ -109,6 +109,17 @@ describe('tic-tac-toe', () => {
       ]
     );
 
+    const gameData2 = await program.account.game.fetch(gamePublicKey);
+
+    expect(gameData2.turn).to.equal(2);
+
+    expect(gameData2.board).to.eql([
+      [{ x: {} }, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]);
+    expect(gameData2.state).to.eql({ active: {} });
+
     await play(
       program,
       gamePublicKey,
