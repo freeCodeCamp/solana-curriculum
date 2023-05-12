@@ -3615,12 +3615,47 @@ const tryStatement = blockStatement?.body?.find(v => {
   return v?.block?.type === 'TryStatement';
 });
 assert.exists(tryStatement, 'A try statement should exist');
+const actualCodeString = babelisedCode.generateCode(tryStatement, {
+  compact: true
+});
+const expectedCodeString = `try{await play(program,gamePublicKey,playerOne,{row:1,column:0},2,{active:{}},[[{x:{}},null,null],[null,null,null],[null,null,null]])}catch(e){}`;
+assert.deepInclude(actualCodeString, expectedCodeString);
 ```
 
-`tests/tic-tac-toe.ts` should have a `try...catch` block that throws if `play` does not throw.
+`tests/tic-tac-toe.ts` should have a `try` block that throws if `play` does not throw.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatement = blockStatement?.body?.find(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryBlock = tryStatement?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = () => {};
+let program, gamePublicKey, playerOne, playerTwo;
+try {
+  await eval(`(async () => {
+    ${actualCodeString}
+  })()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'Try block should throw if `play` does not throw'
+  );
+}
 ```
 
 ## 60
@@ -3634,7 +3669,58 @@ Within the `catch` block, assert the caught error is an instance of `AnchorError
 `tests/tic-tac-toe.ts` should have a `catch` block that asserts `e instanceof AnchorError`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatement = blockStatement?.body?.find(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const catchBlock = tryStatement?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'NotPlayersTurn',
+        number: 6003
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw with an `AnchorError`');
+}
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${'Not an AnchorError'};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'Catch block should throw without an `AnchorError`'
+  );
+}
 ```
 
 `AnchorError` should be imported from `@coral-xyz/anchor`.
@@ -3689,13 +3775,127 @@ Within the `catch` block, assert the caught error has an `error.errorCode.code` 
 `tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.code === "NotPlayersTurn"`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatement = blockStatement?.body?.find(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const catchBlock = tryStatement?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'NotPlayersTurn',
+        number: 6003
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.code = 'fcc';
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 `tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.number === 6003`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatement = blockStatement?.body?.find(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const catchBlock = tryStatement?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'NotPlayersTurn',
+        number: 6003
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.number = 6000;
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/tests/tic-tac-toe.ts`
+);
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript']
+});
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 62
@@ -3711,7 +3911,60 @@ Within the `catch` block, assert the program that threw the error is equal to `p
 `tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.program === program.programId`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatement = blockStatement?.body?.find(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const catchBlock = tryStatement?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'NotPlayersTurn',
+        number: 6003
+      },
+      comparedValues: []
+    };
+    this.program = {
+      programId: 1
+    };
+  }
+}
+let program = { programId: 1 },
+  playerOne,
+  playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  program.programId = 2;
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 ## 63
