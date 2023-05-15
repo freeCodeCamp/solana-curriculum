@@ -3978,37 +3978,263 @@ Within the `"handles invalid plays"` callback, add another `try...catch` block t
 The `"handles invalid plays"` callback should have a second `try...catch` block.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2);
 ```
 
 The `try` block should call `play` with an invalid tile.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2, "A second `try...catch` block should exist");
+const tryBlock = tryStatement2?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = (p,g,pl,t) => {
+  const {row, column} = t;
+  assert.exists(row, "`row` should exist);
+  assert.exists(column, "`column` should exist");
+  const isRowOut = row >= 3 || row < 0;
+  const isColumnOut = column >= 3 || column < 0;
+  assert(isRowOut || isColumnOut, "`row` and/or `column` should be out of bounds");
+};
+let program, gamePublicKey, playerOne, playerTwo;
+await eval(`(async () => {
+  ${actualCodeString}
+})()`);
 ```
 
 The `try` block should throw if the `play` call does not throw.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2, 'A second `try...catch` block should exist');
+const tryBlock = tryStatement2?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = () => {};
+let program, gamePublicKey, playerOne, playerTwo;
+try {
+  await eval(`(async () => {
+    ${actualCodeString}
+  })()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'The `try` block should throw, if `play` does not'
+  );
+}
 ```
 
 The `catch` block should assert the error is an instance of `AnchorError`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2, 'A second `try...catch` block should exist');
+const catchBlock = tryStatement2?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement2?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileOutOfBounds',
+        number: 6000
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw with an `AnchorError`');
+}
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${'Not an AnchorError'};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'Catch block should throw without an `AnchorError`'
+  );
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.number` property equal to `6000`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2, 'A second `try...catch` block should exist');
+const catchBlock = tryStatement2?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement2?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileOutOfBounds',
+        number: 6000
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.number = 6003;
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.code` property equal to `"TileOutOfBounds"`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement2 = tryStatements?.[1];
+assert.exists(tryStatement2, 'A second `try...catch` block should exist');
+const catchBlock = tryStatement2?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement2?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileOutOfBounds',
+        number: 6000
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.code = 'fcc';
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 ## 64
@@ -4022,37 +4248,264 @@ Within the `"handles invalid plays"` callback, add another `try...catch` block t
 The `"handles invalid plays"` callback should have a third `try...catch` block.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+assert.exists(tryStatement3);
 ```
 
 The `try` block should call `play` with a tile position that is already occupied.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+assert.exists(tryStatement3);
+assert.exists(tryStatement3, "A third `try...catch` block should exist");
+const tryBlock = tryStatement3?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = (p,g,pl,t) => {
+  const {row, column} = t;
+  assert.exists(row, "`row` should exist);
+  assert.exists(column, "`column` should exist");
+  const isRowOut = row === 0 || row  === 1;
+  const isColumnOut = column === 0;
+  assert(isRowOut && isColumnOut, "`row` and `column` should already be occupied");
+};
+let program, gamePublicKey, playerOne, playerTwo;
+await eval(`(async () => {
+  ${actualCodeString}
+})()`);
 ```
 
 The `try` block should throw if the `play` call does not throw.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+assert.exists(tryStatement3);
+assert.exists(tryStatement3, 'A third `try...catch` block should exist');
+const tryBlock = tryStatement3?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = () => {};
+let program, gamePublicKey, playerOne, playerTwo;
+try {
+  await eval(`(async () => {
+    ${actualCodeString}
+  })()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'The `try` block should throw, if `play` does not'
+  );
+}
 ```
 
 The `catch` block should assert the error is an instance of `AnchorError`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+const catchBlock = tryStatement3?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement3?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileAlreadySet',
+        number: 6001
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw with an `AnchorError`');
+}
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${'Not an AnchorError'};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'Catch block should throw without an `AnchorError`'
+  );
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.number` property equal to `6001`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+assert.exists(tryStatement3, 'A third `try...catch` block should exist');
+const catchBlock = tryStatement3?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement3?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileAlreadySet',
+        number: 6001
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.number = 6003;
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.code` property equal to `"TileAlreadySet"`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement3 = tryStatements?.[2];
+assert.exists(tryStatement3, 'A third `try...catch` block should exist');
+const catchBlock = tryStatement3?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement3?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileAlreadySet',
+        number: 6001
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.code = 'fcc';
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 ## 65
@@ -4063,10 +4516,73 @@ Within the `"handles invalid plays"` callback, call the `play` function as many 
 
 ### --tests--
 
-TODO: No idea how to test this.
+All `play` calls outwith `try...catch` blocks should result in a win.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const plays = blockStatement?.body?.filter(v => {
+  return v.expression?.argument?.callee?.name === 'play';
+});
+const assertionCodeString = babelisedCode.generateCode({
+  type: 'BlockStatement',
+  body: plays,
+  directives: []
+});
+
+let program,
+  gamePublicKey,
+  playerOne = 1,
+  playerTwo = 4;
+const board = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null]
+];
+const play = (p, g, pl, tile) => {
+  board[tile.row][tile.column] = pl;
+};
+await eval(`(async () => {${assertionCodeString}})()`);
+
+function checkWin(board) {
+  // All rows
+  board.forEach(r => {
+    const rowSum = r.reduce((acc, curr) => curr && acc + curr, 0);
+    if (rowSum === playerOne * 3 || rowSum === playerTwo * 3) {
+      return true;
+    }
+  });
+  // All columns
+  for (let i = 0; i < board.length; i++) {
+    const columnSum = board[0][i] + board[1][i] + board[2][i];
+    if (columnSum === playerOne * 3 || columnSum === playerTwo * 3) {
+      return true;
+    }
+  }
+
+  for (let i = 0; i < board.length; i++) {
+    if (board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
+      return true;
+    }
+    if (board[0][i] === board[1][i] && board[1][i] === board[2][i]) {
+      return true;
+    }
+    if (board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
+      return true;
+    }
+    if (board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+assert.isTrue(checkWin(board), `Found board of: ${JSON.stringify(board)}`);
 ```
 
 ## 66
@@ -4080,37 +4596,261 @@ Within the `"handles invalid plays"` callback, add another `try...catch` block t
 The `"handles invalid plays"` callback should have a fourth `try...catch` block.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+assert.exists(tryStatement4);
 ```
 
 The `try` block should call `play` after the game is over.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+assert.exists(tryStatement4);
+assert.exists(tryStatement4, "A fourth `try...catch` block should exist");
+const tryBlock = tryStatement4?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = (p,g,pl,t) => {
+  const {row, column} = t;
+  assert.exists(row, "`row` should exist);
+  assert.exists(column, "`column` should exist");
+};
+let program, gamePublicKey, playerOne, playerTwo;
+await eval(`(async () => {
+  ${actualCodeString}
+})()`);
 ```
 
 The `try` block should throw if the `play` call does not throw.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+assert.exists(tryStatement4);
+assert.exists(tryStatement4, 'A fourth `try...catch` block should exist');
+const tryBlock = tryStatement4?.block;
+const actualCodeString = babelisedCode.generateCode(tryBlock, {
+  compact: true
+});
+
+const chai = await import('chai');
+const { expect } = chai;
+const play = () => {};
+let program, gamePublicKey, playerOne, playerTwo;
+try {
+  await eval(`(async () => {
+    ${actualCodeString}
+  })()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'The `try` block should throw, if `play` does not'
+  );
+}
 ```
 
 The `catch` block should assert the error is an instance of `AnchorError`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+const catchBlock = tryStatement4?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement4?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'TileAlreadySet',
+        number: 6001
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw with an `AnchorError`');
+}
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${'Not an AnchorError'};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(
+    e.message,
+    'fcc',
+    'Catch block should throw without an `AnchorError`'
+  );
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.number` property equal to `6002`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+assert.exists(tryStatement4, 'A fourth `try...catch` block should exist');
+const catchBlock = tryStatement4?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement4?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'GameAlreadyOver',
+        number: 6002
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.number = 6003;
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 The `catch` block should assert the error has an `error.errorCode.code` property equal to `"GameAlreadyOver"`.
 
 ```js
-assert.fail();
+const callExpression = babelisedCode.getType('CallExpression').find(c => {
+  return (
+    c.callee?.name === 'it' &&
+    c.arguments?.[0]?.value === 'handles invalid plays'
+  );
+});
+const blockStatement = callExpression?.arguments?.[1]?.body;
+const tryStatements = blockStatement?.body?.filter(v => {
+  return v?.block?.type === 'TryStatement';
+});
+const tryStatement4 = tryStatements?.[3];
+assert.exists(tryStatement4, 'A fourth `try...catch` block should exist');
+const catchBlock = tryStatement4?.handler?.body;
+const actualCodeString = babelisedCode.generateCode(catchBlock, {
+  compact: true
+});
+const errorParameterName = tryStatement4?.handler?.param?.name;
+
+const chai = await import('chai');
+const { expect } = chai;
+class AnchorError {
+  constructor() {
+    this.error = {
+      errorCode: {
+        code: 'GameAlreadyOver',
+        number: 6002
+      },
+      comparedValues: []
+    };
+  }
+}
+let program, playerOne, playerTwo;
+let __error = new AnchorError();
+try {
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+} catch (e) {
+  assert.fail(e, 'Catch block should not throw');
+}
+try {
+  __error.error.errorCode.code = 'fcc';
+  await eval(`(async () => {
+    let ${errorParameterName} = ${__error};
+  ${actualCodeString}
+})()`);
+  assert.fail('fcc');
+} catch (e) {
+  assert.notEqual(e.message, 'fcc', 'Catch block should throw');
+}
 ```
 
 ## 67
