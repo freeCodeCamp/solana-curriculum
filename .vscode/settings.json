@@ -33,7 +33,7 @@
     "build-a-university-certification-nft": true,
     "learn-anchor-by-building-tic-tac-toe": false,
     "learn-how-to-test-an-anchor-program": false,
-    "build-an-anchor-leaderboard": true
+    "build-an-anchor-leaderboard": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {

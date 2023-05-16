@@ -58,7 +58,7 @@
     "title": "Build a University Certification NFT",
     "dashedName": "build-a-university-certification-nft",
     "isIntegrated": true,
-    "description": "In this integrated project, you will use what you previously learnt to build-out the logic for an NFT-issuing system for university certifications.",
+    "description": "In this integrated project, you will use what you previously learnt to build out the logic for an NFT-issuing system for university certifications.",
     "isPublic": true,
     "currentLesson": 1,
     "numberOfLessons": 1
@@ -90,7 +90,7 @@
     "title": "Build an Anchor Leaderboard",
     "dashedName": "build-an-anchor-leaderboard",
     "isIntegrated": true,
-    "description": "In this integrated project, you will use what you previously learnt to build-out the logic for an NFT-issuing system for university certifications.",
+    "description": "In this integrated project, you will use what you previously learnt to build the program logic for a game leaderboard",
     "isPublic": true,
     "currentLesson": 1,
     "numberOfLessons": 1
