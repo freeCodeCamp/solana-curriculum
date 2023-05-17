@@ -39,7 +39,6 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
   - `GAME_OWNER_PUBKEY` - the public key of the game owner 😅
   - `PROGRAM_ID` - the public key of the program
   - `SOLANA_CONNECTION_URL` - the url of the Solana cluster
-  - `VITE_<NAME>` - the environment variables used in the client (should be the same as the corresponding `<NAME>` variables)
 
 ### --tests--
 
