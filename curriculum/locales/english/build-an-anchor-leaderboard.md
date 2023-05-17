@@ -87,6 +87,10 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 
 #### Tests
 
+1. There should be an `it` block named `"initializes leaderboard"`.
+2. There should be an `it` block named `"creates a new game"`.
+3. There should be an `it` block named `"adds a player to the leaderboard"`.
+
 #### Types
 
 <details>
@@ -152,7 +156,7 @@ has_payed: bool,
 
 ### --tests--
 
-First test
+Tests not written yet.
 
 ```js
 assert.fail();
