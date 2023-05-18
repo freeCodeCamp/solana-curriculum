@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-rock_destroyer = ""
+rock_destroyer = "J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic"
 
 [registry]
 url = "https://api.apr.dev"

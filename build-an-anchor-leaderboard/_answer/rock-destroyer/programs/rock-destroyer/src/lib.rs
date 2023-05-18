@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use std::str::FromStr;
 
-declare_id!("");
+declare_id!("J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic");
 
 const GAME_OWNER_PUBKEY: &'static str = std::env!(
     "GAME_OWNER_PUBKEY",
@@ -24,14 +24,14 @@ pub mod rock_destroyer {
 
     /// Starts a new game:
     /// - Creates a new player account
-    /// - Pays the game owner 0.5 SOL
+    /// - Pays the game owner 1 SOL
     /// - Initialises the player account
     pub fn new_game(ctx: Context<NewGame>, username: String) -> Result<()> {
         let leaderboard = &mut ctx.accounts.leaderboard;
         let game_owner = &mut ctx.accounts.game_owner;
         let user = &mut ctx.accounts.user;
 
-        let lams = 500_000_000;
+        let lams = 1_000_000_000;
 
         let ix = anchor_lang::solana_program::system_instruction::transfer(
             &user.key(),
@@ -56,7 +56,7 @@ pub mod rock_destroyer {
 
         // Add player to leaderboard
         // If the leaderboard is full, remove the lowest score that has not payed
-        if leaderboard.players.len() == 101 {
+        if leaderboard.players.len() == 5 {
             let mut lowest_score = u64::MAX;
             let mut lowest_score_index = 0;
             for (i, player) in leaderboard.players.iter().enumerate() {
@@ -103,7 +103,7 @@ pub mod rock_destroyer {
 
 #[derive(Accounts)]
 pub struct InitialiseLeaderboard<'info> {
-    #[account(init, payer = game_owner, space = 8 + (4 + 24 + 32 + 8 + 1) * 101, seeds = [b"leaderboard", game_owner.key().as_ref()], bump)]
+    #[account(init, payer = game_owner, space = 8 + (4 + 24 + 32 + 8 + 1) * 5, seeds = [b"leaderboard", game_owner.key().as_ref()], bump)]
     pub leaderboard: Account<'info, Leaderboard>,
     #[account(mut, constraint = game_owner.key() == Pubkey::from_str(GAME_OWNER_PUBKEY)
     .expect("Invalid game owner pubkey"), constraint = anchor_lang::solana_program::system_program::check_id(&game_owner.owner))]
@@ -135,8 +135,7 @@ pub struct AddPlayerToLeaderboard<'info> {
 
 #[account]
 pub struct Leaderboard {
-    /// A list of the top 100 player pubkeys
-    /// Includes 101 players to allow for the case where a player has payed but has not yet been added to the leaderboard
+    /// A list of the top 5 player pubkeys
     pub players: Vec<Player>,
 }
 

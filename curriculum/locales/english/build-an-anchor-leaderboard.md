@@ -2,7 +2,6 @@
 
 ## 1
 
-<!-- TODO: Thinking about removing the client (`app`) -->
 <!-- TODO: The tests might need to be a lot more integrated - less unit -like -->
 
 ### --description--
@@ -35,7 +34,7 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 
 1. The `leaderboard` account should be initialized, if it does not already exist.
    - This should be payed for by the `game_owner` account
-   - The correct amount of space for 100 players should be allocated
+   - The correct amount of space for 5 players should be allocated
    - The PDA should be seeded with `"leaderboard"` and the `game_owner` public key
 2. The `game_owner` account should be a signer.
    - The following constraints should be enforced:
@@ -48,13 +47,13 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 1. The `rock_destroyer` program should expose a `new_game` instruction handler.
 2. The `new_game` instruction handler should take a context generic over a `NewGame` accounts struct.
 3. The `new_game` instruction handler should take a `username: String` argument.
-4. The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.
+4. The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.[^1]
 5. The `new_game` instruction handler should add a new `Player` to the leaderboard with:
    - `username` set to the `username` argument
    - `pubkey` set to the `user` account public key
    - `score` set to `0`
    - `has_payed` set to `true`
-6. If the leaderboard is full, the player with the lowest score who has not payed should be replaced.
+6. If the leaderboard is full, the player with the lowest score should be replaced.
 
 **`NewGame`**
 
@@ -88,8 +87,29 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 #### Tests
 
 1. There should be an `it` block named `"initializes leaderboard"`.
+
+- Call the `initialize_leaderboard` instruction
+- Assert the `leaderboard` account equals `{ players: [] }`
+
 2. There should be an `it` block named `"creates a new game"`.
+
+- Call the `new_game` instruction with a `username` argument of `"camperbot"`
+- Assert the `leaderboard` account has at least one player
+- Assert the player has the correct `username`
+- Assert the player has the correct `pubkey`
+- Assert the player has a `hasPayed` value of `true`
+- Assert the player has a `score` value of `0`
+- Assert the balance of the `user` account has decreased by at least 1 SOL (_remember transaction fees_)
+
 3. There should be an `it` block named `"adds a player to the leaderboard"`.
+
+- Call the `add_player_to_leaderboard` instruction with a `score` argument of `100`
+- Assert a player has a `score` value of `100`
+- Assert a player has a `hasPayed` value of `false`
+
+4. There should be an `it` block named `"
+
+- Assert the `PlayerNotFound` error variant is returned when the `user` account has not payed
 
 #### Types
 
@@ -153,6 +173,14 @@ has_payed: bool,
   - `GAME_OWNER_PUBKEY` - the public key of the game owner 😅
   - `PROGRAM_ID` - the public key of the program
   - `SOLANA_CONNECTION_URL` - the url of the Solana cluster
+- You should not add any external dependencies to the `package.json` file for the tests
+  - You have access to `chai`
+- Many tests rely on previous user stories being correctly implemented
+
+[^1]: Hint: You can use the `transfer` function from the `system_instruction` module in the `solana_program` crate.
+
+<!-- TODO: To test, copy whole app to ./__test/rock-destroyer/ dir -->
+<!--       Seed `lib.rs` with different versions of program, and see when tests fail -->
 
 ### --tests--
 
