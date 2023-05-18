@@ -181,6 +181,11 @@ has_payed: bool,
 
 <!-- TODO: To test, copy whole app to ./__test/rock-destroyer/ dir -->
 <!--       Seed `lib.rs` with different versions of program, and see when tests fail -->
+<!-- For each test:
+1. Check for existance of `lockfile` in project
+2. If lockfile exists, wait until repoll
+3. Else, add lockfile, and perform test
+4. Remove lockfile -->
 
 ### --tests--
 
@@ -193,7 +198,9 @@ assert.fail();
 ### --before-all--
 
 ```js
+const { access, constants, rm } = await import('fs/promises');
 const __projectDir = 'build-an-anchor-leaderboard/rock-destroyer';
+const __testDir = 'build-an-anchor-leaderboard/__test/rock-destroyer';
 const codeString = await __helpers.getFile(
   './' + join(__projectDir, 'tests/index.ts')
 );
@@ -201,15 +208,54 @@ const babelisedCode = new __helpers.Babeliser(codeString, {
   plugins: ['typescript']
 });
 
+async function __createTestDir() {
+
+}
+
+async function __pollForLockfile() {
+  const cb = () => {
+    return await access(join(__testDir, 'lockfile'), constants.F_OK)
+      .then(() => true)
+      .catch(() => false);
+  }
+  await __helpers.controlWrapper(cb, { timeout: 20_000, stepSize: 250 });
+}
+
+async function __removeLockfile() {
+  try {
+    await rm(join(__testDir, 'lockfile', { force: true }));
+  } catch (e) {
+    // Something horrible has gone wrong
+    // Delete __testDir
+    // TODO: BEFORE should delete and create test dir
+    await rm(__testDir, { recursive: true, force: true });
+  }
+}
+
+async function __createLockfile() {}
+
 global.__projectDir = __projectDir;
+global.__testDir = __testDir;
 global.babelisedCode = babelisedCode;
+
+global.__pollForLockfile = __pollForLockfile;
+global.__removeLockfile = __removeLockfile;
+global.__createLockfile = __createLockfile;
 ```
 
 ### --after-all--
 
 ```js
 delete global.__projectDir;
+delete global.__testDir;
 delete global.babelisedCode;
+
+// Remove any lockfiles
+await __removeLockfile();
+
+delete global.__pollForLockfile;
+delete global.__removeLockfile;
+delete global.__createLockfile;
 ```
 
 ## --fcc-end--
