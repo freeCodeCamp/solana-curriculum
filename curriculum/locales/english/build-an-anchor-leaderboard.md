@@ -17,7 +17,6 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 1. You should generate a new keypair and store it in a file called `game-owner.json`.
 2. You should store the public key of the game owner in the `GAME_OWNER_PUBKEY` environment variable in the `.env` file.
 3. You should store the program id in the `PROGRAM_ID` environment variable in the `.env` file.
-4. You should start a local solana cluster and store the url in the `SOLANA_CONNECTION_URL` environment variable in the `.env` file.
 
 #### Program
 
@@ -46,10 +45,10 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 
 1. The `rock_destroyer` program should expose a `new_game` instruction handler.
 2. The `new_game` instruction handler should take a context generic over a `NewGame` accounts struct.
-3. The `new_game` instruction handler should take a `username: String` argument.
+3. The `new_game` instruction handler should take a `String` argument.
 4. The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.[^1]
 5. The `new_game` instruction handler should add a new `Player` to the leaderboard with:
-   - `username` set to the `username` argument
+   - `username` set to the `String` argument
    - `pubkey` set to the `user` account public key
    - `score` set to `0`
    - `has_payed` set to `true`
@@ -71,9 +70,9 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 
 1. The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
 2. The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
-3. The `add_player_to_leaderboard` instruction handler should take a `score: u64` argument.
+3. The `add_player_to_leaderboard` instruction handler should take a `u64` argument.
 4. The player matching the user account public key should be updated with:
-   - `score` set to the `score` argument
+   - `score` set to the `u64` argument
    - `has_payed` set to `false`
 5. If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
 
@@ -103,7 +102,7 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 
 3. There should be an `it` block named `"adds a player to the leaderboard"`.
 
-- Call the `add_player_to_leaderboard` instruction with a `score` argument of `100`
+- Call the `add_player_to_leaderboard` instruction with an argument of `100`
 - Assert a player has a `score` value of `100`
 - Assert a player has a `hasPayed` value of `false`
 
@@ -172,7 +171,6 @@ has_payed: bool,
 - `.env`
   - `GAME_OWNER_PUBKEY` - the public key of the game owner 😅
   - `PROGRAM_ID` - the public key of the program
-  - `SOLANA_CONNECTION_URL` - the url of the Solana cluster
 - You should not add any external dependencies to the `package.json` file for the tests
   - You have access to `chai`
 - Many tests rely on previous user stories being correctly implemented
@@ -189,16 +187,244 @@ has_payed: bool,
 
 ### --tests--
 
-Tests not written yet.
+You should generate a new keypair and store it in a file called `game-owner.json`.
 
 ```js
+// 1
+assert.fail();
+```
+
+You should store the public key of the game owner in the `GAME_OWNER_PUBKEY` environment variable in the `.env` file.
+
+```js
+// 2
+assert.fail();
+```
+
+You should store the program id in the `PROGRAM_ID` environment variable in the `.env` file.
+
+```js
+// 3
+assert.fail();
+```
+
+You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
+
+```js
+// 4
+assert.fail();
+```
+
+You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
+
+```js
+// 5
+assert.fail();
+```
+
+The `rock_destroyer` program should expose an `initialize_leaderboard` instruction handler.
+
+```js
+// 6
+assert.fail();
+```
+
+The `initialize_leaderboard` instruction handler should take a context generic over an `InitializeLeaderboard` accounts struct.
+
+```js
+// 7
+assert.fail();
+```
+
+The `initialize_leaderboard` instruction handler should initialize the `leaderboard` account with the `players` field set to an empty vector.
+
+```js
+// 8
+assert.fail();
+```
+
+The `leaderboard` account should be initialized, if it does not already exist.
+
+```js
+// 9
+assert.fail();
+```
+
+The initalization of the `leaderboard` account should be payed for by the `game_owner` account.
+
+```js
+// 10
+assert.fail();
+```
+
+The correct amount of space for 5 players should be allocated for the `leaderboard` account.
+
+```js
+// 11
+assert.fail();
+```
+
+The PDA should be seeded with `"leaderboard"` and the `game_owner` public key.
+
+```js
+// 12
+assert.fail();
+```
+
+The `game_owner` account public key should be asserted to match the `GAME_OWNER_PUBKEY` environment variable.
+
+```js
+// 13
+assert.fail();
+```
+
+The `game_owner` account owner should be asserted to be the system program.
+
+```js
+// 14
+assert.fail();
+```
+
+The `rock_destroyer` program should expose a `new_game` instruction handler.
+
+```js
+// 15
+assert.fail();
+```
+
+The `new_game` instruction handler should take a context generic over a `NewGame` accounts struct.
+
+```js
+// 16
+assert.fail();
+```
+
+The `new_game` instruction handler should take a `String` argument.
+
+```js
+// 17
+assert.fail();
+```
+
+The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.
+
+```js
+// 18
+assert.fail();
+```
+
+The `new_game` instruction handler should add a new `Player` to the leaderboard with:
+
+```js
+// 19
+assert.fail();
+```
+
+The `username` field of the new `Player` should be set to the `String` argument.
+
+```js
+// 20
+assert.fail();
+```
+
+The `pubkey` field of the new `Player` should be set to the `user` account public key.
+
+```js
+// 21
+assert.fail();
+```
+
+The `score` field of the new `Player` should be set to `0`.
+
+```js
+// 22
+assert.fail();
+```
+
+The `has_payed` field of the new `Player` should be set to `true`.
+
+```js
+// 23
+assert.fail();
+```
+
+If the leaderboard is full, the player with the lowest score should be replaced.
+
+```js
+// 24
+assert.fail();
+```
+
+The `NewGame` `game_owner` account should be asserted to match the `GAME_OWNER_PUBKEY` environment variable.
+
+```js
+// 25
+assert.fail();
+```
+
+The `NewGame` `game_owner` account owner should be asserted to be the system program.
+
+```js
+// 26
+assert.fail();
+```
+
+<!--
+1. The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
+2. The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
+3. The `add_player_to_leaderboard` instruction handler should take a `score: u64` argument.
+4. The player matching the user account public key should be updated with:
+   - `score` set to the `score` argument
+   - `has_payed` set to `false`
+5. If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
+-->
+
+The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
+
+```js
+// 27
+assert.fail();
+```
+
+The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
+
+```js
+// 28
+assert.fail();
+```
+
+The `add_player_to_leaderboard` instruction handler should take a `u64` argument.
+
+```js
+// 29
+assert.fail();
+```
+
+The player matching the user account public key should be updated with a `score` set to the `u64` argument.
+
+```js
+// 30
+assert.fail();
+```
+
+The player matching the user account public key should be updated with a `has_payed` set to `false`.
+
+```js
+// 31
+assert.fail();
+```
+
+If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
+
+```js
+// 32
 assert.fail();
 ```
 
 ### --before-all--
 
 ```js
-const { access, constants, rm } = await import('fs/promises');
+const { access, constants, rm, cp, writeFile } = await import('fs/promises');
 const __projectDir = 'build-an-anchor-leaderboard/rock-destroyer';
 const __testDir = 'build-an-anchor-leaderboard/__test/rock-destroyer';
 const codeString = await __helpers.getFile(
@@ -209,30 +435,28 @@ const babelisedCode = new __helpers.Babeliser(codeString, {
 });
 
 async function __createTestDir() {
-
+  // Remove old test dir
+  await rm(__testDir, { recursive: true, force: true });
+  // Create new test dir
+  await cp(__projectDir, __testDir, { recursive: true });
 }
 
 async function __pollForLockfile() {
-  const cb = () => {
+  const cb = async () => {
     return await access(join(__testDir, 'lockfile'), constants.F_OK)
       .then(() => true)
       .catch(() => false);
-  }
+  };
   await __helpers.controlWrapper(cb, { timeout: 20_000, stepSize: 250 });
 }
 
 async function __removeLockfile() {
-  try {
-    await rm(join(__testDir, 'lockfile', { force: true }));
-  } catch (e) {
-    // Something horrible has gone wrong
-    // Delete __testDir
-    // TODO: BEFORE should delete and create test dir
-    await rm(__testDir, { recursive: true, force: true });
-  }
+  await rm(join(__testDir, 'lockfile', { force: true }));
 }
 
-async function __createLockfile() {}
+async function __createLockfile() {
+  await writeFile(join(__testDir, 'lockfile'), '');
+}
 
 global.__projectDir = __projectDir;
 global.__testDir = __testDir;
