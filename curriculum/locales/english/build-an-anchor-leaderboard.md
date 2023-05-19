@@ -369,16 +369,6 @@ The `NewGame` `game_owner` account owner should be asserted to be the system pro
 assert.fail();
 ```
 
-<!--
-1. The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
-2. The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
-3. The `add_player_to_leaderboard` instruction handler should take a `score: u64` argument.
-4. The player matching the user account public key should be updated with:
-   - `score` set to the `score` argument
-   - `has_payed` set to `false`
-5. If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
--->
-
 The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
 
 ```js
@@ -418,6 +408,125 @@ If no player matching the user account public key exists and has payed, an Ancho
 
 ```js
 // 32
+assert.fail();
+```
+
+There should be an `it` block named `"initializes leaderboard"`.
+
+```js
+// 33
+assert.fail();
+```
+
+The `"initializes leaderboard"` `it` block should call the `initialize_leaderboard` instruction.
+
+```js
+// 34
+assert.fail();
+```
+
+The `"initializes leaderboard"` `it` block should assert the `leaderboard` account equals `{ players: [] }`.
+
+```js
+// 35
+assert.fail();
+```
+
+There should be an `it` block named `"creates a new game"`.
+
+```js
+// 36
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should call the `new_game` instruction with a `username` argument of `"camperbot"`.
+
+```js
+// 37
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the `leaderboard` account has at least one player.
+
+```js
+// 38
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the player has the correct `username`.
+
+```js
+// 39
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the player has the correct `pubkey`.
+
+```js
+// 40
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the player has a `hasPayed` value of `true`.
+
+```js
+// 41
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the player has a `score` value of `0`.
+
+```js
+// 42
+assert.fail();
+```
+
+The `"creates a new game"` `it` block should assert the balance of the `user` account has decreased by at least 1 SOL.
+
+```js
+// 43
+assert.fail();
+```
+
+There should be an `it` block named `"adds a player to the leaderboard"`.
+
+```js
+// 44
+assert.fail();
+```
+
+The `"adds a player to the leaderboard"` `it` block should call the `add_player_to_leaderboard` instruction with an argument of `100`.
+
+```js
+// 45
+assert.fail();
+```
+
+The `"adds a player to the leaderboard"` `it` block should assert a player has a `score` value of `100`.
+
+```js
+// 46
+assert.fail();
+```
+
+The `"adds a player to the leaderboard"` `it` block should assert a player has a `hasPayed` value of `false`.
+
+```js
+// 47
+assert.fail();
+```
+
+There should be an `it` block named `"throws an error when the user has not payed"`.
+
+```js
+// 48
+assert.fail();
+```
+
+The `"throws an error when the user has not payed"` `it` block should assert the `PlayerNotFound` error variant is returned when the `user` account has not payed.
+
+```js
+// 49
 assert.fail();
 ```
 
