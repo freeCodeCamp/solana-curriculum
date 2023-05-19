@@ -36,7 +36,7 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 2. The `game_owner` account should be a signer.
    - The following constraints should be enforced:
      - The account should be mutable
-     - The account public key should match the `GAME_OWNER_PUBKEY` environment variable
+     - The account public key should match the `game-owner.json` file public key
      - The account owner should be the system program
 
 **`new_game`**
@@ -60,7 +60,7 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 2. The `game_owner` account should be an unchecked account.
    - The following constraints should be enforced:
      - The account should be mutable
-     - The account public key should match the `GAME_OWNER_PUBKEY` environment variable
+     - The account public key should match the `game-owner.json` file public key
      - The account owner should be the system program
 3. The `leaderboard` account should be mutable.
 
@@ -185,337 +185,297 @@ has_payed: bool,
 You should generate a new keypair and store it in a file called `game-owner.json`.
 
 ```js
-// 1
-const fileExists = fs.existsSync('./game-owner.json');
+const fileExists = await fsp.exists('./game-owner.json');
 assert.isTrue(fileExists);
 ```
 
 You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
 
 ```js
-// 4
-assert.fail();
+const anchorToml = await fsp.readFile('./Anchor.toml', 'utf-8');
+const actualProgramId = anchorToml.match(/rock_destroyer = "(.*)"/)[1];
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  __testDir
+);
+const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)[1];
+assert.equal(actualProgramId, expectedProgramId);
 ```
 
 You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
 
 ```js
-// 5
 assert.fail();
 ```
 
 The `rock_destroyer` program should expose an `initialize_leaderboard` instruction handler.
 
 ```js
-// 6
 assert.fail();
 ```
 
 The `initialize_leaderboard` instruction handler should take a context generic over an `InitializeLeaderboard` accounts struct.
 
 ```js
-// 7
 assert.fail();
 ```
 
 The `initialize_leaderboard` instruction handler should initialize the `leaderboard` account with the `players` field set to an empty vector.
 
 ```js
-// 8
 assert.fail();
 ```
 
 The `leaderboard` account should be initialized, if it does not already exist.
 
 ```js
-// 9
 assert.fail();
 ```
 
 The initalization of the `leaderboard` account should be payed for by the `game_owner` account.
 
 ```js
-// 10
 assert.fail();
 ```
 
 The correct amount of space for 5 players should be allocated for the `leaderboard` account.
 
 ```js
-// 11
 assert.fail();
 ```
 
 The PDA should be seeded with `"leaderboard"` and the `game_owner` public key.
 
 ```js
-// 12
 assert.fail();
 ```
 
-The `game_owner` account public key should be asserted to match the `GAME_OWNER_PUBKEY` environment variable.
+The `game_owner` account public key should be asserted to match the `game-owner.json` file public key.
 
 ```js
-// 13
 assert.fail();
 ```
 
 The `game_owner` account owner should be asserted to be the system program.
 
 ```js
-// 14
 assert.fail();
 ```
 
 The `rock_destroyer` program should expose a `new_game` instruction handler.
 
 ```js
-// 15
 assert.fail();
 ```
 
 The `new_game` instruction handler should take a context generic over a `NewGame` accounts struct.
 
 ```js
-// 16
 assert.fail();
 ```
 
 The `new_game` instruction handler should take a `String` argument.
 
 ```js
-// 17
 assert.fail();
 ```
 
 The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.
 
 ```js
-// 18
 assert.fail();
 ```
 
 The `new_game` instruction handler should add a new `Player` to the leaderboard with:
 
 ```js
-// 19
 assert.fail();
 ```
 
 The `username` field of the new `Player` should be set to the `String` argument.
 
 ```js
-// 20
 assert.fail();
 ```
 
 The `pubkey` field of the new `Player` should be set to the `user` account public key.
 
 ```js
-// 21
 assert.fail();
 ```
 
 The `score` field of the new `Player` should be set to `0`.
 
 ```js
-// 22
 assert.fail();
 ```
 
 The `has_payed` field of the new `Player` should be set to `true`.
 
 ```js
-// 23
 assert.fail();
 ```
 
 If the leaderboard is full, the player with the lowest score should be replaced.
 
 ```js
-// 24
 assert.fail();
 ```
 
-The `NewGame` `game_owner` account should be asserted to match the `GAME_OWNER_PUBKEY` environment variable.
+The `NewGame` `game_owner` account should be asserted to match the `game-owner.json` file public key.
 
 ```js
-// 25
 assert.fail();
 ```
 
 The `NewGame` `game_owner` account owner should be asserted to be the system program.
 
 ```js
-// 26
 assert.fail();
 ```
 
 The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
 
 ```js
-// 27
 assert.fail();
 ```
 
 The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
 
 ```js
-// 28
 assert.fail();
 ```
 
 The `add_player_to_leaderboard` instruction handler should take a `u64` argument.
 
 ```js
-// 29
 assert.fail();
 ```
 
 The player matching the user account public key should be updated with a `score` set to the `u64` argument.
 
 ```js
-// 30
 assert.fail();
 ```
 
 The player matching the user account public key should be updated with a `has_payed` set to `false`.
 
 ```js
-// 31
 assert.fail();
 ```
 
 If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
 
 ```js
-// 32
 assert.fail();
 ```
 
 There should be an `it` block named `"initializes leaderboard"`.
 
 ```js
-// 33
 assert.fail();
 ```
 
 The `"initializes leaderboard"` `it` block should call the `initialize_leaderboard` instruction.
 
 ```js
-// 34
 assert.fail();
 ```
 
 The `"initializes leaderboard"` `it` block should assert the `leaderboard` account equals `{ players: [] }`.
 
 ```js
-// 35
 assert.fail();
 ```
 
 There should be an `it` block named `"creates a new game"`.
 
 ```js
-// 36
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should call the `new_game` instruction with a `username` argument of `"camperbot"`.
 
 ```js
-// 37
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the `leaderboard` account has at least one player.
 
 ```js
-// 38
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the player has the correct `username`.
 
 ```js
-// 39
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the player has the correct `pubkey`.
 
 ```js
-// 40
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the player has a `hasPayed` value of `true`.
 
 ```js
-// 41
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the player has a `score` value of `0`.
 
 ```js
-// 42
 assert.fail();
 ```
 
 The `"creates a new game"` `it` block should assert the balance of the `user` account has decreased by at least 1 SOL.
 
 ```js
-// 43
 assert.fail();
 ```
 
 There should be an `it` block named `"adds a player to the leaderboard"`.
 
 ```js
-// 44
 assert.fail();
 ```
 
 The `"adds a player to the leaderboard"` `it` block should call the `add_player_to_leaderboard` instruction with an argument of `100`.
 
 ```js
-// 45
 assert.fail();
 ```
 
 The `"adds a player to the leaderboard"` `it` block should assert a player has a `score` value of `100`.
 
 ```js
-// 46
 assert.fail();
 ```
 
 The `"adds a player to the leaderboard"` `it` block should assert a player has a `hasPayed` value of `false`.
 
 ```js
-// 47
 assert.fail();
 ```
 
 There should be an `it` block named `"throws an error when the user has not payed"`.
 
 ```js
-// 48
 assert.fail();
 ```
 
 The `"throws an error when the user has not payed"` `it` block should assert the `PlayerNotFound` error variant is returned when the `user` account has not payed.
 
 ```js
-// 49
 assert.fail();
 ```
 
 ### --before-all--
 
 ```js
-const { access, constants, rm, cp, writeFile } = await import('fs/promises');
+const fsp = await import('fs/promises');
 const __projectDir = 'build-an-anchor-leaderboard/rock-destroyer';
 const __testDir = 'build-an-anchor-leaderboard/__test/rock-destroyer';
 const codeString = await __helpers.getFile(
@@ -527,14 +487,15 @@ const babelisedCode = new __helpers.Babeliser(codeString, {
 
 async function __createTestDir() {
   // Remove old test dir
-  await rm(__testDir, { recursive: true, force: true });
+  await fsp.rm(__testDir, { recursive: true, force: true });
   // Create new test dir
-  await cp(__projectDir, __testDir, { recursive: true });
+  await fsp.cp(__projectDir, __testDir, { recursive: true });
 }
 
 async function __pollForLockfile() {
   const cb = async () => {
-    return await access(join(__testDir, 'lockfile'), constants.F_OK)
+    return await fsp
+      .access(join(__testDir, 'lockfile'), fsp.constants.F_OK)
       .then(() => true)
       .catch(() => false);
   };
@@ -542,15 +503,16 @@ async function __pollForLockfile() {
 }
 
 async function __removeLockfile() {
-  await rm(join(__testDir, 'lockfile', { force: true }));
+  await fsp.rm(join(__testDir, 'lockfile', { force: true }));
 }
 
 async function __createLockfile() {
-  await writeFile(join(__testDir, 'lockfile'), '');
+  await fsp.writeFile(join(__testDir, 'lockfile'), '');
 }
 
 global.__projectDir = __projectDir;
 global.__testDir = __testDir;
+global.fsp = fsp;
 global.babelisedCode = babelisedCode;
 
 global.__pollForLockfile = __pollForLockfile;
@@ -563,6 +525,7 @@ global.__createLockfile = __createLockfile;
 ```js
 delete global.__projectDir;
 delete global.__testDir;
+delete global.fsp;
 delete global.babelisedCode;
 
 // Remove any lockfiles
