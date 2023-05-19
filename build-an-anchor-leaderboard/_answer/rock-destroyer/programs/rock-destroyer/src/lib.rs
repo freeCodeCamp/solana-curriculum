@@ -3,11 +3,6 @@ use std::str::FromStr;
 
 declare_id!("J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic");
 
-const GAME_OWNER_PUBKEY: &'static str = std::env!(
-    "GAME_OWNER_PUBKEY",
-    "GAME_OWNER_PUBKEY environment variable not set"
-);
-
 #[program]
 pub mod rock_destroyer {
     use super::*;
@@ -105,7 +100,7 @@ pub mod rock_destroyer {
 pub struct InitialiseLeaderboard<'info> {
     #[account(init, payer = game_owner, space = 8 + (4 + 24 + 32 + 8 + 1) * 5, seeds = [b"leaderboard", game_owner.key().as_ref()], bump)]
     pub leaderboard: Account<'info, Leaderboard>,
-    #[account(mut, constraint = game_owner.key() == Pubkey::from_str(GAME_OWNER_PUBKEY)
+    #[account(mut, constraint = game_owner.key() == Pubkey::from_str("J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic")
     .expect("Invalid game owner pubkey"), constraint = anchor_lang::solana_program::system_program::check_id(&game_owner.owner))]
     pub game_owner: Signer<'info>,
     system_program: Program<'info, System>,
@@ -117,7 +112,7 @@ pub struct NewGame<'info> {
     pub user: Signer<'info>,
     /// CHECK: The game owner is only here to receive funds
     /// A constraint is used to ensure that the game owner is the same as the one specified in the program
-    #[account(mut, constraint = game_owner.key() == Pubkey::from_str(GAME_OWNER_PUBKEY)
+    #[account(mut, constraint = game_owner.key() == Pubkey::from_str("J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic")
     .expect("Invalid game owner pubkey"), constraint = anchor_lang::solana_program::system_program::check_id(&game_owner.owner))]
     pub game_owner: AccountInfo<'info>,
     #[account(mut)]

@@ -15,13 +15,11 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 #### Setup
 
 1. You should generate a new keypair and store it in a file called `game-owner.json`.
-2. You should store the public key of the game owner in the `GAME_OWNER_PUBKEY` environment variable in the `.env` file.
-3. You should store the program id in the `PROGRAM_ID` environment variable in the `.env` file.
+2. You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
 
 #### Program
 
-1. You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
-2. You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
+1. You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
 
 **`initialize_leaderboard`**
 
@@ -168,9 +166,6 @@ has_payed: bool,
 
 ### Notes
 
-- `.env`
-  - `GAME_OWNER_PUBKEY` - the public key of the game owner 😅
-  - `PROGRAM_ID` - the public key of the program
 - You should not add any external dependencies to the `package.json` file for the tests
   - You have access to `chai`
 - Many tests rely on previous user stories being correctly implemented
@@ -191,21 +186,8 @@ You should generate a new keypair and store it in a file called `game-owner.json
 
 ```js
 // 1
-assert.fail();
-```
-
-You should store the public key of the game owner in the `GAME_OWNER_PUBKEY` environment variable in the `.env` file.
-
-```js
-// 2
-assert.fail();
-```
-
-You should store the program id in the `PROGRAM_ID` environment variable in the `.env` file.
-
-```js
-// 3
-assert.fail();
+const fileExists = fs.existsSync('./game-owner.json');
+assert.isTrue(fileExists);
 ```
 
 You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
