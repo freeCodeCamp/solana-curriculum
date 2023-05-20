@@ -172,52 +172,145 @@ has_payed: bool,
 
 [^1]: Hint: You can use the `transfer` function from the `system_instruction` module in the `solana_program` crate.
 
-<!-- TODO: To test, copy whole app to ./__test/rock-destroyer/ dir -->
-<!--       Seed `lib.rs` with different versions of program, and see when tests fail -->
-<!-- For each test:
-1. Check for existance of `lockfile` in project
-2. If lockfile exists, wait until repoll
-3. Else, add lockfile, and perform test
-4. Remove lockfile -->
-
 ### --tests--
 
 You should generate a new keypair and store it in a file called `game-owner.json`.
 
 ```js
-const fileExists = await fsp.exists('./game-owner.json');
-assert.isTrue(fileExists);
+try {
+  const fileExists = await __fsp.access(
+    __path.join(__testDir, './game-owner.json'),
+    __fsp.constants.F_OK
+  );
+} catch (e) {
+  assert.fail(e);
+}
 ```
 
 You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
 
 ```js
-const anchorToml = await fsp.readFile('./Anchor.toml', 'utf-8');
-const actualProgramId = anchorToml.match(/rock_destroyer = "(.*)"/)[1];
-const { stdout } = await __helpers.getCommandOutput(
-  'anchor keys list',
-  __testDir
-);
-const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)[1];
-assert.equal(actualProgramId, expectedProgramId);
+logover.debug('2.1');
+await __pollThenCreate();
+try {
+  const anchorToml = await __fsp.readFile(
+    __path.join(__testDir, 'Anchor.toml'),
+    'utf-8'
+  );
+  logover.debug('2.4');
+  const actualProgramId = anchorToml.match(/rock_destroyer = "(.*)"/)?.[1];
+  const { stdout } = await __helpers.getCommandOutput(
+    'anchor keys list',
+    __testDir
+  );
+  logover.debug('2.5');
+  const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
+  assert.equal(actualProgramId, expectedProgramId);
+} catch (e) {
+  throw e;
+} finally {
+  logover.debug('2.6');
+  await __removeLockfile();
+}
 ```
 
 You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
 
 ```js
-assert.fail();
+logover.debug('3.1');
+await __pollThenCreate();
+logover.debug('3.2');
+try {
+  const librs = await __fsp.readFile(
+    __path.join(__testDir, 'programs/rock-destroyer/src/lib.rs'),
+    'utf-8'
+  );
+  logover.debug('3.4');
+  const actualProgramId = librs.match(/declare_id\!\((.*)\)/)?.[1];
+  const { stdout } = await __helpers.getCommandOutput(
+    'anchor keys list',
+    __testDir
+  );
+  logover.debug('3.5');
+  const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
+  assert.equal(actualProgramId.replaceAll(/['"`]/g), expectedProgramId);
+} catch (e) {
+  throw e;
+} finally {
+  logover.debug('3.6');
+  await __removeLockfile();
+}
 ```
 
 The `rock_destroyer` program should expose an `initialize_leaderboard` instruction handler.
 
 ```js
-assert.fail();
+logover.debug('4.1');
+await __pollThenCreate();
+logover.debug('4.2');
+await __buildTestDir();
+logover.debug('4.3');
+try {
+  const { RockDestroyer } = await __helpers.importSansCache(
+    __path.join(__testDir, 'target/types/rock_destroyer')
+  );
+  logover.debug('4.4');
+  const ixs = RockDestroyer.instructions;
+  const initializeLeaderboardIx = ixs.find(
+    ix => ix.name === 'initializeLeaderboard'
+  );
+  assert.exists(
+    initializeLeaderboardIx,
+    'The `RockDestroyer` object in `target/types/rock_destroyer` should have an `instructions[].name` property equal to `initializeLeaderboard`'
+  );
+} catch (e) {
+  throw e;
+} finally {
+  logover.debug('4.5');
+  await __removeLockfile();
+}
 ```
 
 The `initialize_leaderboard` instruction handler should take a context generic over an `InitializeLeaderboard` accounts struct.
 
 ```js
-assert.fail();
+// Check `RockDestroyer` for signature
+logover.debug('5.1');
+await __pollThenCreate();
+logover.debug('5.2');
+await __buildTestDir();
+logover.debug('5.3');
+try {
+  const { RockDestroyer } = await __helpers.importSansCache(
+    __path.join(__testDir, 'target/types/rock_destroyer')
+  );
+  logover.debug('5.4');
+  const ixs = RockDestroyer.instructions;
+  const initializeLeaderboardIx = ixs.find(
+    ix => ix.name === 'initializeLeaderboard'
+  );
+  const accounts = initializeLeaderboardIx.accounts;
+  assert.deepInclude(accounts, {
+    name: 'leaderboard',
+    isMut: true,
+    isSigner: false
+  });
+  assert.deepInclude(accounts, {
+    name: 'gameOwner',
+    isMut: true,
+    isSigner: true
+  });
+  assert.deepInclude(accounts, {
+    name: 'systemProgram',
+    isMut: false,
+    isSigner: false
+  });
+} catch (e) {
+  throw e;
+} finally {
+  logover.debug('5.5');
+  await __removeLockfile();
+}
 ```
 
 The `initialize_leaderboard` instruction handler should initialize the `leaderboard` account with the `players` field set to an empty vector.
@@ -475,8 +568,9 @@ assert.fail();
 ### --before-all--
 
 ```js
-const fsp = await import('fs/promises');
-const __projectDir = 'build-an-anchor-leaderboard/rock-destroyer';
+const __fsp = await import('fs/promises');
+const __path = await import('path');
+const __projectDir = 'build-an-anchor-leaderboard/_answer/rock-destroyer';
 const __testDir = 'build-an-anchor-leaderboard/__test/rock-destroyer';
 const codeString = await __helpers.getFile(
   './' + join(__projectDir, 'tests/index.ts')
@@ -487,35 +581,56 @@ const babelisedCode = new __helpers.Babeliser(codeString, {
 
 async function __createTestDir() {
   // Remove old test dir
-  await fsp.rm(__testDir, { recursive: true, force: true });
+  logover.debug('Removing old test dir');
+  await __fsp.rm(__testDir, { recursive: true, force: true });
   // Create new test dir
-  await fsp.cp(__projectDir, __testDir, { recursive: true });
+  logover.debug('Creating new test dir');
+  await __fsp.cp(__projectDir, __testDir, { recursive: true });
 }
 
-async function __pollForLockfile() {
+await __createTestDir();
+
+async function __pollThenCreate() {
   const cb = async () => {
-    return await fsp
-      .access(join(__testDir, 'lockfile'), fsp.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
+    logover.debug('Polling for lockfile');
+    return await __fsp
+      .access(join(__testDir, 'lockfile'), __fsp.constants.F_OK)
+      .then(() => false)
+      .catch(async () => {
+        await __createLockfile();
+        return true;
+      });
   };
   await __helpers.controlWrapper(cb, { timeout: 20_000, stepSize: 250 });
 }
 
 async function __removeLockfile() {
-  await fsp.rm(join(__testDir, 'lockfile', { force: true }));
+  await __fsp.rm(join(__testDir, 'lockfile'), { force: true });
 }
 
 async function __createLockfile() {
-  await fsp.writeFile(join(__testDir, 'lockfile'), '');
+  await __fsp.writeFile(join(__testDir, 'lockfile'), '');
+}
+
+async function __buildTestDir() {
+  const { stdout, stderr } = await __helpers.getCommandOutput(
+    'anchor build',
+    __testDir
+  );
+  if (stderr) {
+    throw new Error(stderr);
+  }
+  return stdout;
 }
 
 global.__projectDir = __projectDir;
 global.__testDir = __testDir;
-global.fsp = fsp;
+global.__fsp = __fsp;
+global.__path = __path;
+global.__buildTestDir = __buildTestDir;
 global.babelisedCode = babelisedCode;
 
-global.__pollForLockfile = __pollForLockfile;
+global.__pollThenCreate = __pollThenCreate;
 global.__removeLockfile = __removeLockfile;
 global.__createLockfile = __createLockfile;
 ```
@@ -523,17 +638,19 @@ global.__createLockfile = __createLockfile;
 ### --after-all--
 
 ```js
-delete global.__projectDir;
-delete global.__testDir;
-delete global.fsp;
-delete global.babelisedCode;
-
 // Remove any lockfiles
 await __removeLockfile();
 
-delete global.__pollForLockfile;
+delete global.__projectDir;
+delete global.__testDir;
+delete global.__fsp;
+delete global.__path;
+delete global.babelisedCode;
+
+delete global.__pollThenCreate;
 delete global.__removeLockfile;
 delete global.__createLockfile;
+delete global.__buildTestDir;
 ```
 
 ## --fcc-end--

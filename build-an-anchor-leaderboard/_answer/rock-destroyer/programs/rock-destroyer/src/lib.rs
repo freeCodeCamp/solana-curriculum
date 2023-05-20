@@ -8,7 +8,7 @@ pub mod rock_destroyer {
     use super::*;
 
     /// Initialises the leaderboard with 5 empty slots
-    pub fn initialise_leaderboard(ctx: Context<InitialiseLeaderboard>) -> Result<()> {
+    pub fn initialize_leaderboard(ctx: Context<InitializeLeaderboard>) -> Result<()> {
         let leaderboard = &mut ctx.accounts.leaderboard;
 
         // Initialise leaderboard
@@ -97,7 +97,7 @@ pub mod rock_destroyer {
 }
 
 #[derive(Accounts)]
-pub struct InitialiseLeaderboard<'info> {
+pub struct InitializeLeaderboard<'info> {
     #[account(init, payer = game_owner, space = 8 + (4 + 24 + 32 + 8 + 1) * 5, seeds = [b"leaderboard", game_owner.key().as_ref()], bump)]
     pub leaderboard: Account<'info, Leaderboard>,
     #[account(mut, constraint = game_owner.key() == Pubkey::from_str("J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic")
