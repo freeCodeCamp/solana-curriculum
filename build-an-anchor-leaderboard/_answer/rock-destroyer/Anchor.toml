@@ -1,8 +1,9 @@
 [features]
 seeds = false
 skip-lint = false
+
 [programs.localnet]
-tic_tac_toe = "BUfb6FXLkiSpMnJnMR4Q5uGZYZkaNGytjhLwiiJQsE8F"
+rock_destroyer = "J3j36rbhfQWvJqM8wNjreDmzc43dvUCLHFPxdgGmyfic"
 
 [registry]
 url = "https://api.apr.dev"
@@ -13,3 +14,6 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[workspace]
+types = "app/src/idl/"

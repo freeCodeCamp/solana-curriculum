@@ -33,7 +33,7 @@
     "build-a-university-certification-nft": true,
     "learn-anchor-by-building-tic-tac-toe": false,
     "learn-how-to-test-an-anchor-program": false,
-    "build-an-anchor-leaderboard": true
+    "build-an-anchor-leaderboard": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
@@ -48,7 +48,8 @@
     "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml",
     "learn-anchor-by-building-tic-tac-toe-part-1/_answer/tic-tac-toe/Cargo.toml",
     "learn-anchor-by-building-tic-tac-toe-part-2/tic-tac-toe/Cargo.toml",
-    "learn-anchor-by-building-tic-tac-toe-part-1/_answer/at/Cargo.toml"
+    "learn-anchor-by-building-tic-tac-toe-part-1/_answer/at/Cargo.toml",
+    "build-an-anchor-leaderboard/_answer/rock-destroyer/Cargo.toml"
   ],
   "//workbench.colorTheme": "freeCodeCamp Dark Theme"
 }

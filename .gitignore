@@ -2,6 +2,7 @@ target
 node_modules
 Cargo.lock
 !.gitkeep
+__test
 
 # Should be included in repo, but does not get updated
 .logs
