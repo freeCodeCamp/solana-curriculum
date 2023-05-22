@@ -179,7 +179,7 @@ You should generate a new keypair and store it in a file called `game-owner.json
 ```js
 try {
   const fileExists = await __fsp.access(
-    __path.join(__testDir, './game-owner.json'),
+    __path.join(__projectDir, './game-owner.json'),
     __fsp.constants.F_OK
   );
 } catch (e) {
@@ -190,127 +190,81 @@ try {
 You should add the correct program id to the `programs.localnet.rock_destroyer` key in the `Anchor.toml` file.
 
 ```js
-logover.debug('2.1');
-await __pollThenCreate();
-try {
-  const anchorToml = await __fsp.readFile(
-    __path.join(__testDir, 'Anchor.toml'),
-    'utf-8'
-  );
-  logover.debug('2.4');
-  const actualProgramId = anchorToml.match(/rock_destroyer = "(.*)"/)?.[1];
-  const { stdout } = await __helpers.getCommandOutput(
-    'anchor keys list',
-    __testDir
-  );
-  logover.debug('2.5');
-  const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
-  assert.equal(actualProgramId, expectedProgramId);
-} catch (e) {
-  throw e;
-} finally {
-  logover.debug('2.6');
-  await __removeLockfile();
-}
+const anchorToml = await __fsp.readFile(
+  __path.join(__projectDir, 'Anchor.toml'),
+  'utf-8'
+);
+const actualProgramId = anchorToml.match(/rock_destroyer = "(.*)"/)?.[1];
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  __projectDir
+);
+const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
+assert.equal(actualProgramId, expectedProgramId);
 ```
 
 You should add the correct program id to the `declare_id!` call in the `lib.rs` file.
 
 ```js
-logover.debug('3.1');
-await __pollThenCreate();
-logover.debug('3.2');
-try {
-  const librs = await __fsp.readFile(
-    __path.join(__testDir, 'programs/rock-destroyer/src/lib.rs'),
-    'utf-8'
-  );
-  logover.debug('3.4');
-  const actualProgramId = librs.match(/declare_id\!\((.*)\)/)?.[1];
-  const { stdout } = await __helpers.getCommandOutput(
-    'anchor keys list',
-    __testDir
-  );
-  logover.debug('3.5');
-  const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
-  assert.equal(actualProgramId.replaceAll(/['"`]/g), expectedProgramId);
-} catch (e) {
-  throw e;
-} finally {
-  logover.debug('3.6');
-  await __removeLockfile();
-}
+const librs = await __fsp.readFile(
+  __path.join(__projectDir, 'programs/rock-destroyer/src/lib.rs'),
+  'utf-8'
+);
+const actualProgramId = librs.match(/declare_id\!\((.*)\)/)?.[1];
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  __projectDir
+);
+const expectedProgramId = stdout.match(/rock_destroyer: (.*)/)?.[1];
+assert.equal(actualProgramId.replaceAll(/['"`]/g), expectedProgramId);
 ```
 
 The `rock_destroyer` program should expose an `initialize_leaderboard` instruction handler.
 
 ```js
-logover.debug('4.1');
-await __pollThenCreate();
-logover.debug('4.2');
-await __buildTestDir();
-logover.debug('4.3');
-try {
-  const { RockDestroyer } = await __helpers.importSansCache(
-    __path.join(__testDir, 'target/types/rock_destroyer')
-  );
-  logover.debug('4.4');
-  const ixs = RockDestroyer.instructions;
-  const initializeLeaderboardIx = ixs.find(
-    ix => ix.name === 'initializeLeaderboard'
-  );
-  assert.exists(
-    initializeLeaderboardIx,
-    'The `RockDestroyer` object in `target/types/rock_destroyer` should have an `instructions[].name` property equal to `initializeLeaderboard`'
-  );
-} catch (e) {
-  throw e;
-} finally {
-  logover.debug('4.5');
-  await __removeLockfile();
-}
+const testDir = await __createTestDir(4);
+await __buildTestDir(4);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const initializeLeaderboardIx = ixs.find(
+  ix => ix.name === 'initializeLeaderboard'
+);
+assert.exists(
+  initializeLeaderboardIx,
+  'The `RockDestroyer` object in `target/types/rock_destroyer` should have an `instructions[].name` property equal to `initializeLeaderboard`'
+);
 ```
 
 The `initialize_leaderboard` instruction handler should take a context generic over an `InitializeLeaderboard` accounts struct.
 
 ```js
-// Check `RockDestroyer` for signature
-logover.debug('5.1');
-await __pollThenCreate();
-logover.debug('5.2');
-await __buildTestDir();
-logover.debug('5.3');
-try {
-  const { RockDestroyer } = await __helpers.importSansCache(
-    __path.join(__testDir, 'target/types/rock_destroyer')
-  );
-  logover.debug('5.4');
-  const ixs = RockDestroyer.instructions;
-  const initializeLeaderboardIx = ixs.find(
-    ix => ix.name === 'initializeLeaderboard'
-  );
-  const accounts = initializeLeaderboardIx.accounts;
-  assert.deepInclude(accounts, {
-    name: 'leaderboard',
-    isMut: true,
-    isSigner: false
-  });
-  assert.deepInclude(accounts, {
-    name: 'gameOwner',
-    isMut: true,
-    isSigner: true
-  });
-  assert.deepInclude(accounts, {
-    name: 'systemProgram',
-    isMut: false,
-    isSigner: false
-  });
-} catch (e) {
-  throw e;
-} finally {
-  logover.debug('5.5');
-  await __removeLockfile();
-}
+const testDir = await __createTestDir(5);
+await __buildTestDir(5);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const initializeLeaderboardIx = ixs.find(
+  ix => ix.name === 'initializeLeaderboard'
+);
+const accounts = initializeLeaderboardIx.accounts;
+assert.deepInclude(accounts, {
+  name: 'leaderboard',
+  isMut: true,
+  isSigner: false
+});
+assert.deepInclude(accounts, {
+  name: 'gameOwner',
+  isMut: true,
+  isSigner: true
+});
+assert.deepInclude(accounts, {
+  name: 'systemProgram',
+  isMut: false,
+  isSigner: false
+});
 ```
 
 The `initialize_leaderboard` instruction handler should initialize the `leaderboard` account with the `players` field set to an empty vector.
@@ -579,43 +533,21 @@ const babelisedCode = new __helpers.Babeliser(codeString, {
   plugins: ['typescript']
 });
 
-async function __createTestDir() {
+async function __createTestDir(num) {
+  const testDir = `${__testDir}-${num}`;
   // Remove old test dir
   logover.debug('Removing old test dir');
-  await __fsp.rm(__testDir, { recursive: true, force: true });
+  await __fsp.rm(testDir, { recursive: true, force: true });
   // Create new test dir
   logover.debug('Creating new test dir');
-  await __fsp.cp(__projectDir, __testDir, { recursive: true });
+  await __fsp.cp(__projectDir, testDir, { recursive: true });
+  return testDir;
 }
 
-await __createTestDir();
-
-async function __pollThenCreate() {
-  const cb = async () => {
-    logover.debug('Polling for lockfile');
-    return await __fsp
-      .access(join(__testDir, 'lockfile'), __fsp.constants.F_OK)
-      .then(() => false)
-      .catch(async () => {
-        await __createLockfile();
-        return true;
-      });
-  };
-  await __helpers.controlWrapper(cb, { timeout: 20_000, stepSize: 250 });
-}
-
-async function __removeLockfile() {
-  await __fsp.rm(join(__testDir, 'lockfile'), { force: true });
-}
-
-async function __createLockfile() {
-  await __fsp.writeFile(join(__testDir, 'lockfile'), '');
-}
-
-async function __buildTestDir() {
+async function __buildTestDir(num) {
   const { stdout, stderr } = await __helpers.getCommandOutput(
     'anchor build',
-    __testDir
+    `${__testDir}-${num}`
   );
   if (stderr) {
     throw new Error(stderr);
@@ -628,29 +560,21 @@ global.__testDir = __testDir;
 global.__fsp = __fsp;
 global.__path = __path;
 global.__buildTestDir = __buildTestDir;
+global.__createTestDir = __createTestDir;
 global.babelisedCode = babelisedCode;
-
-global.__pollThenCreate = __pollThenCreate;
-global.__removeLockfile = __removeLockfile;
-global.__createLockfile = __createLockfile;
 ```
 
 ### --after-all--
 
 ```js
-// Remove any lockfiles
-await __removeLockfile();
-
 delete global.__projectDir;
 delete global.__testDir;
 delete global.__fsp;
 delete global.__path;
 delete global.babelisedCode;
 
-delete global.__pollThenCreate;
-delete global.__removeLockfile;
-delete global.__createLockfile;
 delete global.__buildTestDir;
+delete global.__createTestDir;
 ```
 
 ## --fcc-end--
