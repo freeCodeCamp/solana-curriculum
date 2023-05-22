@@ -1367,7 +1367,7 @@ const minifiedCode = babelisedCode.generateCode(variableDeclaration, {
 });
 assert.match(
   minifiedCode,
-  /imageBuffer=(await )?(readFile|readFileSync|read)\(('|"|`)(\.\/)?assets\/pic\.png\3\)/
+  /imageBuffer=(await readFile|readFileSync|read)\(('|"|`)(\.\/)?assets\/pic\.png\2\)/
 );
 ```
 
@@ -2190,14 +2190,35 @@ You should run `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3y
 
 ```js
 await new Promise(res => setTimeout(() => res(), 2000));
-// TODO: Tests do not watch `.temp.log`
-const temp = await __helpers.getTemp();
-console.log(temp.slice(0, 500));
-assert.include(
-  temp,
-  'solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset',
-  'Run `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset` in the terminal'
-);
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '
+  {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "BPFLoader2111111111111111111111111111111111", {
+        "encoding": "base64",
+        "dataSlice": {
+          "length": 0,
+          "offset": 0
+        }
+      }
+    ]
+}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.exists(
+    jsonOut.result.find(
+      r => r.pubkey === 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    )
+  );
+} catch (e) {
+  assert.fail(
+    e,
+    'Try running `solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s ./mlp_token.so --reset`'
+  );
+}
 ```
 
 The validator should be running at `http://127.0.0.1:8899`.

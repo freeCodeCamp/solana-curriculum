@@ -801,7 +801,7 @@ The output of `node create-mint-account.js` should include the base-58 represent
 
 ```js
 const terminalOutput = await __helpers.getTerminalOutput();
-assert.match(terminalOutput, /[a-Z0-9]{44}/);
+assert.match(terminalOutput, /[A-z0-9]{44}/);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -1273,7 +1273,7 @@ The output of `node create-token-account.js` should include the base-58 represen
 
 ```js
 const terminalOutput = await __helpers.getTerminalOutput();
-assert.match(terminalOutput, /[a-Z0-9]{44}/);
+assert.match(terminalOutput, /[A-z0-9]{44}/);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -2692,14 +2692,14 @@ The total supply of tokens should be at least `3_000_000_000`.
 
 ```js
 const { mintAddress } = await __helpers.importSansCache(
-  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+  './learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
 const { getMint } = await import('@solana/spl-token');
 const { Connection } = await import('@solana/web3.js');
 const connection = new Connection('http://localhost:8899');
 
 const mint = await getMint(connection, mintAddress);
-assert.isAtLeast(mint.supply, 3_000_000_000);
+assert.isAtLeast(Number(mint.supply), 3_000_000_000);
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -3683,9 +3683,9 @@ You should run the `transfer.js` script.
 
 ```js
 const { tokenAccount } = await __helpers.importSansCache(
-  '../learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
+  './learn-solanas-token-program-by-minting-a-fungible-token/utils.js'
 );
-const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \d+`);
+const commandRe = new RegExp(`node transfer.js ${tokenAccount.toBase58()} \\d+`);
 const lastCommand = await __helpers.getLastCommand();
 assert.match(
   lastCommand,
