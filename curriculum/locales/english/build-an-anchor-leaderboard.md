@@ -2,8 +2,6 @@
 
 ## 1
 
-<!-- TODO: The tests might need to be a lot more integrated - less unit -like -->
-
 ### --description--
 
 You are developing an on-chain game called _Rock Destroyer_. You will be writing the program logic for the game leaderboard using the Anchor framework, as well as writing tests to ensure the program logic is correct.
@@ -267,256 +265,146 @@ assert.deepInclude(accounts, {
 });
 ```
 
-The `initialize_leaderboard` instruction handler should initialize the `leaderboard` account with the `players` field set to an empty vector.
-
-```js
-assert.fail();
-```
-
-The `leaderboard` account should be initialized, if it does not already exist.
-
-```js
-assert.fail();
-```
-
-The initalization of the `leaderboard` account should be payed for by the `game_owner` account.
-
-```js
-assert.fail();
-```
-
-The correct amount of space for 5 players should be allocated for the `leaderboard` account.
-
-```js
-assert.fail();
-```
-
-The PDA should be seeded with `"leaderboard"` and the `game_owner` public key.
-
-```js
-assert.fail();
-```
-
-The `game_owner` account public key should be asserted to match the `game-owner.json` file public key.
-
-```js
-assert.fail();
-```
-
-The `game_owner` account owner should be asserted to be the system program.
-
-```js
-assert.fail();
-```
-
 The `rock_destroyer` program should expose a `new_game` instruction handler.
 
 ```js
-assert.fail();
+const testDir = await __createTestDir(4);
+await __buildTestDir(4);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const newGameIx = ixs.find(ix => ix.name === 'newGame');
+assert.exists(
+  newGameIx,
+  'The `RockDestroyer` object in `target/types/rock_destroyer` should have an `instructions[].name` property equal to `newGame`'
+);
 ```
 
 The `new_game` instruction handler should take a context generic over a `NewGame` accounts struct.
 
 ```js
-assert.fail();
-```
-
-The `new_game` instruction handler should take a `String` argument.
-
-```js
-assert.fail();
-```
-
-The `new_game` instruction handler should transfer 1 SOL from the `user` account to the `game_owner` account.
-
-```js
-assert.fail();
-```
-
-The `new_game` instruction handler should add a new `Player` to the leaderboard with:
-
-```js
-assert.fail();
-```
-
-The `username` field of the new `Player` should be set to the `String` argument.
-
-```js
-assert.fail();
-```
-
-The `pubkey` field of the new `Player` should be set to the `user` account public key.
-
-```js
-assert.fail();
-```
-
-The `score` field of the new `Player` should be set to `0`.
-
-```js
-assert.fail();
-```
-
-The `has_payed` field of the new `Player` should be set to `true`.
-
-```js
-assert.fail();
-```
-
-If the leaderboard is full, the player with the lowest score should be replaced.
-
-```js
-assert.fail();
-```
-
-The `NewGame` `game_owner` account should be asserted to match the `game-owner.json` file public key.
-
-```js
-assert.fail();
-```
-
-The `NewGame` `game_owner` account owner should be asserted to be the system program.
-
-```js
-assert.fail();
+const testDir = await __createTestDir(6);
+await __buildTestDir(6);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const newGameIx = ixs.find(ix => ix.name === 'newGame');
+const accounts = newGameIx.accounts;
+assert.deepInclude(accounts, {
+  name: 'user',
+  isMut: true,
+  isSigner: true
+});
+assert.deepInclude(accounts, {
+  name: 'leaderboard',
+  isMut: true,
+  isSigner: false
+});
+assert.deepInclude(accounts, {
+  name: 'gameOwner',
+  isMut: true,
+  isSigner: false
+});
+assert.deepInclude(accounts, {
+  name: 'systemProgram',
+  isMut: false,
+  isSigner: false
+});
 ```
 
 The `rock_destroyer` program should expose an `add_player_to_leaderboard` instruction handler.
 
 ```js
-assert.fail();
+const testDir = await __createTestDir(4);
+await __buildTestDir(4);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const initializeLeaderboardIx = ixs.find(
+  ix => ix.name === 'addPlayerToLeaderboard'
+);
+assert.exists(
+  initializeLeaderboardIx,
+  'The `RockDestroyer` object in `target/types/rock_destroyer` should have an `instructions[].name` property equal to `addPlayerToLeaderboard`'
+);
 ```
 
 The `add_player_to_leaderboard` instruction handler should take a context generic over an `AddPlayerToLeaderboard` accounts struct.
 
 ```js
-assert.fail();
-```
-
-The `add_player_to_leaderboard` instruction handler should take a `u64` argument.
-
-```js
-assert.fail();
-```
-
-The player matching the user account public key should be updated with a `score` set to the `u64` argument.
-
-```js
-assert.fail();
-```
-
-The player matching the user account public key should be updated with a `has_payed` set to `false`.
-
-```js
-assert.fail();
-```
-
-If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
-
-```js
-assert.fail();
+const testDir = await __createTestDir(7);
+await __buildTestDir(7);
+const { RockDestroyer } = await __helpers.importSansCache(
+  __path.join(testDir, 'target/types/rock_destroyer')
+);
+const ixs = RockDestroyer.instructions;
+const ix = ixs.find(ix => ix.name === 'addPlayerToLeaderboard');
+const accounts = ix.accounts;
+assert.deepInclude(accounts, {
+  name: 'leaderboard',
+  isMut: true,
+  isSigner: false
+});
+assert.deepInclude(accounts, {
+  name: 'user',
+  isMut: true,
+  isSigner: true
+});
 ```
 
 There should be an `it` block named `"initializes leaderboard"`.
 
 ```js
-assert.fail();
-```
-
-The `"initializes leaderboard"` `it` block should call the `initialize_leaderboard` instruction.
-
-```js
-assert.fail();
-```
-
-The `"initializes leaderboard"` `it` block should assert the `leaderboard` account equals `{ players: [] }`.
-
-```js
-assert.fail();
+const callExpressions = babelisedCode
+  .getType('CallExpression')
+  .filter(c => {
+    return;
+    c.callee?.name === 'it';
+  })
+  .map(c => c.arguments?.[1]?.value);
+assert.include(callExpressions, 'initializes leaderboard');
 ```
 
 There should be an `it` block named `"creates a new game"`.
 
 ```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should call the `new_game` instruction with a `username` argument of `"camperbot"`.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the `leaderboard` account has at least one player.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the player has the correct `username`.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the player has the correct `pubkey`.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the player has a `hasPayed` value of `true`.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the player has a `score` value of `0`.
-
-```js
-assert.fail();
-```
-
-The `"creates a new game"` `it` block should assert the balance of the `user` account has decreased by at least 1 SOL.
-
-```js
-assert.fail();
+const callExpressions = babelisedCode
+  .getType('CallExpression')
+  .filter(c => {
+    return;
+    c.callee?.name === 'it';
+  })
+  .map(c => c.arguments?.[1]?.value);
+assert.include(callExpressions, 'creates a new game');
 ```
 
 There should be an `it` block named `"adds a player to the leaderboard"`.
 
 ```js
-assert.fail();
-```
-
-The `"adds a player to the leaderboard"` `it` block should call the `add_player_to_leaderboard` instruction with an argument of `100`.
-
-```js
-assert.fail();
-```
-
-The `"adds a player to the leaderboard"` `it` block should assert a player has a `score` value of `100`.
-
-```js
-assert.fail();
-```
-
-The `"adds a player to the leaderboard"` `it` block should assert a player has a `hasPayed` value of `false`.
-
-```js
-assert.fail();
+const callExpressions = babelisedCode
+  .getType('CallExpression')
+  .filter(c => {
+    return;
+    c.callee?.name === 'it';
+  })
+  .map(c => c.arguments?.[1]?.value);
+assert.include(callExpressions, 'adds a player to the leaderboard');
 ```
 
 There should be an `it` block named `"throws an error when the user has not payed"`.
 
 ```js
-assert.fail();
-```
-
-The `"throws an error when the user has not payed"` `it` block should assert the `PlayerNotFound` error variant is returned when the `user` account has not payed.
-
-```js
-assert.fail();
+const callExpressions = babelisedCode
+  .getType('CallExpression')
+  .filter(c => {
+    return;
+    c.callee?.name === 'it';
+  })
+  .map(c => c.arguments?.[1]?.value);
+assert.include(callExpressions, 'throws an error when the user has not payed');
 ```
 
 ### --before-all--
