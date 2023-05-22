@@ -31,8 +31,8 @@
     "learn-solanas-token-program-by-minting-a-fungible-token": false,
     "learn-the-metaplex-sdk-by-minting-an-nft": false,
     "build-a-university-certification-nft": false,
-    "learn-anchor-by-building-tic-tac-toe": false,
-    "learn-how-to-test-an-anchor-program": false,
+    "learn-anchor-by-building-tic-tac-toe-part-1": false,
+    "learn-anchor-by-building-tic-tac-toe-part-2": false,
     "build-an-anchor-leaderboard": false
   },
   "terminal.integrated.profiles.linux": {
@@ -43,10 +43,5 @@
     }
   },
   "terminal.integrated.defaultProfile.linux": "bash",
-  "rust-analyzer.linkedProjects": [
-    "learn-how-to-set-up-solana-by-building-a-hello-world-smart-contract/src/program-rust/Cargo.toml",
-    "learn-how-to-interact-with-on-chain-programs/src/program-rust/Cargo.toml",
-    "learn-anchor-by-building-tic-tac-toe-part-2/tic-tac-toe/Cargo.toml"
-  ],
   "workbench.colorTheme": "freeCodeCamp Dark Theme"
 }
