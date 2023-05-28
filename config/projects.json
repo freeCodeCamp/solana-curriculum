@@ -70,7 +70,7 @@
     "isIntegrated": false,
     "description": "In this course, you will learn how to use Anchor, a framework for building smart contracts on Solana, to build an on-chain Tic-Tac-Toe game.",
     "isPublic": true,
-    "currentLesson": 9,
+    "currentLesson": 1,
     "runTestsOnWatch": true,
     "numberOfLessons": 68
   },
@@ -90,7 +90,7 @@
     "title": "Build an Anchor Leaderboard",
     "dashedName": "build-an-anchor-leaderboard",
     "isIntegrated": true,
-    "description": "In this integrated project, you will use what you previously learnt to build the program logic for a game leaderboard",
+    "description": "In this integrated project, you will use what you previously learnt to build the program logic for a game leaderboard.",
     "isPublic": true,
     "currentLesson": 1,
     "numberOfLessons": 1

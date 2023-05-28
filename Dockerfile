@@ -5,6 +5,7 @@ ARG REPO_NAME=solana-curriculum
 ARG HOMEDIR=/workspace/$REPO_NAME
 
 ENV TZ="America/New_York"
+ENV HOME=/workspace
 
 RUN apt-get update && apt-get install -y sudo
 
@@ -33,7 +34,7 @@ RUN sudo apt-get install -y nodejs
 # Rust
 RUN sudo apt-get install -y build-essential
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
 RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
