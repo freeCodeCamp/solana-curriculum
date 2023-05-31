@@ -943,7 +943,9 @@ assert.match(gameState, /Tie/);
 `GameState` should have a variant `Won { winner: Pubkey }`.
 
 ```js
-const gameState = __librs.match(/pub enum GameState\s*{([^}]*)}/s)?.[1];
+const gameState = __librs.match(
+  /pub enum GameState ({[\s\S]*?({[\s\S]*?}[\s\S]*?}|}))/s
+)?.[1];
 assert.match(gameState, /Won\s*{\s*winner:\s*Pubkey\s*,?\s*}/);
 ```
 
@@ -1061,9 +1063,11 @@ Derive the `Copy` trait for `Sign`.
 `Sign` should be annotated with `#[derive(Copy)]`.
 
 ```js
-const librs = await __helpers
-  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
-  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const librs = (
+  await __helpers.getFile(
+    `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+  )
+)?.replaceAll(/[ \t]{2,}/g, ' ');
 assert.match(
   librs,
   /#\[\s*derive\s*\([^\]]*?Copy[^\]]*?\)\s*\]\s*pub enum Sign/
@@ -1083,14 +1087,18 @@ Add a public `system_program` field to the `SetupGame` struct, and type it as `P
 `SetupGame` should contain a field `system_program`.
 
 ```js
-const setupGame = __librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+const setupGame = __librs.match(
+  /pub struct SetupGame\s*<'info\s*>\s*{([^}]*?)}/s
+)?.[1];
 assert.match(setupGame, /system_program:/);
 ```
 
 `system_program` should be typed `Program<'info, System>`.
 
 ```js
-const setupGame = __librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+const setupGame = __librs.match(
+  /pub struct SetupGame\s*<'info\s*>\s*{([^}]*)}/s
+)?.[1];
 assert.match(setupGame, /system_program: Program\s*<\s*'info\s*,\s*System\s*>/);
 ```
 
@@ -1133,11 +1141,15 @@ Replace the `10` bytes allocated for the `Game` account with the correct size.
 The `game` field in `SetupGame` should be annotated with `#[account(space = 8 + (32*2) + (1) + ((1+1)*(3*3)) + (1+32))]`.
 
 ```js
-const librs = await __helpers
-  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
-  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const librs = (
+  await __helpers.getFile(
+    `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+  )
+)?.replaceAll(/[ \t]{2,}/g, ' ');
 
-const setupGame = librs.match(/pub struct SetupGame\s*{([^}]*)}/s)?.[1];
+const setupGame = librs.match(
+  /pub struct SetupGame\s*<'info\s*>\s*{([^}]*)}/s
+)?.[1];
 const mat = setupGame?.match(
   /#\[\s*account\s*\([^\]]*?space\s*=\s*([^\]]+?)\s*\)\s*\]\s*pub game:/
 )?.[1];
@@ -1157,6 +1169,8 @@ assert.equal(
 
 ### --description--
 
+TODO: freecodecamp-os breaks this, by seeding the step on any change 🤦‍♂️
+
 **ATTENTION**: Your `lib.rs` file should have been seeded with all the game code. The game code is not relevant to Anchor, but you are still encouraged to read through it to understand how the game works.
 
 Just a few things to fix. First, derive `PartialEq` for `GameState` and `Sign`.
@@ -1166,6 +1180,7 @@ Just a few things to fix. First, derive `PartialEq` for `GameState` and `Sign`.
 `GameState` should be annotated with `#[derive(PartialEq)]`.
 
 ```js
+logover.warn(__librs);
 assert.match(
   __librs,
   /#\[\s*derive\s*\([^\]]*?PartialEq[^\]]*?\)\s*\]\s*pub enum GameState/
@@ -1200,7 +1215,7 @@ delete global.__librs;
 
 #### --force--
 
-#### --"tic-tac-toe/programs/tic-tac-toe/src/lib.rs"--
+#### --"learn-anchor-by-building-tic-tac-toe-part-1/tic-tac-toe/programs/tic-tac-toe/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
