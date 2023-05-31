@@ -202,6 +202,8 @@ assert.match(cwd, dirRegex);
 
 ### --description--
 
+TODO: BROKEN - This now works (does not error), but someone else should confirm.
+
 The Anchor CLI provides an `anchor test` command that:
 
 1. Builds all programs
@@ -264,7 +266,7 @@ try {
 
 ### --description--
 
-With the local validator running, use the `--skip-local-validator` flag to tell Anchor to not start its own local validator.
+With the local validator running, pass the `--skip-local-validator` flag to tell Anchor to not start its own local validator when running tests.
 
 ### --tests--
 
@@ -355,7 +357,7 @@ const { stdout } = await __helpers.getCommandOutput(
   `${project.dashedName}/tic-tac-toe`
 );
 const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
-const actualProgramId = librs.match(/declare_id\("([^\)]+)"\)/)?.[1];
+const actualProgramId = librs.match(/declare_id!\("([^\)]+)"\)/)?.[1];
 assert.equal(actualProgramId, expectedProgramId);
 ```
 
@@ -370,7 +372,7 @@ const { stdout } = await __helpers.getCommandOutput(
   `${project.dashedName}/tic-tac-toe`
 );
 const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
-const actualProgramId = toml.match(/tic_tac_toe = "([^\)]+)"/)?.[1];
+const actualProgramId = toml.match(/tic_tac_toe = "([^\"]+)"/)?.[1];
 assert.equal(actualProgramId, expectedProgramId);
 ```
 
@@ -390,7 +392,7 @@ The `anchor test --skip-local-validator` command should succeed.
 
 ```js
 const terminalOut = await __helpers.getTerminalOutput();
-assert.include(terminalOut, 'Test Success');
+assert.include(terminalOut, '1 passing');
 ```
 
 The validator should be running at `http://localhost:8899`.
@@ -516,7 +518,7 @@ assert.match(__librs, /pub game:/);
 `game` should be typed `Account<'info, Game>`.
 
 ```js
-assert.match(__librs, /pub game: Account<Game>/);
+assert.match(__librs, /pub game: Account<'info\s*,\s*Game>/);
 ```
 
 `game` should be annotated with `#[account(init)]`.
@@ -567,7 +569,7 @@ assert.match(__librs, /pub player_one:/);
 `player_one` should be typed `Signer<'info>`.
 
 ```js
-assert.match(__librs, /pub player_one: Signer\s<'info>/);
+assert.match(__librs, /pub player_one: Signer\s*<'info>/);
 ```
 
 `player_one` should be annotated with `#[account()]`.
@@ -615,9 +617,11 @@ pub struct AccountsInContext<'info> {
 `game` should be annotated with `payer = player_one`.
 
 ```js
-const librs = await __helpers
-  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
-  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const librs = (
+  await __helpers.getFile(
+    `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+  )
+)?.replaceAll(/[ \t]{2,}/g, ' ');
 assert.match(
   librs,
   /#\[\s*account\s*\(\s*init\s*,\s*payer\s*=\s*player_one\s*\)\s*\]\s*pub game:/
@@ -642,9 +646,11 @@ Mark the `player_one` account as mutable.
 `player_one` should be annotated with `#[account(mut)]`.
 
 ```js
-const librs = await __helpers
-  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
-  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const librs = (
+  await __helpers.getFile(
+    `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+  )
+)?.replaceAll(/[ \t]{2,}/g, ' ');
 assert.match(librs, /#\[\s*account\s*\(\s*mut\s*\)\s*\]\s*pub player_one:/);
 ```
 
@@ -666,12 +672,14 @@ Add a `space` parameter to the `game` account with a value of `10`. This means t
 `game` should be annotated with `space = 10`.
 
 ```js
-const librs = await __helpers
-  .getFile(`${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`)
-  ?.replaceAll(/[ \t]{2,}/g, ' ');
+const librs = (
+  await __helpers.getFile(
+    `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/src/lib.rs`
+  )
+)?.replaceAll(/[ \t]{2,}/g, ' ');
 assert.match(
   librs,
-  /#\[\s*account\s*\(\s*init\s*,\s*space\s*=\s*10\s*\)\s*\]\s*pub game:/
+  /#\[\s*account\s*\([^\)]*?space\s*=\s*10[^\)]*?\)]\s*pub game:/
 );
 ```
 
@@ -936,7 +944,7 @@ assert.match(gameState, /Tie/);
 
 ```js
 const gameState = __librs.match(/pub enum GameState\s*{([^}]*)}/s)?.[1];
-assert.match(gameState, /Won\s*{\s*winner:\s*Pubkey\s*}/);
+assert.match(gameState, /Won\s*{\s*winner:\s*Pubkey\s*,?\s*}/);
 ```
 
 ### --before-all--
