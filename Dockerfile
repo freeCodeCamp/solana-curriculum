@@ -45,6 +45,9 @@ WORKDIR ${HOMEDIR}
 RUN mkdir ~/.npm-global
 RUN npm config set prefix '~/.npm-global'
 
+# Yarn
+RUN npm install -g yarn
+
 # Configure course-specific environment
 COPY . .
 WORKDIR ${HOMEDIR}

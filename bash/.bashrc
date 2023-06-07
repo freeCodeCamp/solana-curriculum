@@ -122,6 +122,8 @@ for i in $(ls -A $HOME/.bashrc.d/); do source $HOME/.bashrc.d/$i; done
 
 . "$HOME/.cargo/env"
 
+export PATH="$HOME/.npm-global/bin:$PATH"
+
 # freeCodeCamp - Needed for most tests to work
 
 WD=/workspace/solana-curriculum
