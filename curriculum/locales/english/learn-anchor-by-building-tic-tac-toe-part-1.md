@@ -29,21 +29,19 @@ assert.include(stdout, 'avm');
 
 Anchor Version Manager is a tool for using multiple versions of the Anchor CLI.
 
-Use `avm` to install the latest version of the Anchor CLI.
+Use `avm` to install the Anchor CLI.
 
 ```bash
-avm install latest
+avm install 0.28.0
 ```
-
-**Note:** Technically, this step is not necessary as the latest version of the Anchor CLI is installed by default.
 
 ### --tests--
 
-You should have the latest version of the Anchor CLI installed.
+You should have version `0.28.0` of the Anchor CLI installed.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput('avm list');
-assert.include(stdout, '(latest, installed, current)');
+assert.include(stdout, 'installed, current)');
 ```
 
 ## 3
@@ -53,16 +51,16 @@ assert.include(stdout, '(latest, installed, current)');
 Instruct `avm` to use the latest version of the Anchor CLI:
 
 ```bash
-avm use latest
+avm use 0.28.0
 ```
 
 ### --tests--
 
-You should be using the latest version of the Anchor CLI.
+You should be using version `0.28.0` of the Anchor CLI.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput('avm list');
-assert.include(stdout, '(latest, installed, current)');
+assert.include(stdout, 'installed, current)');
 ```
 
 ## 4
@@ -77,12 +75,11 @@ anchor --version
 
 ### --tests--
 
-You should see version `0.27` printed to the console.
+You should see version `0.28` printed to the console.
 
 ```js
-// TODO: Might want to future-proof this in case of a new version.
 const terminalOut = await __helpers.getTerminalOutput();
-assert.include(terminalOut, '0.27');
+assert.include(terminalOut, '0.28');
 ```
 
 ## 5

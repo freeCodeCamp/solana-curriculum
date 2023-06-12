@@ -38,6 +38,8 @@ ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
 RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+# Anchor
+RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force && avm install 0.28.0 && avm use 0.28.0
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global
