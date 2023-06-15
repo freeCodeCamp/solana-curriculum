@@ -199,8 +199,6 @@ assert.match(cwd, dirRegex);
 
 ### --description--
 
-TODO: BROKEN - This now works (does not error), but someone else should confirm.
-
 The Anchor CLI provides an `anchor test` command that:
 
 1. Builds all programs
@@ -1166,8 +1164,6 @@ assert.equal(
 
 ### --description--
 
-TODO: freecodecamp-os breaks this, by seeding the step on any change 🤦‍♂️
-
 **ATTENTION**: Your `lib.rs` file should have been seeded with all the game code. The game code is not relevant to Anchor, but you are still encouraged to read through it to understand how the game works.
 
 Just a few things to fix. First, derive `PartialEq` for `GameState` and `Sign`.
@@ -1177,7 +1173,6 @@ Just a few things to fix. First, derive `PartialEq` for `GameState` and `Sign`.
 `GameState` should be annotated with `#[derive(PartialEq)]`.
 
 ```js
-logover.warn(__librs);
 assert.match(
   __librs,
   /#\[\s*derive\s*\([^\]]*?PartialEq[^\]]*?\)\s*\]\s*pub enum GameState/
@@ -2082,7 +2077,7 @@ try {
 
 #### --force--
 
-#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+#### --"learn-anchor-by-building-tic-tac-toe-part-1/tic-tac-toe/tests/tic-tac-toe.ts"--
 
 ```typescript
 import {
@@ -2347,7 +2342,7 @@ try {
 
 #### --force--
 
-#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+#### --"learn-anchor-by-building-tic-tac-toe-part-1/tic-tac-toe/tests/tic-tac-toe.ts"--
 
 ```typescript
 import {
@@ -2774,7 +2769,7 @@ try {
 
 #### --force--
 
-#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+#### --"learn-anchor-by-building-tic-tac-toe-part-1/tic-tac-toe/tests/tic-tac-toe.ts"--
 
 ```typescript
 import {

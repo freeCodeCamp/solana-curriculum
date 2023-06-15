@@ -98,7 +98,7 @@ delete global.babelisedCode;
 
 #### --force--
 
-#### --"tic-tac-toe/tests/tic-tac-toe.ts"--
+#### --"learn-anchor-by-building-tic-tac-toe-part-2/tic-tac-toe/tests/tic-tac-toe.ts"--
 
 ```typescript
 import {
