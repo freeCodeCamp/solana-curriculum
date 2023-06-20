@@ -2,8 +2,9 @@ target
 node_modules
 Cargo.lock
 !.gitkeep
-.freeCodeCamp/dist
+__test
 
 # Should be included in repo, but does not get updated
 .logs
 test-ledger
+.anchor
