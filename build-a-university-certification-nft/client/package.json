@@ -11,14 +11,14 @@
   "dependencies": {
     "@metaplex-foundation/js": "0.18.3",
     "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.77.2",
+    "@solana/web3.js": "1.77.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "0.2.3",
-    "@types/react": "18.2.7",
-    "@types/react-dom": "18.2.4",
+    "@types/react": "18.2.12",
+    "@types/react-dom": "18.2.5",
     "@vitejs/plugin-react": "3.1.0",
     "assert": "2.0.0",
     "crypto-browserify": "3.12.0",
