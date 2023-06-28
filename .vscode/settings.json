@@ -33,7 +33,13 @@
     "build-a-university-certification-nft": false,
     "learn-anchor-by-building-tic-tac-toe-part-1": false,
     "learn-anchor-by-building-tic-tac-toe-part-2": false,
-    "build-an-anchor-leaderboard": false
+    "build-an-anchor-leaderboard": false,
+    "learn-how-to-build-a-client-side-app-part-1": false,
+    "learn-how-to-build-a-client-side-app-part-2": false,
+    "build-a-client-side-app": false,
+    "learn-how-to-get-off-localhost": false,
+    "learn-how-to-deploy-to-devnet": false,
+    "build-and-deploy-your-freeform-app": false
   },
   "terminal.integrated.profiles.linux": {
     "bash": {
