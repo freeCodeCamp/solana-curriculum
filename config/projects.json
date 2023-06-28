@@ -97,8 +97,57 @@
   },
   {
     "id": 9,
-    "title": "More Coming Soon...",
-    "dashedName": "build-x-using-y",
+    "title": "Learn How to Build a Client-Side App: Part 1",
+    "dashedName": "learn-how-to-build-a-client-side-app-part-1",
+    "isIntegrated": false,
+    "description": "",
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true
+  },
+  {
+    "id": 10,
+    "title": "Learn How to Build a Client-Side App: Part 2",
+    "dashedName": "learn-how-to-build-a-client-side-app-part-2",
+    "isIntegrated": false,
+    "description": "",
+    "isPublic": false,
+    "currentLesson": 1,
+    "runTestsOnWatch": true
+  },
+  {
+    "id": 11,
+    "title": "Build a Client-Side App",
+    "dashedName": "build-a-client-side-app",
+    "isIntegrated": true,
+    "description": "",
+    "isPublic": false,
+    "currentLesson": 1
+  },
+  {
+    "id": 12,
+    "title": "Learn How to Get Off Localhost",
+    "dashedName": "learn-how-to-get-off-localhost",
+    "isIntegrated": false,
+    "description": "",
+    "isPublic": false,
+    "currentLesson": 1,
+    "runTestsOnWatch": true
+  },
+  {
+    "id": 13,
+    "title": "Learn How to Deploy to Devnet",
+    "dashedName": "learn-how-to-deploy-to-devnet",
+    "isIntegrated": false,
+    "description": "",
+    "isPublic": false,
+    "currentLesson": 1,
+    "runTestsOnWatch": true
+  },
+  {
+    "id": 14,
+    "title": "Build and Deploy Your Freeform App",
+    "dashedName": "build-and-deploy-your-freeform-app",
     "isIntegrated": true,
     "description": "",
     "isPublic": false,
