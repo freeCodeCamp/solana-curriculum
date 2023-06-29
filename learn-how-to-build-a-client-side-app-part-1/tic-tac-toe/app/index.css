@@ -1,0 +1,52 @@
+body {
+  background: black;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+form, table {
+  color: whitesmoke;
+  margin: 1em auto;
+  text-align: center;
+}
+
+form > button:hover {
+  cursor: pointer;
+  background-color: #cd3737;
+}
+
+tbody > tr {
+  border: solid 1px whitesmoke;
+}
+
+td {
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 50px;
+  border: solid 1px whitesmoke;
+}
+
+td:hover {
+  cursor: pointer;
+  background-color: #4b8270;
+}
+
+.loader {
+  /* border: 16px solid #f3f3f3; */
+  /* border-radius: 50%; */
+  /* border-top: 16px solid #cd3737; */
+  /* width: 120px; */
+  /* height: 120px; */
+  animation: spin 2s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
