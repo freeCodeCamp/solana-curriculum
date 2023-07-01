@@ -1,9 +1,19 @@
+/// Order:
+/// 1. Player 1 creates a game
+/// 2. Player 1 plays turn 1
+/// 3. Player 2 joins the game, and plays turn 2
+
+import { Connection, PublicKey } from '@solana/web3.js';
+
 const gameIdEl = document.getElementById('game-id');
 const startGameBtnEl = document.getElementById('start-game');
 const tableBodyEl = document.querySelector('tbody');
+const tdEls = tableBodyEl.querySelectorAll('td');
 
 let gameId = '';
 let gamePublicKey = '';
+
+// Fixture
 const globalGame = {
   board: [
     [{ x: {} }, { o: {} }, {}],
@@ -21,18 +31,6 @@ const playerOne = {
 const player = {
   publicKey: 'player'
 };
-const PublicKey = {
-  findProgramAddressSync: (args, programId) => {
-    return args;
-  }
-};
-const Buffer = {
-  from: (str, encoding) => {
-    return str;
-  }
-};
-
-const tdEls = tableBodyEl.querySelectorAll('td');
 
 // Fixture
 const workspace = {
@@ -73,7 +71,7 @@ tdEls.forEach(tdEl => {
     console.log(`Clicked ${id}`);
     const tile = idToTile(id);
 
-    //Fixture
+    // Fixture
     const game = {};
 
     await program.methods
@@ -98,12 +96,22 @@ function idToTile(id) {
   }
 }
 
+const { encode: toUint8Array } = new TextEncoder();
+
+/// 1. Check if a GameId was provided
+/// 2. Check if a game with gameId exists
+/// 3. Create a game if it doesn't exist
+/// 4. Start/join the game
 async function startGame(e) {
   e.preventDefault();
   showLoader(tableBodyEl);
   gameId = gameIdEl.value;
   gamePublicKey = PublicKey.findProgramAddressSync(
-    [Buffer.from('game'), playerOne.publicKey.toBuffer(), Buffer.from(gameId)],
+    [
+      toUint8Array('game'),
+      playerOne.publicKey.toBuffer(),
+      toUint8Array(gameId)
+    ],
     program.programId
   );
   await updateBoard();
@@ -150,6 +158,6 @@ function removeLoader(el) {
   el.classList.remove('loader');
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async e => {
   // TODO
 });
