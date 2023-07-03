@@ -7,10 +7,22 @@
   </head>
   <body>
     <form>
-      <label
-        >Game ID: <input type="text" placeholder="Game ID" id="game-id"
-      /></label>
+      <label>New Game ID: <input type="text" id="game-id" /></label>
+      <label>
+        Keypair:
+        <input
+          type="text"
+          required
+          placeholder="e.g. [1, 2, 3, 4...]"
+          id="keypair"
+        />
+      </label>
       <button id="start-game" formaction="#">Start Game</button>
+      <p>OR</p>
+      <label>
+        Game Public Key: <input type="text" id="game-public-key" />
+      </label>
+      <button id="join-game" formaction="#">Join Game</button>
     </form>
     <table>
       <thead>
@@ -37,6 +49,9 @@
         </tr>
       </tbody>
     </table>
+    <section>
+      <p id="errors"></p>
+    </section>
   </body>
   <script src="./index.js" type="module"></script>
 </html>
