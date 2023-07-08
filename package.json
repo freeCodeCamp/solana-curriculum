@@ -13,7 +13,7 @@
     "@freecodecamp/freecodecamp-os": "1.9.2",
     "@metaplex-foundation/js": "0.19.3",
     "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.77.3",
+    "@solana/web3.js": "1.78.0",
     "babeliser": "0.6.0",
     "borsh": "0.7.0"
   }
