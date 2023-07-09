@@ -2,7 +2,8 @@
 /// 1. Player 1 creates a game
 /// 2. Player 1 plays turn 1
 /// 3. Player 2 joins the game, and plays turn 2
-
+import { Program } from '@coral-xyz/anchor';
+import { IDL } from '../target/idl/tic_tac_toe';
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
 
 const gameIdEl = document.getElementById('game-id');
@@ -18,46 +19,13 @@ let gameId = '';
 let gamePublicKey = '';
 let keypair = {};
 
-// Fixture
-const globalGame = {
-  board: [
-    [{ x: {} }, { o: {} }, {}],
-    [{}, { o: {} }, {}],
-    [{ o: {} }, { x: {} }, { x: {} }]
-  ]
-};
+// TODO: Camper
+const PROGRAM_ID = new PublicKey(
+  '9GigwZ232VNW38tZmMzeLJjo3yPbyDQ92LvhoKbKRTNB'
+);
 
-// Fixture
-const workspace = {
-  TicTacToe: {
-    methods: {
-      play: function (tile) {
-        console.log(`Playing ${JSON.stringify(tile)}`);
-        globalGame.board[tile.row][tile.column] = { x: {} };
-        globalGame.board[(tile.row + 1) % 3][(tile.column + 1) % 3] = { o: {} };
-        return workspace.TicTacToe.methods;
-      },
-      accounts: function (args) {
-        return workspace.TicTacToe.methods;
-      },
-      signers: function (args) {
-        return workspace.TicTacToe.methods;
-      },
-      rpc: async function () {
-        await updateBoard();
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return workspace.TicTacToe.methods;
-      }
-    },
-    account: {
-      game: {
-        fetch: async () => globalGame
-      }
-    }
-  },
-  programId: '11'
-};
-const program = workspace.TicTacToe;
+// TODO: Camper
+const program = new Program(IDL, PROGRAM_ID);
 
 tdEls.forEach(tdEl => {
   tdEl.addEventListener('click', async e => {
@@ -67,7 +35,7 @@ tdEls.forEach(tdEl => {
     const tile = idToTile(id);
 
     // Update board
-
+    await updateBoard();
     // Fixture
     const game = getGameAccount();
 
