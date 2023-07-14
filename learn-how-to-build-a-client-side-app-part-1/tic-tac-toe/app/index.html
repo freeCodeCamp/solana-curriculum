@@ -7,14 +7,27 @@
   </head>
   <body>
     <form>
+      <label> Keypair:<input type="text" id="keypair" /> </label>
+      <button id="connect-wallet" formaction="#">Connect Wallet</button>
+    </form>
+    <form>
       <label>New Game ID: <input type="text" id="game-id" /></label>
       <label>
-        Keypair:
+        Player One Public Key:
         <input
           type="text"
           required
-          placeholder="e.g. [1, 2, 3, 4...]"
-          id="keypair"
+          placeholder="e.g. AxfbN..."
+          id="player-one-public-key"
+        />
+      </label>
+      <label>
+        Player Two Public Key:
+        <input
+          type="text"
+          required
+          placeholder="e.g. AxfbN..."
+          id="player-two-public-key"
         />
       </label>
       <button id="start-game" formaction="#">Start Game</button>
@@ -52,6 +65,12 @@
     <section>
       <p id="errors"></p>
     </section>
+    <div id="spinner" class="hidden">
+      <div class="lds-ripple">
+        <div></div>
+        <div></div>
+      </div>
+    </div>
   </body>
   <script src="./index.js" type="module"></script>
 </html>

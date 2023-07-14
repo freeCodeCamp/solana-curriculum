@@ -2,8 +2,12 @@
 /// 1. Player 1 creates a game
 /// 2. Player 1 plays turn 1
 /// 3. Player 2 joins the game, and plays turn 2
-import { Program } from '@coral-xyz/anchor';
-import { IDL } from '../target/idl/tic_tac_toe';
+
+// A1CtJVsEgzNooAs61G6oXJFe6u2DPdeCN2rPQv7uD2rp
+// 7rXVBiruXJ1BqnW3Evbs6uDwbAWhCiAZ7kfvDAydNFfR
+import { AnchorProvider, Program } from '@coral-xyz/anchor';
+import { Wallet } from './wallet.js';
+import { IDL } from '../target/types/tic_tac_toe';
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
 
 const gameIdEl = document.getElementById('game-id');
@@ -14,18 +18,48 @@ const keypairEl = document.getElementById('keypair');
 const errorsEl = document.getElementById('errors');
 const joinGameBtnEl = document.getElementById('join-game');
 const gamePublicKeyEl = document.getElementById('game-public-key');
+const playerOnePublicKeyEl = document.getElementById('player-one-public-key');
+const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
+const connectWalletBtnEl = document.getElementById('connect-wallet');
+const spinnerEl = document.getElementById('spinner');
 
 let gameId = '';
 let gamePublicKey = '';
+let program = {};
 let keypair = {};
 
 // TODO: Camper
 const PROGRAM_ID = new PublicKey(
-  '9GigwZ232VNW38tZmMzeLJjo3yPbyDQ92LvhoKbKRTNB'
+  '5xGwZASoE5ZgxKgaisJNaGTGzMKzjyyBGv9FCUtu2m1c'
 );
 
 // TODO: Camper
-const program = new Program(IDL, PROGRAM_ID);
+const connection = new Connection('http://localhost:8899', 'confirmed');
+
+function connectWallet() {
+  const keypairStr = keypairEl.value;
+  if (!keypairStr) {
+    throw new Error('No keypair provided');
+  }
+  keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairStr)));
+  const wallet = new Wallet(keypair);
+  const provider = new AnchorProvider(connection, wallet);
+  program = new Program(IDL, PROGRAM_ID, provider);
+}
+
+connectWalletBtnEl.addEventListener('click', ev => {
+  ev.preventDefault();
+  try {
+    showLoader();
+    connectWallet();
+    connectWalletBtnEl.style.backgroundColor = 'green';
+    displayError({ message: '' });
+  } catch (e) {
+    displayError(e);
+  } finally {
+    removeLoader();
+  }
+});
 
 tdEls.forEach(tdEl => {
   tdEl.addEventListener('click', async e => {
@@ -33,13 +67,13 @@ tdEls.forEach(tdEl => {
     const id = e.target.id;
     console.log(`Clicked ${id}`);
     const tile = idToTile(id);
-
-    // Update board
-    await updateBoard();
-    // Fixture
-    const game = getGameAccount();
-
+    showLoader();
     try {
+      // Update board
+      await updateBoard();
+      // Fixture
+      const game = getGameAccount();
+
       // Might not be player's turn
       // Might not be valid tile
       await program.methods
@@ -52,6 +86,8 @@ tdEls.forEach(tdEl => {
         .rpc();
     } catch (e) {
       displayError(e);
+    } finally {
+      removeLoader();
     }
   });
 });
@@ -67,7 +103,7 @@ function idToTile(id) {
   }
 }
 
-const { encode: toUint8Array } = new TextEncoder();
+const a = new TextEncoder();
 
 /// 1. Check if a GameId was provided
 /// 2. Check if keypair was provided
@@ -76,66 +112,74 @@ const { encode: toUint8Array } = new TextEncoder();
 /// 4. Start/join the game
 async function startGame(e) {
   e.preventDefault();
-  showLoader(tableBodyEl);
-  keypair = keypairEl.value;
   if (!keypair) {
-    removeLoader(tableBodyEl);
-    throw new Error('No keypair provided');
+    throw new Error('No wallet connected');
   }
   gameId = gameIdEl.value;
   if (!gameId) {
-    removeLoader(tableBodyEl);
     throw new Error('No Game ID provided');
   }
+  const player_one_publicKey = new PublicKey(playerOnePublicKeyEl.value);
   gamePublicKey = PublicKey.findProgramAddressSync(
-    [toUint8Array('game'), keypair.publicKey.toBuffer(), toUint8Array(gameId)],
+    [a.encode('game'), player_one_publicKey.toBuffer(), a.encode(gameId)],
     program.programId
-  );
+  )?.[0];
   gamePublicKeyEl.value = gamePublicKey;
+  const player_two_publicKey = new PublicKey(playerTwoPublicKeyEl.value);
+  await program.methods
+    .setupGame(player_two_publicKey, gameId)
+    .accounts({
+      player: keypair.publicKey,
+      game: gamePublicKey
+    })
+    .signers([keypair])
+    .rpc();
   await updateBoard();
-  removeLoader(tableBodyEl);
   console.log('Started Game');
 }
 
 async function joinGame(e) {
   e.preventDefault();
-  showLoader(tableBodyEl);
-  const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairEl.value));
   if (!keypair) {
-    removeLoader(tableBodyEl);
     throw new Error('No keypair provided');
   }
   gamePublicKey = gamePublicKeyEl.value;
   if (!gamePublicKey) {
-    removeLoader(tableBodyEl);
     throw new Error('No game public key provided');
   }
   await updateBoard();
-  removeLoader(tableBodyEl);
   console.log('Joined Game');
 }
 
 startGameBtnEl.addEventListener('click', async e => {
   try {
+    showLoader();
     await startGame(e);
   } catch (e) {
     displayError(e);
+  } finally {
+    removeLoader();
   }
 });
 
 joinGameBtnEl.addEventListener('click', async e => {
   try {
+    showLoader();
     await joinGame(e);
   } catch (e) {
     displayError(e);
+  } finally {
+    removeLoader();
   }
 });
 
 function displayError(e) {
+  console.error(e);
   errorsEl.innerText = e.message;
 }
 
 async function getGameAccount() {
+  console.log('a');
   const gameData = await program.account.game.fetch(gamePublicKey);
   return gameData;
 }
@@ -163,12 +207,12 @@ function tileToString(tile) {
   return '';
 }
 
-function showLoader(el) {
-  el.classList.add('loader');
+function showLoader() {
+  spinnerEl.classList.remove('hidden');
 }
 
-function removeLoader(el) {
-  el.classList.remove('loader');
+function removeLoader() {
+  spinnerEl.classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', async e => {
