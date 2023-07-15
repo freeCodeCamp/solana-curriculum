@@ -5,10 +5,13 @@
 
 // A1CtJVsEgzNooAs61G6oXJFe6u2DPdeCN2rPQv7uD2rp
 // 7rXVBiruXJ1BqnW3Evbs6uDwbAWhCiAZ7kfvDAydNFfR
-import { AnchorProvider, Program } from '@coral-xyz/anchor';
+import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { Wallet } from './wallet.js';
 import { IDL } from '../target/types/tic_tac_toe';
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import * as buffer from 'buffer';
+import player_one_keypair from '../player-one.json';
+import player_two_keypair from '../player-two.json';
 
 const gameIdEl = document.getElementById('game-id');
 const startGameBtnEl = document.getElementById('start-game');
@@ -22,11 +25,17 @@ const playerOnePublicKeyEl = document.getElementById('player-one-public-key');
 const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
 const connectWalletBtnEl = document.getElementById('connect-wallet');
 const spinnerEl = document.getElementById('spinner');
+const keypairsEl = document.getElementById('keypairs');
+
+const turnEl = document.getElementById('turn');
+const playerTurnEl = document.getElementById('player-turn');
 
 let gameId = '';
 let gamePublicKey = '';
 let program = {};
 let keypair = {};
+
+window.Buffer = buffer.Buffer;
 
 // TODO: Camper
 const PROGRAM_ID = new PublicKey(
@@ -34,7 +43,8 @@ const PROGRAM_ID = new PublicKey(
 );
 
 // TODO: Camper
-const connection = new Connection('http://localhost:8899', 'confirmed');
+// TODO: Show how using `finalized` takes much longer to propagate than `processed`
+const connection = new Connection('http://localhost:8899', 'processed');
 
 function connectWallet() {
   const keypairStr = keypairEl.value;
@@ -43,7 +53,8 @@ function connectWallet() {
   }
   keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairStr)));
   const wallet = new Wallet(keypair);
-  const provider = new AnchorProvider(connection, wallet);
+  const provider = new AnchorProvider(connection, wallet, {});
+  setProvider(provider);
   program = new Program(IDL, PROGRAM_ID, provider);
 }
 
@@ -65,7 +76,6 @@ tdEls.forEach(tdEl => {
   tdEl.addEventListener('click', async e => {
     e.preventDefault();
     const id = e.target.id;
-    console.log(`Clicked ${id}`);
     const tile = idToTile(id);
     showLoader();
     try {
@@ -80,10 +90,11 @@ tdEls.forEach(tdEl => {
         .play(tile)
         .accounts({
           player: keypair.publicKey,
-          game
+          game: gamePublicKey
         })
         .signers([keypair])
         .rpc();
+      await updateBoard();
     } catch (e) {
       displayError(e);
     } finally {
@@ -135,7 +146,6 @@ async function startGame(e) {
     .signers([keypair])
     .rpc();
   await updateBoard();
-  console.log('Started Game');
 }
 
 async function joinGame(e) {
@@ -148,7 +158,6 @@ async function joinGame(e) {
     throw new Error('No game public key provided');
   }
   await updateBoard();
-  console.log('Joined Game');
 }
 
 startGameBtnEl.addEventListener('click', async e => {
@@ -179,8 +188,9 @@ function displayError(e) {
 }
 
 async function getGameAccount() {
-  console.log('a');
   const gameData = await program.account.game.fetch(gamePublicKey);
+  turnEl.textContent = gameData.turn;
+  playerTurnEl.textContent = gameData.turn % 2 === 0 ? 'O' : 'X';
   return gameData;
 }
 
@@ -198,10 +208,10 @@ async function updateBoard() {
 }
 
 function tileToString(tile) {
-  if (tile.x) {
+  if (tile?.x) {
     return 'X';
   }
-  if (tile.o) {
+  if (tile?.o) {
     return 'O';
   }
   return '';
@@ -216,5 +226,50 @@ function removeLoader() {
 }
 
 document.addEventListener('DOMContentLoaded', async e => {
-  // TODO
+  startWithPossibleValues();
+
+  const interval = setInterval(async () => {
+    try {
+      showLoader();
+      await updateBoard();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      removeLoader();
+    }
+  }, 2000);
+
+  setTimeout(() => {
+    clearInterval(interval);
+  }, 100_000);
+  return () => {
+    clearInterval(interval);
+  };
+});
+
+function startWithPossibleValues() {
+  const player_one_publicKey = 'A1CtJVsEgzNooAs61G6oXJFe6u2DPdeCN2rPQv7uD2rp';
+  const player_two_publicKey = '7rXVBiruXJ1BqnW3Evbs6uDwbAWhCiAZ7kfvDAydNFfR';
+
+  playerOnePublicKeyEl.value = player_one_publicKey;
+  playerTwoPublicKeyEl.value = player_two_publicKey;
+
+  const keypairs = [player_one_keypair, player_two_keypair];
+  keypairs.forEach((keypair, i) => {
+    const li = document.createElement('li');
+    li.textContent = `Player ${i + 1} Public Key: ` + JSON.stringify(keypair);
+    keypairsEl.appendChild(li);
+  });
+}
+
+gameIdEl.addEventListener('change', e => {
+  const [gamePubKey, _] = PublicKey.findProgramAddressSync(
+    [
+      a.encode('game'),
+      new PublicKey(playerOnePublicKeyEl.value).toBuffer(),
+      a.encode(e.target.value)
+    ],
+    PROGRAM_ID
+  );
+  gamePublicKeyEl.value = gamePubKey;
 });

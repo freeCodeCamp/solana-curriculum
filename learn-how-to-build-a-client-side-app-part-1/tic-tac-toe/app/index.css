@@ -43,6 +43,15 @@ td:hover {
   text-align: center;
 }
 
+#keypairs {
+  color: greenyellow;
+}
+
+/* Wrap text in #keypairs > li */
+#keypairs > li {
+  word-wrap: break-word;
+}
+
 #spinner {
   margin: 0 auto;
   text-align: center;
