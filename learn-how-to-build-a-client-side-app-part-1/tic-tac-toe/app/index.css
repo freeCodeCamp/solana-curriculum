@@ -48,8 +48,13 @@ td:hover {
 }
 
 /* Wrap text in #keypairs > li */
-#keypairs > li {
+#keypairs > li > pre {
+  text-wrap: wrap;
   word-wrap: break-word;
+  color: #2ca08d;
+  background-color: #2e3136;
+  margin: 1rem;
+  padding: 0.5rem;
 }
 
 #spinner {

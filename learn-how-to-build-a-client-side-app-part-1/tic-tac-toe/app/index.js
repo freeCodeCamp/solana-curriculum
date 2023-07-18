@@ -35,6 +35,7 @@ let gamePublicKey = '';
 let program = {};
 let keypair = {};
 
+// TODO: Camper - teach gotcha
 window.Buffer = buffer.Buffer;
 
 // TODO: Camper
@@ -46,6 +47,7 @@ const PROGRAM_ID = new PublicKey(
 // TODO: Show how using `finalized` takes much longer to propagate than `processed`
 const connection = new Connection('http://localhost:8899', 'processed');
 
+// TODO: Camper
 function connectWallet() {
   const keypairStr = keypairEl.value;
   if (!keypairStr) {
@@ -62,6 +64,7 @@ connectWalletBtnEl.addEventListener('click', ev => {
   ev.preventDefault();
   try {
     showLoader();
+    // TODO: Camper
     connectWallet();
     connectWalletBtnEl.style.backgroundColor = 'green';
     displayError({ message: '' });
@@ -73,6 +76,7 @@ connectWalletBtnEl.addEventListener('click', ev => {
 });
 
 tdEls.forEach(tdEl => {
+  // TODO: Camper
   tdEl.addEventListener('click', async e => {
     e.preventDefault();
     const id = e.target.id;
@@ -81,8 +85,6 @@ tdEls.forEach(tdEl => {
     try {
       // Update board
       await updateBoard();
-      // Fixture
-      const game = getGameAccount();
 
       // Might not be player's turn
       // Might not be valid tile
@@ -114,13 +116,10 @@ function idToTile(id) {
   }
 }
 
+// TODO: Camper - Teach about Gotcha here - no buffer in browser
 const a = new TextEncoder();
 
-/// 1. Check if a GameId was provided
-/// 2. Check if keypair was provided
-/// 2. Check if a game with gameId exists
-/// 3. Create a game if it doesn't exist
-/// 4. Start/join the game
+// TODO: Camper
 async function startGame(e) {
   e.preventDefault();
   if (!keypair) {
@@ -148,6 +147,7 @@ async function startGame(e) {
   await updateBoard();
 }
 
+// TODO: Camper
 async function joinGame(e) {
   e.preventDefault();
   if (!keypair) {
@@ -163,6 +163,7 @@ async function joinGame(e) {
 startGameBtnEl.addEventListener('click', async e => {
   try {
     showLoader();
+    // TODO: Camper
     await startGame(e);
   } catch (e) {
     displayError(e);
@@ -174,6 +175,7 @@ startGameBtnEl.addEventListener('click', async e => {
 joinGameBtnEl.addEventListener('click', async e => {
   try {
     showLoader();
+    // TODO: Camper
     await joinGame(e);
   } catch (e) {
     displayError(e);
@@ -187,6 +189,7 @@ function displayError(e) {
   errorsEl.innerText = e.message;
 }
 
+// TODO: Camper
 async function getGameAccount() {
   const gameData = await program.account.game.fetch(gamePublicKey);
   turnEl.textContent = gameData.turn;
@@ -195,6 +198,7 @@ async function getGameAccount() {
 }
 
 async function updateBoard() {
+  // TODO: Camper
   const gameAccount = await getGameAccount();
   const board = gameAccount.board;
 
@@ -231,17 +235,20 @@ document.addEventListener('DOMContentLoaded', async e => {
   const interval = setInterval(async () => {
     try {
       showLoader();
-      await updateBoard();
+      // TODO: Camper
+      if (program && gamePublicKey) {
+        await updateBoard();
+      }
     } catch (e) {
       console.error(e);
     } finally {
       removeLoader();
     }
-  }, 2000);
+  }, 3000);
 
   setTimeout(() => {
     clearInterval(interval);
-  }, 100_000);
+  }, 300_000);
   return () => {
     clearInterval(interval);
   };
@@ -257,7 +264,14 @@ function startWithPossibleValues() {
   const keypairs = [player_one_keypair, player_two_keypair];
   keypairs.forEach((keypair, i) => {
     const li = document.createElement('li');
-    li.textContent = `Player ${i + 1} Public Key: ` + JSON.stringify(keypair);
+    const code = document.createElement('code');
+    const pre = document.createElement('pre');
+    pre.appendChild(code);
+    code.textContent = JSON.stringify(keypair);
+    li.textContent = `Player ${i + 1} Public Key: `;
+
+    li.appendChild(pre);
+
     keypairsEl.appendChild(li);
   });
 }
