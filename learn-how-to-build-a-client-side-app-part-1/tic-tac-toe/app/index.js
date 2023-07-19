@@ -1,73 +1,39 @@
-/// Order:
-/// 1. Player 1 creates a game
-/// 2. Player 1 plays turn 1
-/// 3. Player 2 joins the game, and plays turn 2
-
-// A1CtJVsEgzNooAs61G6oXJFe6u2DPdeCN2rPQv7uD2rp
-// 7rXVBiruXJ1BqnW3Evbs6uDwbAWhCiAZ7kfvDAydNFfR
-import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
-import { Wallet } from './wallet.js';
-import { IDL } from '../target/types/tic_tac_toe';
-import { Connection, PublicKey, Keypair } from '@solana/web3.js';
-import * as buffer from 'buffer';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import player_one_keypair from '../player-one.json';
 import player_two_keypair from '../player-two.json';
+import { displayError, removeLoader, showLoader } from './utils';
+import {
+  PROGRAM_ID,
+  connectWallet,
+  deriveGamePublicKey,
+  handlePlay,
+  joinGame,
+  startGame,
+  updateBoard
+} from './web3';
 
 const gameIdEl = document.getElementById('game-id');
 const startGameBtnEl = document.getElementById('start-game');
 const tableBodyEl = document.querySelector('tbody');
 const tdEls = tableBodyEl.querySelectorAll('td');
-const keypairEl = document.getElementById('keypair');
-const errorsEl = document.getElementById('errors');
 const joinGameBtnEl = document.getElementById('join-game');
 const gamePublicKeyEl = document.getElementById('game-public-key');
 const playerOnePublicKeyEl = document.getElementById('player-one-public-key');
 const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
 const connectWalletBtnEl = document.getElementById('connect-wallet');
-const spinnerEl = document.getElementById('spinner');
+const keypairEl = document.getElementById('keypair');
 const keypairsEl = document.getElementById('keypairs');
-
-const turnEl = document.getElementById('turn');
-const playerTurnEl = document.getElementById('player-turn');
-
-let gameId = '';
-let gamePublicKey = '';
-let program = {};
-let keypair = {};
-
-// TODO: Camper - teach gotcha
-window.Buffer = buffer.Buffer;
-
-// TODO: Camper
-const PROGRAM_ID = new PublicKey(
-  '5xGwZASoE5ZgxKgaisJNaGTGzMKzjyyBGv9FCUtu2m1c'
-);
-
-// TODO: Camper
-// TODO: Show how using `finalized` takes much longer to propagate than `processed`
-const connection = new Connection('http://localhost:8899', 'processed');
-
-// TODO: Camper
-function connectWallet() {
-  const keypairStr = keypairEl.value;
-  if (!keypairStr) {
-    throw new Error('No keypair provided');
-  }
-  keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairStr)));
-  const wallet = new Wallet(keypair);
-  const provider = new AnchorProvider(connection, wallet, {});
-  setProvider(provider);
-  program = new Program(IDL, PROGRAM_ID, provider);
-}
 
 connectWalletBtnEl.addEventListener('click', ev => {
   ev.preventDefault();
+  showLoader();
   try {
-    showLoader();
     // TODO: Camper
+    const keypair = keypairEl.value;
+    sessionStorage.setItem('keypair', keypair);
     connectWallet();
     connectWalletBtnEl.style.backgroundColor = 'green';
-    displayError({ message: '' });
+    displayError();
   } catch (e) {
     displayError(e);
   } finally {
@@ -76,27 +42,12 @@ connectWalletBtnEl.addEventListener('click', ev => {
 });
 
 tdEls.forEach(tdEl => {
-  // TODO: Camper
-  tdEl.addEventListener('click', async e => {
-    e.preventDefault();
-    const id = e.target.id;
-    const tile = idToTile(id);
+  tdEl.addEventListener('click', async event => {
+    event.preventDefault();
     showLoader();
     try {
-      // Update board
-      await updateBoard();
-
-      // Might not be player's turn
-      // Might not be valid tile
-      await program.methods
-        .play(tile)
-        .accounts({
-          player: keypair.publicKey,
-          game: gamePublicKey
-        })
-        .signers([keypair])
-        .rpc();
-      await updateBoard();
+      // TODO: Camper
+      await handlePlay(event.target.id);
     } catch (e) {
       displayError(e);
     } finally {
@@ -105,66 +56,12 @@ tdEls.forEach(tdEl => {
   });
 });
 
-function idToTile(id) {
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      const tile = tdEls[i * 3 + j];
-      if (tile.id === id) {
-        return { row: i, column: j };
-      }
-    }
-  }
-}
-
-// TODO: Camper - Teach about Gotcha here - no buffer in browser
-const a = new TextEncoder();
-
-// TODO: Camper
-async function startGame(e) {
-  e.preventDefault();
-  if (!keypair) {
-    throw new Error('No wallet connected');
-  }
-  gameId = gameIdEl.value;
-  if (!gameId) {
-    throw new Error('No Game ID provided');
-  }
-  const player_one_publicKey = new PublicKey(playerOnePublicKeyEl.value);
-  gamePublicKey = PublicKey.findProgramAddressSync(
-    [a.encode('game'), player_one_publicKey.toBuffer(), a.encode(gameId)],
-    program.programId
-  )?.[0];
-  gamePublicKeyEl.value = gamePublicKey;
-  const player_two_publicKey = new PublicKey(playerTwoPublicKeyEl.value);
-  await program.methods
-    .setupGame(player_two_publicKey, gameId)
-    .accounts({
-      player: keypair.publicKey,
-      game: gamePublicKey
-    })
-    .signers([keypair])
-    .rpc();
-  await updateBoard();
-}
-
-// TODO: Camper
-async function joinGame(e) {
-  e.preventDefault();
-  if (!keypair) {
-    throw new Error('No keypair provided');
-  }
-  gamePublicKey = gamePublicKeyEl.value;
-  if (!gamePublicKey) {
-    throw new Error('No game public key provided');
-  }
-  await updateBoard();
-}
-
-startGameBtnEl.addEventListener('click', async e => {
+startGameBtnEl.addEventListener('click', async event => {
+  event.preventDefault();
+  showLoader();
   try {
-    showLoader();
     // TODO: Camper
-    await startGame(e);
+    await startGame();
   } catch (e) {
     displayError(e);
   } finally {
@@ -172,9 +69,10 @@ startGameBtnEl.addEventListener('click', async e => {
   }
 });
 
-joinGameBtnEl.addEventListener('click', async e => {
+joinGameBtnEl.addEventListener('click', async event => {
+  event.preventDefault();
+  showLoader();
   try {
-    showLoader();
     // TODO: Camper
     await joinGame(e);
   } catch (e) {
@@ -184,79 +82,41 @@ joinGameBtnEl.addEventListener('click', async e => {
   }
 });
 
-function displayError(e) {
-  console.error(e);
-  errorsEl.innerText = e.message;
-}
-
-// TODO: Camper
-async function getGameAccount() {
-  const gameData = await program.account.game.fetch(gamePublicKey);
-  turnEl.textContent = gameData.turn;
-  playerTurnEl.textContent = gameData.turn % 2 === 0 ? 'O' : 'X';
-  return gameData;
-}
-
-async function updateBoard() {
-  // TODO: Camper
-  const gameAccount = await getGameAccount();
-  const board = gameAccount.board;
-
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      const tile = board[i][j];
-      const tileEl = tdEls[i * 3 + j];
-      tileEl.textContent = tileToString(tile);
-    }
-  }
-}
-
-function tileToString(tile) {
-  if (tile?.x) {
-    return 'X';
-  }
-  if (tile?.o) {
-    return 'O';
-  }
-  return '';
-}
-
-function showLoader() {
-  spinnerEl.classList.remove('hidden');
-}
-
-function removeLoader() {
-  spinnerEl.classList.add('hidden');
-}
-
-document.addEventListener('DOMContentLoaded', async e => {
+document.addEventListener('DOMContentLoaded', async _event => {
   startWithPossibleValues();
 
   const interval = setInterval(async () => {
+    showLoader();
     try {
-      showLoader();
       // TODO: Camper
+      const gamePublicKey = sessionStorage.getItem('gamePublicKey');
       if (program && gamePublicKey) {
         await updateBoard();
       }
     } catch (e) {
-      console.error(e);
+      console.debug(e);
     } finally {
       removeLoader();
     }
   }, 3000);
 
-  setTimeout(() => {
-    clearInterval(interval);
-  }, 300_000);
+  // A game of tic-tac-toe should not last long,
+  // but for development this is commented out
+  // setTimeout(() => {
+  //   clearInterval(interval);
+  // }, 300_000);
   return () => {
     clearInterval(interval);
   };
 });
 
 function startWithPossibleValues() {
-  const player_one_publicKey = 'A1CtJVsEgzNooAs61G6oXJFe6u2DPdeCN2rPQv7uD2rp';
-  const player_two_publicKey = '7rXVBiruXJ1BqnW3Evbs6uDwbAWhCiAZ7kfvDAydNFfR';
+  const player_one_publicKey = Keypair.fromSecretKey(
+    new Uint8Array(player_one_keypair)
+  ).publicKey.toBase58();
+  const player_two_publicKey = Keypair.fromSecretKey(
+    new Uint8Array(player_two_keypair)
+  ).publicKey.toBase58();
 
   playerOnePublicKeyEl.value = player_one_publicKey;
   playerTwoPublicKeyEl.value = player_two_publicKey;
@@ -277,13 +137,12 @@ function startWithPossibleValues() {
 }
 
 gameIdEl.addEventListener('change', e => {
-  const [gamePubKey, _] = PublicKey.findProgramAddressSync(
-    [
-      a.encode('game'),
-      new PublicKey(playerOnePublicKeyEl.value).toBuffer(),
-      a.encode(e.target.value)
-    ],
+  // TODO: Camper
+  const gamePublicKey = deriveGamePublicKey(
+    new PublicKey(playerOnePublicKeyEl.value),
+    e.target.value,
     PROGRAM_ID
   );
-  gamePublicKeyEl.value = gamePubKey;
+  sessionStorage.setItem('gamePublicKey', gamePublicKey.toBase58());
+  gamePublicKeyEl.value = gamePublicKey;
 });

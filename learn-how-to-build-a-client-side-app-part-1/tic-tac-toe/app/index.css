@@ -13,7 +13,7 @@ table {
   text-align: center;
 }
 
-form > button:hover {
+form > fieldset > button:hover {
   cursor: pointer;
   background-color: #cd3737;
 }
