@@ -2,7 +2,15 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import player_one_keypair from '../player-one.json';
 import player_two_keypair from '../player-two.json';
 import { displayError, removeLoader, showLoader } from './utils';
-import { PROGRAM_ID, deriveGamePublicKey } from './web3';
+import {
+  PROGRAM_ID,
+  connectWallet,
+  deriveGamePublicKey,
+  handlePlay,
+  joinGame,
+  startGame,
+  updateBoard
+} from './web3';
 
 const gameIdEl = document.getElementById('game-id');
 const startGameBtnEl = document.getElementById('start-game');
@@ -23,9 +31,8 @@ connectWalletBtnEl.addEventListener('click', ev => {
   try {
     const keypair = keypairEl.value;
     sessionStorage.setItem('keypair', keypair);
-
-    // TODO: Connect to wallet
-
+    // TODO: Camper
+    connectWallet();
     connectWalletBtnEl.style.backgroundColor = 'green';
   } catch (e) {
     displayError(e);
@@ -40,7 +47,8 @@ tdEls.forEach(tdEl => {
     displayError();
     showLoader();
     try {
-      // TODO: Play tile
+      // TODO: Camper
+      await handlePlay(event.target.id);
     } catch (e) {
       displayError(e);
     } finally {
@@ -54,7 +62,8 @@ startGameBtnEl.addEventListener('click', async event => {
   displayError();
   showLoader();
   try {
-    // TODO: Create a new game
+    // TODO: Camper
+    await startGame();
   } catch (e) {
     displayError(e);
   } finally {
@@ -67,7 +76,8 @@ joinGameBtnEl.addEventListener('click', async event => {
   displayError();
   showLoader();
   try {
-    // TODO: Join an existing game
+    // TODO: Camper
+    await joinGame(e);
   } catch (e) {
     displayError(e);
   } finally {
@@ -81,7 +91,11 @@ document.addEventListener('DOMContentLoaded', async _event => {
   const interval = setInterval(async () => {
     showLoader();
     try {
-      // TODO: If the program exists, update the board every 3 seconds
+      // TODO: Camper
+      const gamePublicKey = sessionStorage.getItem('gamePublicKey');
+      if (program && gamePublicKey) {
+        await updateBoard();
+      }
     } catch (e) {
       console.debug(e);
     } finally {
@@ -126,6 +140,7 @@ function startWithPossibleValues() {
 }
 
 gameIdEl.addEventListener('change', e => {
+  // TODO: Camper
   const gamePublicKey = deriveGamePublicKey(
     new PublicKey(playerOnePublicKeyEl.value),
     e.target.value,
