@@ -9,7 +9,6 @@ const startGameBtnEl = document.getElementById('start-game');
 const tableBodyEl = document.querySelector('tbody');
 const tdEls = tableBodyEl.querySelectorAll('td');
 const joinGameBtnEl = document.getElementById('join-game');
-const gamePublicKeyEl = document.getElementById('game-public-key');
 const playerOnePublicKeyEl = document.getElementById('player-one-public-key');
 const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
 const connectWalletBtnEl = document.getElementById('connect-wallet');
@@ -99,6 +98,10 @@ document.addEventListener('DOMContentLoaded', async _event => {
   };
 });
 
+// ---------------------
+// CONVENIENCE FUNCTIONS
+// ---------------------
+
 function startWithPossibleValues() {
   const player_one_publicKey = Keypair.fromSecretKey(
     new Uint8Array(player_one_keypair)
@@ -125,12 +128,23 @@ function startWithPossibleValues() {
   });
 }
 
+playerOnePublicKeyEl.addEventListener('change', e => {
+  const playerOnePublicKey = e.target.value;
+  sessionStorage.setItem('playerOnePublicKey', playerOnePublicKey);
+});
+
+playerTwoPublicKeyEl.addEventListener('change', e => {
+  const playerTwoPublicKey = e.target.value;
+  sessionStorage.setItem('playerTwoPublicKey', playerTwoPublicKey);
+});
+
 gameIdEl.addEventListener('change', e => {
+  const gameId = e.target.value;
+  sessionStorage.setItem('gameId', gameId);
   const gamePublicKey = deriveGamePublicKey(
     new PublicKey(playerOnePublicKeyEl.value),
-    e.target.value,
+    gameId,
     PROGRAM_ID
   );
   sessionStorage.setItem('gamePublicKey', gamePublicKey.toBase58());
-  gamePublicKeyEl.value = gamePublicKey;
 });

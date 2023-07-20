@@ -7,10 +7,6 @@ import { idToTile, setTiles } from './utils.js';
 
 const turnEl = document.getElementById('turn');
 const playerTurnEl = document.getElementById('player-turn');
-const playerOnePublicKeyEl = document.getElementById('player-one-public-key');
-const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
-const gameIdEl = document.getElementById('game-id');
-const gamePublicKeyEl = document.getElementById('game-public-key');
 
 window.Buffer = buffer.Buffer;
 window.program = null;
@@ -32,14 +28,41 @@ export function connectWallet() {
   window.program = program;
 }
 
+export async function startGame() {
+  const gameId = sessionStorage.getItem('gameId');
+  const playerOnePublicKey = new PublicKey(
+    sessionStorage.getItem('playerOnePublicKey')
+  );
+  const playerTwoPublicKey = new PublicKey(
+    sessionStorage.getItem('playerTwoPublicKey')
+  );
+  const gamePublicKey = deriveGamePublicKey(
+    playerOnePublicKey,
+    gameId,
+    PROGRAM_ID
+  );
+  sessionStorage.setItem('gamePublicKey', gamePublicKey.toString());
+
+  const keypairArr = sessionStorage.getItem('keypair');
+  const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairArr)));
+  await program.methods
+    .setupGame(playerTwoPublicKey, gameId)
+    .accounts({
+      player: keypair.publicKey,
+      game: gamePublicKey
+    })
+    .signers([keypair])
+    .rpc();
+  await updateBoard();
+}
+
 export async function handlePlay(id) {
   const tile = idToTile(id);
 
   await updateBoard();
 
-  const keypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(sessionStorage.getItem('keypair')))
-  );
+  const keypairArr = sessionStorage.getItem('keypair');
+  const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairArr)));
   const gamePublicKey = new PublicKey(sessionStorage.getItem('gamePublicKey'));
   await program.methods
     .play(tile)
@@ -60,41 +83,6 @@ export function deriveGamePublicKey(playerOnePublicKey, gameId, programId) {
     programId
   );
   return gamePublicKey;
-}
-
-export async function startGame() {
-  sessionStorage.setItem('gameId', gameIdEl.value);
-
-  const player_one_publicKey = new PublicKey(playerOnePublicKeyEl.value);
-  const gamePublicKey = deriveGamePublicKey(
-    player_one_publicKey,
-    gameIdEl.value,
-    PROGRAM_ID
-  );
-  sessionStorage.setItem('gamePublicKey', gamePublicKey.toString());
-
-  gamePublicKeyEl.value = gamePublicKey;
-
-  const player_two_publicKey = new PublicKey(playerTwoPublicKeyEl.value);
-  const gameId = sessionStorage.getItem('gameId');
-  const keypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(sessionStorage.getItem('keypair')))
-  );
-  await program.methods
-    .setupGame(player_two_publicKey, gameId)
-    .accounts({
-      player: keypair.publicKey,
-      game: gamePublicKey
-    })
-    .signers([keypair])
-    .rpc();
-  await updateBoard();
-}
-
-export async function joinGame() {
-  sessionStorage.setItem('gamePublicKey', gamePublicKeyEl.value);
-
-  await updateBoard();
 }
 
 export async function getGameAccount() {
