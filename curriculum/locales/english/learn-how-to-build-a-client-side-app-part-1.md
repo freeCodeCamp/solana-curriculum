@@ -463,4 +463,352 @@ Now, within the `app/index.js` file, call the `connectWallet` function in the `c
 
 ### --tests--
 
+You should add `connectWallet();` below the `// TODO: Connect to wallet` comment.
+
+```js
+
+```
+
+## 25
+
+### --description--
+
+Within the `startGame` function in `web3.js`, declare a `gameId` variable set to the `"gameId"` session storage item.
+
+### --tests--
+
+You should have `const gameId = sessionStorage.getItem("gameId");` within the `startGame` function.
+
+```js
+
+```
+
+## 26
+
+### --description--
+
+Within the `startGame` function, declare a `playerOnePublicKey` variable set to the `"playerOnePublicKey"` session storage item.
+
+### --tests--
+
+You should have `const playerOnePublicKey = sessionStorage.getItem("playerOnePublicKey");` within the `startGame` function.
+
+```js
+
+```
+
+## 27
+
+### --description--
+
+Within the `startGame` function, declare a `playerTwoPublicKey` variable set to the `"playerTwoPublicKey"` session storage item.
+
+### --tests--
+
+You should have `const playerTwoPublicKey = sessionStorage.getItem("playerTwoPublicKey");` within the `startGame` function.
+
+```js
+
+```
+
+## 28
+
+### --description--
+
+Within the `startGame` function, declare a `gamePublicKey` variable set to the result of calling the `deriveGamePublicKey` function with the `playerOnePublicKey`, `gameId`, and `PROGRAM_ID` variables.
+
+### --tests--
+
+You should have `const gamePublicKey = deriveGamePublicKey(playerOnePublicKey, gameId, PROGRAM_ID);` within the `startGame` function.
+
+```js
+
+```
+
+## 29
+
+### --description--
+
+Within the `startGame` function, set the `"gamePublicKey"` session storage item to the `gamePublicKey` variable value.
+
+### --tests--
+
+You should have `sessionStorage.setItem("gamePublicKey", gamePublicKey.toString());` within the `startGame` function.
+
+```js
+
+```
+
+## 30
+
+### --description--
+
+Within the `startGame` function, declare a `keypairStr` variable set to the `"keypair"` session storage item.
+
+### --tests--
+
+You should have `const keypairStr = sessionStorage.getItem("keypair");` within the `startGame` function.
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Within the `startGame` function, declare a `keypairArr` variable set to the result of calling `JSON.parse` with the `keypairStr` variable.
+
+### --tests--
+
+You should have `const keypairArr = JSON.parse(keypairStr);` within the `startGame` function.
+
+```js
+
+```
+
+## 32
+
+### --description--
+
+Within the `startGame` function, declare a `uint8Arr` variable set to a new `Uint8Array` with the `keypairArr` variable.
+
+### --tests--
+
+You should have `const uint8Arr = new Uint8Array(keypairArr);` within the `startGame` function.
+
+```js
+
+```
+
+## 33
+
+### --description--
+
+Within the `startGame` function, declare a `keypair` variable set to the result of calling `Keypair.fromSecretKey` with the `uint8Arr` variable.
+
+### --tests--
+
+You should have `const keypair = Keypair.fromSecretKey(uint8Arr);` within the `startGame` function.
+
+```js
+
+```
+
+## 34
+
+### --description--
+
+Within the `startGame` function, call the `setupGame` instruction attaching the necessary accounts and signers.
+
+### --tests--
+
+You should have `await program.methods.setupGame(playerTwoPublicKey,gameId).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair]).rpc()` within the `startGame` function.
+
+```js
+
+```
+
+## 35
+
+### --description--
+
+Deriving the public key requires converting the inputs to buffers. Also, the `@coral-xyz/anchor` internals make use of buffers for the transactions.
+
+The browser does not have a Buffer class. Instead, you will need to install the `buffer` package, and attach it to the `window`.
+
+Install the `buffer` package in the `app/` directory.
+
+### --tests--
+
+You should install the `buffer` package.
+
+```js
+
+```
+
+## 36
+
+### --description--
+
+Within the `web3.js` file, import the `Buffer` class named export from the `buffer` package.
+
+### --tests--
+
+You should have `import { Buffer } from "buffer";` within the `web3.js` file.
+
+```js
+
+```
+
+## 37
+
+### --description--
+
+Within the `web3.js` file, attach the `Buffer` class to the `window` using the same name.
+
+### --tests--
+
+You should have `window.Buffer = Buffer;` within the `web3.js` file.
+
+```js
+
+```
+
+## 38
+
+### --description--
+
+Within the `deriveGamePublicKey` function, use the `PublicKey.findProgramAddressSync` function to derive the game public key from the `playerOnePublicKey`, `gameId`, and `programId` parameters. Return the public key.
+
+### --tests--
+
+You should have `return PublicKey.findProgramAddressSync([Buffer.from('game'),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], programId)[0];` within the `deriveGamePublicKey` function.
+
+```js
+
+```
+
+## 39
+
+### --description--
+
+Within `web3.js`, declare a an async `getGameAccount` function.
+
+### --tests--
+
+You should have `async function getGameAccount() {}` within the `web3.js` file.
+
+```js
+
+```
+
+## 40
+
+### --description--
+
+Within the `getGameAccount` function, declare a `gamePublicKey` variable set to the `"gamePublicKey"` session storage item passed to the `PublicKey` constructor.
+
+### --tests--
+
+You should have `const gamePublicKey = new PublicKey(sessionStorage.getItem("gamePublicKey"));` within the `getGameAccount` function.
+
+```js
+
+```
+
+## 41
+
+### --description--
+
+Within the `getGameAccount` function, declare a `gameData` variable set to the result of awaiting a fetch to the `program` variable's `game` account.
+
+### --tests--
+
+You should have `const gameData = await program.account.game.fetch(gamePublicKey);` within the `getGameAccount` function.
+
+```js
+
+```
+
+## 42
+
+### --description--
+
+<!-- TODO: at end, add features of `turnEl.textContent = ... and playerTurnEl.textContent = ...` -->
+
+Within the `getGameAccount` function, return the `gameData` variable.
+
+### --tests--
+
+You should have `return gameData;` within the `getGameAccount` function.
+
+```js
+
+```
+
+## 43
+
+### --description--
+
+Seeing as the game is played by multiple players, the client needs to have the latest game state.
+
+Within the `web3.js` file, declare an async `updateBoard` function.
+
+### --tests--
+
+You should have `async function updateBoard() {}` within the `web3.js` file.
+
+```js
+
+```
+
+## 44
+
+### --description--
+
+Within the `updateBoard` function, declare a `gameData` variable set to the result of calling the `getGameAccount` function.
+
+### --tests--
+
+You should have `const gameData = await getGameAccount();` within the `updateBoard` function.
+
+```js
+
+```
+
+## 45
+
+### --description--
+
+Within the `updateBoard` function, declare a `board` variable set to the `gameData.board` property.
+
+### --tests--
+
+You should have `const board = gameData.board;` within the `updateBoard` function.
+
+```js
+
+```
+
+## 46
+
+### --description--
+
+A utility function has been provided that takes the `board` array, and sets the HTML elements to the correct values.
+
+Within the `web3.js` file, import the `setTiles` function from `./utils.js`, and call it within the `updateBoard` function with the `board` variable.
+
+### --tests--
+
+You should have `setTiles(board);` within the `updateBoard` function.
+
+```js
+
+```
+
+You should import `setTiles` from `./utils.js`.
+
+```js
+
+```
+
+## 47
+
+### --description--
+
+At the end of the `startGame` function, call the `updateBoard` function to ensure after the play, the board is updated.
+
+### --tests--
+
+You should have `await updateBoard();` at the end of the `startGame` function.
+
+```js
+
+```
+
+## 48
+
+### --description--
+
 ## --fcc-end--

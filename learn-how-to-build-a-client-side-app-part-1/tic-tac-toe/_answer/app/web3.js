@@ -2,13 +2,13 @@ import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { Wallet } from './wallet.js';
 import { IDL } from '../target/types/tic_tac_toe';
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
-import * as buffer from 'buffer';
+import { Buffer } from 'buffer';
 import { idToTile, setTiles } from './utils.js';
 
 const turnEl = document.getElementById('turn');
 const playerTurnEl = document.getElementById('player-turn');
 
-window.Buffer = buffer.Buffer;
+window.Buffer = Buffer;
 window.program = null;
 
 export const PROGRAM_ID = new PublicKey(
@@ -43,8 +43,10 @@ export async function startGame() {
   );
   sessionStorage.setItem('gamePublicKey', gamePublicKey.toString());
 
-  const keypairArr = sessionStorage.getItem('keypair');
-  const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairArr)));
+  const keypairStr = sessionStorage.getItem('keypair');
+  const keypairArr = JSON.parse(keypairStr);
+  const uint8Arr = new Uint8Array(keypairArr);
+  const keypair = Keypair.fromSecretKey(uint8Arr);
   await program.methods
     .setupGame(playerTwoPublicKey, gameId)
     .accounts({
@@ -94,8 +96,8 @@ export async function getGameAccount() {
 }
 
 export async function updateBoard() {
-  const gameAccount = await getGameAccount();
-  const board = gameAccount.board;
+  const gameData = await getGameAccount();
+  const board = gameData.board;
 
   setTiles(board);
 }

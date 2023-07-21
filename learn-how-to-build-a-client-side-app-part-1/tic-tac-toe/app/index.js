@@ -33,21 +33,6 @@ connectWalletBtnEl.addEventListener('click', ev => {
   }
 });
 
-tdEls.forEach(tdEl => {
-  tdEl.addEventListener('click', async event => {
-    event.preventDefault();
-    displayError();
-    showLoader();
-    try {
-      // TODO: Play tile
-    } catch (e) {
-      displayError(e);
-    } finally {
-      removeLoader();
-    }
-  });
-});
-
 startGameBtnEl.addEventListener('click', async event => {
   event.preventDefault();
   displayError();
@@ -72,6 +57,21 @@ joinGameBtnEl.addEventListener('click', async event => {
   } finally {
     removeLoader();
   }
+});
+
+tdEls.forEach(tdEl => {
+  tdEl.addEventListener('click', async event => {
+    event.preventDefault();
+    displayError();
+    showLoader();
+    try {
+      // TODO: Play tile
+    } catch (e) {
+      displayError(e);
+    } finally {
+      removeLoader();
+    }
+  });
 });
 
 document.addEventListener('DOMContentLoaded', async _event => {
