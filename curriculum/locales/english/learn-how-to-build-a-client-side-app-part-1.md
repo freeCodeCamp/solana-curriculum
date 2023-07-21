@@ -202,11 +202,11 @@ You should have `export function startGame() {}`.
 
 Another transaction to build is the `play` instruction.
 
-Within `web3.js`, export a named function `handlePlay`.
+Within `web3.js`, export a named function `handlePlay` that expects an `id` argument.
 
 ### --tests--
 
-You should have `export function handlePlay() {}`.
+You should have `export function handlePlay(id) {}`.
 
 ```js
 
@@ -733,11 +733,11 @@ You should have `return gameData;` within the `getGameAccount` function.
 
 Seeing as the game is played by multiple players, the client needs to have the latest game state.
 
-Within the `web3.js` file, declare an async `updateBoard` function.
+Within the `web3.js` file, declare and export an async `updateBoard` function.
 
 ### --tests--
 
-You should have `async function updateBoard() {}` within the `web3.js` file.
+You should have `export async function updateBoard() {}` within the `web3.js` file.
 
 ```js
 
@@ -810,5 +810,188 @@ You should have `await updateBoard();` at the end of the `startGame` function.
 ## 48
 
 ### --description--
+
+Within the `index.js` file, in the `startGameBtnEl` event listener callback, call the `startGame` function at the indicated comment.
+
+### --tests--
+
+You should have `await startGame();` below `// TODO: Create a new game`.
+
+```js
+
+```
+
+You should import `startGame` from `./web3.js`.
+
+```js
+
+```
+
+## 49
+
+### --description--
+
+Within the `index.js` file, in the `joinGameBtnEl` event listener callback, call the `updateBoard` function at the indicated comment.
+
+### --tests--
+
+You should have `await updateBoard();` below `// TODO: Join an existing game`.
+
+```js
+
+```
+
+You should import `updateBoard` from `./web3.js`.
+
+```js
+
+```
+
+## 50
+
+### --description--
+
+Within the `index.js` file, in the `DOMContentLoaded` event listener callback, call the `updateBoard` function at the indicated comment only if the `"gamePublicKey"` session storage item and `program` exist.
+
+### --tests--
+
+You should have `if (program && sessionStorage.getItem("gamePublicKey")) {await updateBoard();}` below `// TODO: If program and gamePublicKey exist, update board`.
+
+```js
+
+```
+
+## 51
+
+### --description--
+
+Within `web3.js` initialize `window.program` to `null`.
+
+### --tests--
+
+You should have `window.program = null;` within the `web3.js` file.
+
+```js
+
+```
+
+## 52
+
+### --description--
+
+Within the `handlePlay` function in `web3.js`, use the utility function `idToTile` to convert the `id` parameter to a `tile` variable.
+
+### --tests--
+
+You should have `const tile = idToTile(id);` within the `handlePlay` function.
+
+```js
+
+```
+
+You should import `idToTile` from `./utils.js`.
+
+```js
+
+```
+
+## 53
+
+### --description--
+
+Within the `handlePlay` function, declare a `keypair` variable set to an instance of the correct `Keypair` value.
+
+### --tests--
+
+You should have `const keypair = new Keypair(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))));` within the `handlePlay` function.
+
+```js
+
+```
+
+## 54
+
+### --description--
+
+Within the `handlePlay` function, declare a `gamePublicKey` variable set to the `"gamePublicKey"` session storage item passed to the `PublicKey` constructor.
+
+### --tests--
+
+You should have `const gamePublicKey = new PublicKey(sessionStorage.getItem("gamePublicKey"));` within the `handlePlay` function.
+
+```js
+
+```
+
+## 55
+
+### --description--
+
+Within the `handlePlay` function, call the `play` instruction attaching the necessary accounts and signers.
+
+### --tests--
+
+You should have `await program.methods.play(tile).accounts({ player: keypair.publicKey, game: gamePublicKey }).signers([keypair]);` within the `handlePlay` function.
+
+```js
+
+```
+
+## 56
+
+### --description--
+
+Within the `handlePlay` function, call the `updateBoard` function.
+
+### --tests--
+
+You should have `await updateBoard();` within the `handlePlay` function.
+
+```js
+
+```
+
+## 57
+
+### --description--
+
+Within the `index.js` file, in the `tdEl` event listener callback, call the `handlePlay` function at the indicated comment. Remember to pass in the `id` of the `tdEl` element.
+
+### --tests--
+
+You should have `await handlePlay(event.target.id);` below `// TODO: Play tile`.
+
+```js
+
+```
+
+You should import `handlePlay` from `./web3.js`.
+
+```js
+
+```
+
+## 58
+
+### --description--
+
+Start the Solana local validator.
+
+Then, opening your browser to the port your app is served on, you should now be able to play a game.
+
+### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
 
 ## --fcc-end--

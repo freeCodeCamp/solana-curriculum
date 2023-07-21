@@ -7,7 +7,6 @@ import {
   connectWallet,
   deriveGamePublicKey,
   handlePlay,
-  joinGame,
   startGame,
   updateBoard
 } from './web3';
@@ -77,7 +76,7 @@ joinGameBtnEl.addEventListener('click', async event => {
   showLoader();
   try {
     // TODO: Camper
-    await joinGame(e);
+    await updateBoard();
   } catch (e) {
     displayError(e);
   } finally {
@@ -140,7 +139,6 @@ function startWithPossibleValues() {
 }
 
 gameIdEl.addEventListener('change', e => {
-  // TODO: Camper
   const gamePublicKey = deriveGamePublicKey(
     new PublicKey(playerOnePublicKeyEl.value),
     e.target.value,

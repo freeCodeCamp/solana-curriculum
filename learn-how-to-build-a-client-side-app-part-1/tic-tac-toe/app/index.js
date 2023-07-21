@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async _event => {
   const interval = setInterval(async () => {
     showLoader();
     try {
-      // TODO: If the program exists, update the board every 3 seconds
+      // TODO: If program and gamePublicKey exist, update board
     } catch (e) {
       console.debug(e);
     } finally {

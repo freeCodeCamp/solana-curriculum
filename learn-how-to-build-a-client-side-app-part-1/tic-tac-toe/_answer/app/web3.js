@@ -63,8 +63,10 @@ export async function handlePlay(id) {
 
   await updateBoard();
 
-  const keypairArr = sessionStorage.getItem('keypair');
-  const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(keypairArr)));
+  const keypairStr = sessionStorage.getItem('keypair');
+  const keypairArr = JSON.parse(keypairStr);
+  const uint8Arr = new Uint8Array(keypairArr);
+  const keypair = Keypair.fromSecretKey(uint8Arr);
   const gamePublicKey = new PublicKey(sessionStorage.getItem('gamePublicKey'));
   await program.methods
     .play(tile)

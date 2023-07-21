@@ -5,7 +5,7 @@ const tableBodyEl = document.querySelector('tbody');
 const tdEls = tableBodyEl.querySelectorAll('td');
 
 /**
- * @param {{x: {}}|{ o: {}} | null} tile
+ * @param {{ x: {} } | { o: {} } | null} tile
  * @returns 'X' | 'O' | ''
  */
 export function tileToString(tile) {
@@ -19,8 +19,7 @@ export function tileToString(tile) {
 }
 
 /**
- *
- * @param {({x: {}}| { o: {}} | null)[][]} board
+ * @param {({ x: {} } | { o: {} } | null)[][]} board
  */
 export function setTiles(board) {
   for (let i = 0; i < 3; i++) {
@@ -46,7 +45,7 @@ export function displayError(error) {
 
 /**
  * @param {number} id
- * @returns {{row: number; column: number}}
+ * @returns {{ row: number; column: number }}
  */
 export function idToTile(id) {
   for (let i = 0; i < 3; i++) {
