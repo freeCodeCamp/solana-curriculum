@@ -975,9 +975,7 @@ You should import `handlePlay` from `./web3.js`.
 
 ### --description--
 
-Start the Solana local validator.
-
-Then, opening your browser to the port your app is served on, you should now be able to play a game.
+Start the Solana local validator, and initialize your two player accounts with funds.
 
 ### --tests--
 
@@ -992,6 +990,131 @@ try {
 } catch (e) {
   assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
 }
+```
+
+The `player-one.json` account should have at least 1 SOL.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/tic-tac-toe/player-one.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  1,
+  'Try running `solana airdrop 1 ./player-one.json` within `tic-tac-toe/`'
+);
+```
+
+The `player-two.json` account should have at least 1 SOL.
+
+```js
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/tic-tac-toe/player-two.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  1,
+  'Try running `solana airdrop 1 ./player-one.json` within `tic-tac-toe/`'
+);
+```
+
+## 59
+
+### --description--
+
+Then, opening your browser to the port your app is served on, you should now be able to play a game.
+
+**NOTE:** Open one tab for each player, add the necessary keypairs, choose a game id, start a game with player one, join the game with player two, then start playing.
+
+### --tests--
+
+The `player-one.json` account should make at least one transaction.
+
+```js
+
+```
+
+The `player-two.json` account should make at least one transaction.
+
+```js
+
+```
+
+## 60
+
+### --description--
+
+Within `web3.js`, you create a new `Connection` with the default level of commitment, _confirmed_:
+
+```js
+new Connetion('http://localhost:8899', 'confirmed');
+```
+
+_Commitment_ refers to the... todo
+
+Play different games changing the level of commitment to see what affect that has on the speed the board updates propagate.
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
+```
+
+## 61
+
+### --description--
+
+Congratulations on finishing this project! Feel free to play with your code.
+
+**Summary**
+
+Interacting with your Anchor program in the browser involves:
+
+- Building the program IDL
+- Attaching `Buffer` to the `window`
+- Connecting to a user's wallet
+- Creating and settings the provider
+- Defining your Anchor `Program`
+- For apps involving shared state between multiple users, it is important to understand the required commitment level for a transaction
+
+Minimal code example:
+
+```javascript
+import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { IDL } from '../path/to/program/idl';
+import { Buffer } from 'buffer';
+
+window.Buffer = Buffer;
+
+const connection = new Connection('network', 'commitment');
+const PROGRAM_ID = new PublicKey('program_publickey');
+
+// Wallet is an interface defined by Anchor, but specific to different vendors
+const wallet = new Wallet();
+const provider = new AnchorProvider(connection, wallet, {});
+setProvider(provider);
+const program = new Program(IDL, PROGRAM_ID, provider);
+```
+
+🎆
+
+Once you are done, enter `done` in the terminal.
+
+### --tests--
+
+You should enter `done` in the terminal
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'done');
 ```
 
 ## --fcc-end--
