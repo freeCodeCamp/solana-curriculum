@@ -121,14 +121,42 @@ await access(join(project.dashedName, 'tic-tac-toe/app/web3.js'));
 
 ### --description--
 
-Within `web3.js`, export a named variable `PROGRAM_OD`, and set it to the public key of your program.
+Within `web3.js`, export a named variable `PROGRAM_ID`, and set it to the public key of your program.
 
 ### --tests--
 
 You should have `export const PROGRAM_ID = new PublicKey(...)`.
 
 ```js
+const codeString = await __helpers.getFile(
+  `${project.dashedName}/tic-tac-toe/app/web3.js`
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const actualCodeString = babelisedCode.generateCode(codeString, {
+  compact: true
+});
 
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
+const expectedCodeStrings = [
+  `export const PROGRAM_ID=new PublicKey('${expectedProgramId}');`,
+  `export const PROGRAM_ID=new PublicKey("${expectedProgramId}");`
+];
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 7
@@ -142,7 +170,21 @@ Within `app/` use `yarn` to install `@solana/web3.js@1.78`.
 You should install version `1.78` of the `@solana/web3.js` package.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    join(project.dashedName, 'tic-tac-toe/app/package.json')
+  )
+);
+assert.property(
+  packageJson.dependencies,
+  '@solana/web3.js',
+  'The `package.json` file should have a `@solana/web3.js` dependency.'
+);
+assert.equal(
+  packageJson.dependencies['@solana/web3.js'],
+  '1.78',
+  'Try running `yarn add @solana/web3.js@1.78` in the terminal.'
+);
 ```
 
 ## 8
@@ -156,7 +198,20 @@ Within `web3.js`, import the `PublicKey` class.
 You should have `import { PublicKey } from "@solana/web3.js"`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'PublicKey',
+  '`PublicKey` should be imported from `@solana/spl-token`'
+);
 ```
 
 ## 9
@@ -177,7 +232,14 @@ Within `web3.js`, export a named function `connectWallet`.
 You should have `export function connectWallet() {}`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
+  return e.declaration.declarations[0].id.name === 'connectWallet';
+});
+assert.exists(exportDeclaration, 'You should export `connectWallet`');
 ```
 
 ## 10
@@ -193,7 +255,14 @@ Within, `web3.js`, export a named function `startGame`.
 You should have `export function startGame() {}`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
+  return e.declaration.declarations[0].id.name === 'startGame';
+});
+assert.exists(exportDeclaration, 'You should export `startGame`');
 ```
 
 ## 11
@@ -209,7 +278,14 @@ Within `web3.js`, export a named function `handlePlay` that expects an `id` argu
 You should have `export function handlePlay(id) {}`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
+  return e.declaration.declarations[0].id.name === 'handlePlay';
+});
+assert.exists(exportDeclaration, 'You should export `handlePlay`');
 ```
 
 ## 12
@@ -225,13 +301,55 @@ Within `web3.js`, declare a variable named `connection`, and set it to connect w
 You should have `const connection = new Connection("http://localhost:8899")`.
 
 ```js
-
+const connectionVariableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'connection');
+assert.exists(
+  connectionVariableDeclaration,
+  'You should declare a variable named `connection`'
+);
+const newExpression = connectionVariableDeclaration.declarations[0].init;
+assert.equal(
+  newExpression.callee.name,
+  'Connection',
+  'You should initialise `connection` with a new `Connection`'
+);
+assert.equal(
+  newExpression.arguments[0].value,
+  'http://localhost:8899',
+  "You should create a new connection with `new Connection('http://localhost:8899')`"
+);
 ```
 
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Connection',
+  '`Connection` should be imported from `@solana/web3.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 13
@@ -247,7 +365,14 @@ Within `web3.js`, export a named function `deriveGamePublicKey` that expects thr
 You should have `export function deriveGamePublicKey(playerOnePublicKey, gameId, programId) {}`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
+  return e.declaration.declarations[0].id.name === 'deriveGamePublicKey';
+});
+assert.exists(exportDeclaration, 'You should export `deriveGamePublicKey`');
 ```
 
 ## 14
@@ -263,25 +388,65 @@ Within `tic-tac-toe/`, create two keypairs: `player-one.json` and `player-two.js
 You should have a `learn-how-to-build-a-client-side-app-part-1/tic-tac-toe/player-one.json` file.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+await access(
+  join(project.dashedName, 'tic-tac-toe/player-one.json'),
+  constants.F_OK
+);
 ```
 
 The `player-one.json` file should contain a valid keypair.
 
 ```js
-
+const keyjson = JSON.parse(
+  await __helpers.getFile(
+    join(project.dashedName, 'tic-tac-toe/player-one.json')
+  )
+);
+try {
+  const { Keypair } = await import('@solana/web3.js');
+  const keypair = Keypair.fromSecretKey(new Uint8Array(keyjson));
+} catch (e) {
+  assert.fail(
+    `Try running \`solana-keygen new --outfile player-one.json\` in the \`tic-tac-toe\` directory:\n\n${JSON.stringify(
+      e,
+      null,
+      2
+    )}`
+  );
+}
 ```
 
 You should have a `learn-how-to-build-a-client-side-app-part-1/tic-tac-toe/player-two.json` file.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+await access(
+  join(project.dashedName, 'tic-tac-toe/player-two.json'),
+  constants.F_OK
+);
 ```
 
 The `player-two.json` file should contain a valid keypair.
 
 ```js
-
+const keyjson = JSON.parse(
+  await __helpers.getFile(
+    join(project.dashedName, 'tic-tac-toe/player-two.json')
+  )
+);
+try {
+  const { Keypair } = await import('@solana/web3.js');
+  const keypair = Keypair.fromSecretKey(new Uint8Array(keyjson));
+} catch (e) {
+  assert.fail(
+    `Try running \`solana-keygen new --outfile player-two.json\` in the \`tic-tac-toe\` directory:\n\n${JSON.stringify(
+      e,
+      null,
+      2
+    )}`
+  );
+}
 ```
 
 ## 15
@@ -297,7 +462,8 @@ Pay attention to the required inputs for the game.
 You should have your app served at `http://localhost:5173`.
 
 ```js
-
+const response = await fetch('http://localhost:5173');
+assert.equal(response.status, 200, 'The server should be running.');
 ```
 
 ## 16
@@ -322,13 +488,64 @@ const keypair = Keypair.fromSecretKey(uint8Arr);
 You should have the above code within the `connectWallet` function.
 
 ```js
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'connectWallet');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `connectWallet`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
 
+const expectedCodeStrings = [
+  `const keypairStr=sessionStorage.getItem('keypair');const keypairArr=JSON.parse(keypairStr);const uint8Arr=new Uint8Array(keypairArr);const keypair=Keypair.fromSecretKey(uint8Arr);`,
+  `const keypairStr=sessionStorage.getItem("keypair");const keypairArr=JSON.parse(keypairStr);const uint8Arr=new Uint8Array(keypairArr);const keypair=Keypair.fromSecretKey(uint8Arr);`
+];
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 You should import `Keypair` from `@solana/web3.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Keypair',
+  '`Keypair` should be imported from `@solana/web3.js`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 17
@@ -344,7 +561,15 @@ Within the `connectWallet` function, create a new `Wallet` instance assigned to 
 You should have `const wallet = new Wallet(keypair);`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const expectedString = `const wallet=new Wallet(keypair);`;
+const actualCodeString = babelisedCode.generateCode(codeString, {
+  compact: true
+});
+assert.include(actualCodeString, expectedString);
 ```
 
 ## 18
@@ -366,13 +591,49 @@ const provider = new AnchorProvider(connection, wallet, {});
 You should have the above code within the `connectWallet` function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'connectWallet');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `connectWallet`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const provider=new AnchorProvider(connection,wallet,{});`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `AnchorProvider` from `@coral-xyz/anchor`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@coral-xyz/anchor';
+});
+assert.exists(importDeclaration, 'You should import from `@coral-xyz/anchor`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'AnchorProvider',
+  '`AnchorProvider` should be imported from `@coral-xyz/anchor`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 19
@@ -386,7 +647,21 @@ Install the `@coral-xyz/anchor@0.28` package.
 You should install version `0.28` of the `@coral-xyz/anchor` package.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    join(project.dashedName, 'tic-tac-toe/app/package.json')
+  )
+);
+assert.property(
+  packageJson.dependencies,
+  '@coral-xyz/anchor',
+  'The `package.json` file should have a `@coral-xyz/anchor` dependency.'
+);
+assert.equal(
+  packageJson.dependencies['@coral-xyz/anchor'],
+  '0.28',
+  'Try running `yarn add @coral-xyz/anchor@0.28` in the terminal.'
+);
 ```
 
 ## 20
@@ -400,13 +675,49 @@ To tell Anchor which provider to use for all transactions, use the `setProvider`
 You should have `setProvider(provider)` within the `connectWallet` function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'connectWallet');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `connectWallet`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `setProvider(provider);`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `setProvider` from `@coral-xyz/anchor`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@coral-xyz/anchor';
+});
+assert.exists(importDeclaration, 'You should import from `@coral-xyz/anchor`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'setProvider',
+  '`setProvider` should be imported from `@coral-xyz/anchor`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 21
@@ -424,7 +735,15 @@ new Program(IDL, PROGRAM_ID, provider);
 You should have the above code within the `connectWallet` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const expectedString = `const program=new Program(IDL,PROGRAM_ID,provider);`;
+const actualCodeString = babelisedCode.generateCode(codeString, {
+  compact: true
+});
+assert.include(actualCodeString, expectedString);
 ```
 
 ## 22
@@ -438,7 +757,16 @@ Import the `IDL` generated by Anchor.
 You should have `import { IDL } from "../target/types/tic_tac_toe";`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '../target/types/tic_tac_toe';
+});
+assert.exists(importDeclaration, 'You should import from `../target/types`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'IDL', '`IDL` should be imported');
 ```
 
 ## 23
@@ -452,7 +780,15 @@ To make the program available globally, attach it to the `window`.
 You should have `window.program = program` in `connectWallet`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const actualCodeString = babelisedCode.generateCode(codeString, {
+  compact: true
+});
+const expectedCodeString = `window.program=program;`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 24
@@ -463,10 +799,24 @@ Now, within the `app/index.js` file, call the `connectWallet` function in the `c
 
 ### --tests--
 
-You should add `connectWallet();` below the `// TODO: Connect to wallet` comment.
+You should add `connectWallet()` below the `// TODO: Connect to wallet` comment.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const callExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => c.callee.object.name === 'connectWalletBtnEl');
+const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  s => s.type === 'TryStatement'
+)?.block;
+const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
+  compact: true
+});
+const expectedCodeString = `connectWallet()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 25
@@ -480,7 +830,38 @@ Within the `startGame` function in `web3.js`, declare a `gameId` variable set to
 You should have `const gameId = sessionStorage.getItem("gameId");` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const gameId=sessionStorage.getItem("gameId")`,
+  `const gameId=sessionStorage.getItem('gameId')`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 26
@@ -494,7 +875,38 @@ Within the `startGame` function, declare a `playerOnePublicKey` variable set to 
 You should have `const playerOnePublicKey = sessionStorage.getItem("playerOnePublicKey");` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const playerOnePublicKey=sessionStorage.getItem("playerOnePublicKey")`,
+  `const playerOnePublicKey=sessionStorage.getItem('playerOnePublicKey')`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 27
@@ -508,7 +920,38 @@ Within the `startGame` function, declare a `playerTwoPublicKey` variable set to 
 You should have `const playerTwoPublicKey = sessionStorage.getItem("playerTwoPublicKey");` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const playerTwoPublicKey=sessionStorage.getItem("playerTwoPublicKey")`,
+  `const playerTwoPublicKey=sessionStorage.getItem('playerTwoPublicKey')`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 28
@@ -522,7 +965,38 @@ Within the `startGame` function, declare a `gamePublicKey` variable set to the r
 You should have `const gamePublicKey = deriveGamePublicKey(playerOnePublicKey, gameId, PROGRAM_ID);` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const gamePublicKey=deriveGamePublicKey(playerOnePublicKey,gameId,PROGRAM_ID)`,
+  `const gamePublicKey=deriveGamePublicKey(playerOnePublicKey,gameId,PROGRAM_ID)`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 29
@@ -536,7 +1010,38 @@ Within the `startGame` function, set the `"gamePublicKey"` session storage item 
 You should have `sessionStorage.setItem("gamePublicKey", gamePublicKey.toString());` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `sessionStorage.setItem("gamePublicKey",gamePublicKey.toString())`,
+  `sessionStorage.setItem('gamePublicKey',gamePublicKey.toString())`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 30
@@ -550,7 +1055,38 @@ Within the `startGame` function, declare a `keypairStr` variable set to the `"ke
 You should have `const keypairStr = sessionStorage.getItem("keypair");` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const keypairStr=sessionStorage.getItem("keypair")`,
+  `const keypairStr=sessionStorage.getItem('keypair')`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 31
@@ -564,7 +1100,38 @@ Within the `startGame` function, declare a `keypairArr` variable set to the resu
 You should have `const keypairArr = JSON.parse(keypairStr);` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeStrings = [
+  `const keypairArr=JSON.parse(keypairStr)`,
+  `const keypairArr=JSON.parse(keypairStr)`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 32
@@ -578,7 +1145,23 @@ Within the `startGame` function, declare a `uint8Arr` variable set to a new `Uin
 You should have `const uint8Arr = new Uint8Array(keypairArr);` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const uint8Arr=new Uint8Array(keypairArr)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 33
@@ -592,7 +1175,23 @@ Within the `startGame` function, declare a `keypair` variable set to the result 
 You should have `const keypair = Keypair.fromSecretKey(uint8Arr);` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const keypair=Keypair.fromSecretKey(uint8Arr)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 34
@@ -606,7 +1205,23 @@ Within the `startGame` function, call the `setupGame` instruction attaching the 
 You should have `await program.methods.setupGame(playerTwoPublicKey,gameId).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair]).rpc()` within the `startGame` function.
 
 ```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
 
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `await program.methods.setupGame(playerTwoPublicKey,gameId).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair]).rpc()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 35
@@ -624,7 +1239,16 @@ Install the `buffer` package in the `app/` directory.
 You should install the `buffer` package.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(
+    join(project.dashedName, 'tic-tac-toe/app/package.json')
+  )
+);
+assert.property(
+  packageJson.dependencies,
+  'buffer',
+  'The `package.json` file should have a `buffer` dependency.'
+);
 ```
 
 ## 36
@@ -638,7 +1262,16 @@ Within the `web3.js` file, import the `Buffer` class named export from the `buff
 You should have `import { Buffer } from "buffer";` within the `web3.js` file.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === 'buffer';
+});
+assert.exists(importDeclaration, 'You should import from `buffer`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'Buffer', '`Buffer` should be imported');
 ```
 
 ## 37
@@ -652,7 +1285,10 @@ Within the `web3.js` file, attach the `Buffer` class to the `window` using the s
 You should have `window.Buffer = Buffer;` within the `web3.js` file.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+assert.match(codeString, /window\.Buffer\s*=\s*Buffer/);
 ```
 
 ## 38
@@ -663,10 +1299,25 @@ Within the `deriveGamePublicKey` function, use the `PublicKey.findProgramAddress
 
 ### --tests--
 
-You should have `return PublicKey.findProgramAddressSync([Buffer.from('game'),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], programId)[0];` within the `deriveGamePublicKey` function.
+You should have `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], programId)[0];` within the `deriveGamePublicKey` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'deriveGamePublicKey');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `deriveGamePublicKey`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)],programId)[0]`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 39
@@ -680,7 +1331,13 @@ Within `web3.js`, declare a an async `getGameAccount` function.
 You should have `async function getGameAccount() {}` within the `web3.js` file.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+assert.match(
+  codeString,
+  /async\s+function\s+getGameAccount\s*\(\s*\)\s*\{\s*\}/
+);
 ```
 
 ## 40
@@ -694,7 +1351,22 @@ Within the `getGameAccount` function, declare a `gamePublicKey` variable set to 
 You should have `const gamePublicKey = new PublicKey(sessionStorage.getItem("gamePublicKey"));` within the `getGameAccount` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getGameAccount');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `getGameAccount`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const gamePublicKey=new PublicKey(sessionStorage.getItem("gamePublicKey"))`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 41
@@ -708,7 +1380,22 @@ Within the `getGameAccount` function, declare a `gameData` variable set to the r
 You should have `const gameData = await program.account.game.fetch(gamePublicKey);` within the `getGameAccount` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getGameAccount');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `getGameAccount`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const gameData=await program.account.game.fetch(gamePublicKey)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 42
@@ -724,7 +1411,22 @@ Within the `getGameAccount` function, return the `gameData` variable.
 You should have `return gameData;` within the `getGameAccount` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'getGameAccount');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `getGameAccount`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `return gameData`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 43
@@ -740,7 +1442,13 @@ Within the `web3.js` file, declare and export an async `updateBoard` function.
 You should have `export async function updateBoard() {}` within the `web3.js` file.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+assert.match(
+  codeString,
+  /export\s+async\s+function\s+updateBoard\s*\(\s*\)\s*\{\s*\}/
+);
 ```
 
 ## 44
@@ -754,7 +1462,22 @@ Within the `updateBoard` function, declare a `gameData` variable set to the resu
 You should have `const gameData = await getGameAccount();` within the `updateBoard` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'updateBoard');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `updateBoard`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const gameData=await getGameAccount()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 45
@@ -768,7 +1491,22 @@ Within the `updateBoard` function, declare a `board` variable set to the `gameDa
 You should have `const board = gameData.board;` within the `updateBoard` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'updateBoard');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `updateBoard`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const board=gameData.board`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 46
@@ -784,13 +1522,45 @@ Within the `web3.js` file, import the `setTiles` function from `./utils.js`, and
 You should have `setTiles(board);` within the `updateBoard` function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'updateBoard');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `updateBoard`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `setTiles(board)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `setTiles` from `./utils.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'You should import from `./utils.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'setTiles', '`setTiles` should be imported');
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 47
@@ -804,7 +1574,22 @@ At the end of the `startGame` function, call the `updateBoard` function to ensur
 You should have `await updateBoard();` at the end of the `startGame` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = global.babelisedCode;
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'startGame');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `startGame`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `await updateBoard()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 48
@@ -825,6 +1610,22 @@ You should import `startGame` from `./web3.js`.
 
 ```js
 
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 49
