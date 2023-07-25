@@ -1603,13 +1603,28 @@ Within the `index.js` file, in the `startGameBtnEl` event listener callback, cal
 You should have `await startGame();` below `// TODO: Create a new game`.
 
 ```js
-
+const callExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => c.callee.object?.name === 'startGameBtnEl');
+const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  s => s.type === 'TryStatement'
+)?.block;
+const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
+  compact: true
+});
+const expectedCodeString = `startGame()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `startGame` from `./web3.js`.
 
 ```js
-
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `./web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'startGame', '`startGame` should be imported');
 ```
 
 ### --before-all--
@@ -1639,13 +1654,48 @@ Within the `index.js` file, in the `joinGameBtnEl` event listener callback, call
 You should have `await updateBoard();` below `// TODO: Join an existing game`.
 
 ```js
-
+const callExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => c.callee.object?.name === 'joinGameBtnEl');
+const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  s => s.type === 'TryStatement'
+)?.block;
+const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
+  compact: true
+});
+const expectedCodeString = `updateBoard()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `updateBoard` from `./web3.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `./web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'updateBoard',
+  '`updateBoard` should be imported'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 50
@@ -1659,7 +1709,25 @@ Within the `index.js` file, in the `DOMContentLoaded` event listener callback, c
 You should have `if (program && sessionStorage.getItem("gamePublicKey")) {await updateBoard();}` below `// TODO: If program and gamePublicKey exist, update board`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const callExpression = babelisedCode
+  .getCallExpressions()
+  .find(
+    c =>
+      c.callee.object?.name === 'document' &&
+      c.callee.property?.name === 'addEventListener'
+  );
+const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  s => s.type === 'TryStatement'
+)?.block;
+const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
+  compact: true
+});
+const expectedCodeString = `if(program&&sessionStorage.getItem("gamePublicKey")){await updateBoard()}`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 51
@@ -1673,7 +1741,10 @@ Within `web3.js` initialize `window.program` to `null`.
 You should have `window.program = null;` within the `web3.js` file.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+assert.match(codeString, /window\.program\s*=\s*null/);
 ```
 
 ## 52
@@ -1687,13 +1758,45 @@ Within the `handlePlay` function in `web3.js`, use the utility function `idToTil
 You should have `const tile = idToTile(id);` within the `handlePlay` function.
 
 ```js
-
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'handlePlay');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `handlePlay`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const tile=idToTile(id)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `idToTile` from `./utils.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './utils.js';
+});
+assert.exists(importDeclaration, 'You should import from `./utils.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'idToTile', '`idToTile` should be imported');
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 53
@@ -1707,7 +1810,22 @@ Within the `handlePlay` function, declare a `keypair` variable set to an instanc
 You should have `const keypair = new Keypair(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))));` within the `handlePlay` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'handlePlay');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `handlePlay`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const keypair=new Keypair(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))))`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 54
@@ -1721,7 +1839,22 @@ Within the `handlePlay` function, declare a `gamePublicKey` variable set to the 
 You should have `const gamePublicKey = new PublicKey(sessionStorage.getItem("gamePublicKey"));` within the `handlePlay` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'handlePlay');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `handlePlay`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `const gamePublicKey=new PublicKey(sessionStorage.getItem("gamePublicKey"))`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 55
@@ -1735,7 +1868,22 @@ Within the `handlePlay` function, call the `play` instruction attaching the nece
 You should have `await program.methods.play(tile).accounts({ player: keypair.publicKey, game: gamePublicKey }).signers([keypair]);` within the `handlePlay` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'handlePlay');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `handlePlay`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `await program.methods.play(tile).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair])`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 56
@@ -1749,7 +1897,22 @@ Within the `handlePlay` function, call the `updateBoard` function.
 You should have `await updateBoard();` within the `handlePlay` function.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'handlePlay');
+assert.exists(
+  functionDeclaration,
+  'You should declare a function named `handlePlay`'
+);
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+const expectedCodeString = `await updateBoard()`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 57
@@ -1763,13 +1926,48 @@ Within the `index.js` file, in the `tdEl` event listener callback, call the `han
 You should have `await handlePlay(event.target.id);` below `// TODO: Play tile`.
 
 ```js
-
+const callExpression = babelisedCode
+  .getCallExpressions()
+  .find(c => c.callee.object?.name === 'tdEl');
+const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  s => s.type === 'TryStatement'
+)?.block;
+const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
+  compact: true
+});
+const expectedCodeString = `handlePlay(event.target.id)`;
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `handlePlay` from `./web3.js`.
 
 ```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `./web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'handlePlay',
+  '`handlePlay` should be imported'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 58
@@ -1834,13 +2032,31 @@ Then, opening your browser to the port your app is served on, you should now be 
 The `player-one.json` account should make at least one transaction.
 
 ```js
+const { Connection, PublicKey } = await import('@solana/web3.js');
+const connection = new Connection('http://localhost:8899', 'confirmed');
 
+const { stdout } = await __helpers.getCommandOutput(
+  `solana address -k ${project.dashedName}/tic-tac-toe/player-one.json`
+);
+const pubkey = new PublicKey(stdout.trim());
+const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+// 2 is used because the first transaction is likely an airdrop
+assert.isAtLeast(transactions, 2, 'Try playing a game with player one');
 ```
 
 The `player-two.json` account should make at least one transaction.
 
 ```js
+const { Connection, PublicKey } = await import('@solana/web3.js');
+const connection = new Connection('http://localhost:8899', 'confirmed');
 
+const { stdout } = await __helpers.getCommandOutput(
+  `solana address -k ${project.dashedName}/tic-tac-toe/player-two.json`
+);
+const pubkey = new PublicKey(stdout.trim());
+const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+// 2 is used because the first transaction is likely an airdrop
+assert.isAtLeast(transactions, 2, 'Try playing a game with player one');
 ```
 
 ## 60
@@ -1853,7 +2069,7 @@ Within `web3.js`, you create a new `Connection` with the default level of commit
 new Connetion('http://localhost:8899', 'confirmed');
 ```
 
-_Commitment_ refers to the... todo
+_Commitment_ refers to the level of confidence you have that a transaction will be included in a block. The higher the level of commitment, the longer it takes for a transaction to be confirmed.
 
 Play different games changing the level of commitment to see what affect that has on the speed the board updates propagate.
 
