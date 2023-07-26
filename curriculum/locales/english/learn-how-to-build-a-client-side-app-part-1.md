@@ -132,7 +132,7 @@ const codeString = await __helpers.getFile(
   `${project.dashedName}/tic-tac-toe/app/web3.js`
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const actualCodeString = babelisedCode.generateCode(codeString, {
+const actualCodeString = babelisedCode.generateCode(babelisedCode.parsedCode, {
   compact: true
 });
 
@@ -236,8 +236,8 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
-  return e.declaration.declarations[0].id.name === 'connectWallet';
+const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
+  return e.declaration?.id?.name === 'connectWallet';
 });
 assert.exists(exportDeclaration, 'You should export `connectWallet`');
 ```
@@ -248,21 +248,22 @@ assert.exists(exportDeclaration, 'You should export `connectWallet`');
 
 For your Tic-Tac-Toe program, the first transaction to build is the `setup_game` instruction.
 
-Within, `web3.js`, export a named function `startGame`.
+Within, `web3.js`, export a named, async function `startGame`.
 
 ### --tests--
 
-You should have `export function startGame() {}`.
+You should have `export async function startGame() {}`.
 
 ```js
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
-  return e.declaration.declarations[0].id.name === 'startGame';
+const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
+  return e.declaration?.id?.name === 'startGame';
 });
 assert.exists(exportDeclaration, 'You should export `startGame`');
+assert.isTrue(exportDeclaration.declaration.async);
 ```
 
 ## 11
@@ -271,19 +272,19 @@ assert.exists(exportDeclaration, 'You should export `startGame`');
 
 Another transaction to build is the `play` instruction.
 
-Within `web3.js`, export a named function `handlePlay` that expects an `id` argument.
+Within `web3.js`, export a named, async function `handlePlay` that expects an `id` argument.
 
 ### --tests--
 
-You should have `export function handlePlay(id) {}`.
+You should have `export async function handlePlay(id) {}`.
 
 ```js
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
-  return e.declaration.declarations[0].id.name === 'handlePlay';
+const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
+  return e.declaration?.id?.name === 'handlePlay';
 });
 assert.exists(exportDeclaration, 'You should export `handlePlay`');
 ```
@@ -358,19 +359,19 @@ delete global.babelisedCode;
 
 Each program game state account requires a game id. This id is used to find the program address on the <dfn title="">ed25519 curve</dfn>.
 
-Within `web3.js`, export a named function `deriveGamePublicKey` that expects three arguments: `playerOnePublicKey`, `gameId`, and `programId`.
+Within `web3.js`, export a named function `deriveGamePublicKey` that expects two arguments: `playerOnePublicKey` and `gameId`.
 
 ### --tests--
 
-You should have `export function deriveGamePublicKey(playerOnePublicKey, gameId, programId) {}`.
+You should have `export function deriveGamePublicKey(playerOnePublicKey, gameId) {}`.
 
 ```js
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getExportDeclarations().find(e => {
-  return e.declaration.declarations[0].id.name === 'deriveGamePublicKey';
+const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
+  return e.declaration?.id?.name === 'deriveGamePublicKey';
 });
 assert.exists(exportDeclaration, 'You should export `deriveGamePublicKey`');
 ```
@@ -561,15 +562,45 @@ Within the `connectWallet` function, create a new `Wallet` instance assigned to 
 You should have `const wallet = new Wallet(keypair);`.
 
 ```js
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'connectWallet');
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
+  compact: true
+});
+  const expectedString = `const wallet=new Wallet(keypair);`;
+assert.include(actualCodeString, expectedString);
+```
+
+You should import `Wallet` from `./wallet.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `./wallet.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'Wallet',
+  '`Wallet` should be imported from `./wallet.js`'
+);
+```
+
+### --before-all--
+
+```js
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const expectedString = `const wallet=new Wallet(keypair);`;
-const actualCodeString = babelisedCode.generateCode(codeString, {
-  compact: true
-});
-assert.include(actualCodeString, expectedString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 18
@@ -739,10 +770,13 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const expectedString = `const program=new Program(IDL,PROGRAM_ID,provider);`;
-const actualCodeString = babelisedCode.generateCode(codeString, {
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find(f => f.id.name === 'connectWallet');
+const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
+  const expectedString = `const program=new Program(IDL,PROGRAM_ID,provider);`;
 assert.include(actualCodeString, expectedString);
 ```
 
@@ -784,7 +818,7 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const actualCodeString = babelisedCode.generateCode(codeString, {
+const actualCodeString = babelisedCode.generateCode(babelisedCode.parsedCode, {
   compact: true
 });
 const expectedCodeString = `window.program=program;`;
@@ -802,14 +836,10 @@ Now, within the `app/index.js` file, call the `connectWallet` function in the `c
 You should add `connectWallet()` below the `// TODO: Connect to wallet` comment.
 
 ```js
-const codeString = await __helpers.getFile(
-  join(project.dashedName, 'tic-tac-toe/app/index.js')
-);
-const babelisedCode = new __helpers.Babeliser(codeString);
 const callExpression = babelisedCode
-  .getCallExpressions()
+  .getType("CallExpression")
   .find(c => c.callee.object.name === 'connectWalletBtnEl');
-const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
 )?.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
@@ -818,6 +848,34 @@ const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
 const expectedCodeString = `connectWallet()`;
 assert.include(actualCodeString, expectedCodeString);
 ```
+
+You should import `connectWallet` from `./web3.js`.
+
+```js
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `./web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'connectWallet', '`connectWallet` should be imported');
+```
+
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'tic-tac-toe/app/index.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+global.babelisedCode = babelisedCode;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
+```
+
 
 ## 25
 
@@ -1295,11 +1353,13 @@ assert.match(codeString, /window\.Buffer\s*=\s*Buffer/);
 
 ### --description--
 
-Within the `deriveGamePublicKey` function, use the `PublicKey.findProgramAddressSync` function to derive the game public key from the `playerOnePublicKey`, `gameId`, and `programId` parameters. Return the public key.
+Within the `deriveGamePublicKey` function, use the `PublicKey.findProgramAddressSync` function to derive the game public key from the `playerOnePublicKey` and `gameId` parameters. Return the public key.
+
+_Remember all the seeds defined for the `tic-tac-toe` program_
 
 ### --tests--
 
-You should have `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], programId)[0];` within the `deriveGamePublicKey` function.
+You should have `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], PROGRAM_ID)[0];` within the `deriveGamePublicKey` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1316,7 +1376,7 @@ assert.exists(
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-const expectedCodeString = `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)],programId)[0]`;
+const expectedCodeString = `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)],PROGRAM_ID)[0]`;
 assert.include(actualCodeString, expectedCodeString);
 ```
 
@@ -1577,7 +1637,7 @@ You should have `await updateBoard();` at the end of the `startGame` function.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
-const babelisedCode = global.babelisedCode;
+const babelisedCode = new __helpers.Babeliser(codeString);
 const functionDeclaration = babelisedCode
   .getFunctionDeclarations()
   .find(f => f.id.name === 'startGame');
@@ -1604,15 +1664,15 @@ You should have `await startGame();` below `// TODO: Create a new game`.
 
 ```js
 const callExpression = babelisedCode
-  .getCallExpressions()
-  .find(c => c.callee.object?.name === 'startGameBtnEl');
-const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+  .getType("CallExpression")
+  .find(c => c.callee?.object?.name === 'startGameBtnEl');
+const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
 )?.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
   compact: true
 });
-const expectedCodeString = `startGame()`;
+const expectedCodeString = `await startGame()`;
 assert.include(actualCodeString, expectedCodeString);
 ```
 
@@ -1655,9 +1715,9 @@ You should have `await updateBoard();` below `// TODO: Join an existing game`.
 
 ```js
 const callExpression = babelisedCode
-  .getCallExpressions()
+  .getType("CallExpression")
   .find(c => c.callee.object?.name === 'joinGameBtnEl');
-const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
 )?.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
@@ -1714,20 +1774,33 @@ const codeString = await __helpers.getFile(
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
 const callExpression = babelisedCode
-  .getCallExpressions()
+  .getType("CallExpression")
   .find(
     c =>
       c.callee.object?.name === 'document' &&
       c.callee.property?.name === 'addEventListener'
   );
-const tryStatementBlock = callExpression.arguments[1]?.body?.find(
-  s => s.type === 'TryStatement'
-)?.block;
+const newBabelisedCode = new __helpers.Babeliser(babelisedCode.generateCode(callExpression));
+const tryStatement = newBabelisedCode.getType("TryStatement")?.[0];
+const tryStatementBlock = tryStatement.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
   compact: true
 });
-const expectedCodeString = `if(program&&sessionStorage.getItem("gamePublicKey")){await updateBoard()}`;
-assert.include(actualCodeString, expectedCodeString);
+const expectedCodeStrings = [`if(program&&sessionStorage.getItem("gamePublicKey")){await updateBoard()`,
+`if(sessionStorage.getItem("gamePublicKey")&&program){await updateBoard()`];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 51
@@ -1807,7 +1880,7 @@ Within the `handlePlay` function, declare a `keypair` variable set to an instanc
 
 ### --tests--
 
-You should have `const keypair = new Keypair(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))));` within the `handlePlay` function.
+You should have `const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))));` within the `handlePlay` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1824,7 +1897,7 @@ assert.exists(
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-const expectedCodeString = `const keypair=new Keypair(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))))`;
+const expectedCodeString = `const keypair=Keypair.fromSecretKey(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))))`;
 assert.include(actualCodeString, expectedCodeString);
 ```
 
@@ -1865,7 +1938,7 @@ Within the `handlePlay` function, call the `play` instruction attaching the nece
 
 ### --tests--
 
-You should have `await program.methods.play(tile).accounts({ player: keypair.publicKey, game: gamePublicKey }).signers([keypair]);` within the `handlePlay` function.
+You should have `await program.methods.play(tile).accounts({ player: keypair.publicKey, game: gamePublicKey }).signers([keypair]).rpc();` within the `handlePlay` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1882,7 +1955,7 @@ assert.exists(
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-const expectedCodeString = `await program.methods.play(tile).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair])`;
+const expectedCodeString = `await program.methods.play(tile).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair]).rpc()`;
 assert.include(actualCodeString, expectedCodeString);
 ```
 
@@ -1927,9 +2000,9 @@ You should have `await handlePlay(event.target.id);` below `// TODO: Play tile`.
 
 ```js
 const callExpression = babelisedCode
-  .getCallExpressions()
+  .getType("CallExpression")
   .find(c => c.callee.object?.name === 'tdEl');
-const tryStatementBlock = callExpression.arguments[1]?.body?.find(
+const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
 )?.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
@@ -1968,6 +2041,66 @@ global.babelisedCode = babelisedCode;
 
 ```js
 delete global.babelisedCode;
+```
+
+## 58
+
+### --description--
+
+Start the Solana local validator, and deploy the tic-tac-toe program.
+
+### --tests--
+
+The validator should be running at `http://localhost:8899`.
+
+```js
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
+```
+
+The tic-tac-toe program should be deployed.
+
+```js
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '
+  {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "BPFLoader2111111111111111111111111111111111", {
+        "encoding": "base64",
+        "dataSlice": {
+          "length": 0,
+          "offset": 0
+        }
+      }
+    ]
+}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/tic-tac-toe`
+);
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.exists(
+    jsonOut.result.find(
+      r => r.pubkey === expectedProgramId
+    )
+  );
+} catch (e) {
+  assert.fail(
+    e,
+    `Try running \`solana-test-validator --bpf-program ${expectedProgramId} ./target/deploy/tic_tac_toe.so --reset\``
+  );
+}
 ```
 
 ## 58
