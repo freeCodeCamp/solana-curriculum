@@ -2103,7 +2103,7 @@ try {
 }
 ```
 
-## 58
+## 59
 
 ### --description--
 
@@ -2152,7 +2152,7 @@ assert.isAtLeast(
 );
 ```
 
-## 59
+## 60
 
 ### --description--
 
@@ -2192,7 +2192,7 @@ const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
 assert.isAtLeast(transactions, 2, 'Try playing a game with player one');
 ```
 
-## 60
+## 61
 
 ### --description--
 
@@ -2217,7 +2217,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'done');
 ```
 
-## 61
+## 62
 
 ### --description--
 
