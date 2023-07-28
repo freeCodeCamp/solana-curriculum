@@ -100,7 +100,7 @@
     "title": "Learn How to Build a Client-Side App: Part 1",
     "dashedName": "learn-how-to-build-a-client-side-app-part-1",
     "isIntegrated": false,
-    "description": "",
+    "description": "In this project, you will learn how to build a multi-player client-side app that interacts with your previously deployed Tic-Tac-Toe game.",
     "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true
@@ -110,7 +110,7 @@
     "title": "Learn How to Build a Client-Side App: Part 2",
     "dashedName": "learn-how-to-build-a-client-side-app-part-2",
     "isIntegrated": false,
-    "description": "",
+    "description": "In this project, you will learn how to use the Phantom browser extension to connect to your local validator, connect your wallet to your dApp, and sign transactions.",
     "isPublic": false,
     "currentLesson": 1,
     "runTestsOnWatch": true
@@ -120,7 +120,7 @@
     "title": "Build a Client-Side App",
     "dashedName": "build-a-client-side-app",
     "isIntegrated": true,
-    "description": "",
+    "description": "In this integrated project, you will use what you previously learnt to build an app your friends can use to message one another.",
     "isPublic": false,
     "currentLesson": 1
   },
