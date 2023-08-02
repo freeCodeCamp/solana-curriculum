@@ -111,7 +111,7 @@
     "dashedName": "learn-how-to-build-a-client-side-app-part-2",
     "isIntegrated": false,
     "description": "In this project, you will learn how to use the Phantom browser extension to connect to your local validator, connect your wallet to your dApp, and sign transactions.",
-    "isPublic": false,
+    "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true
   },

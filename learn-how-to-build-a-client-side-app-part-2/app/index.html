@@ -1,0 +1,83 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./index.css" type="text/css" rel="stylesheet" />
+    <title>Tic-Tac-Toe</title>
+  </head>
+  <body>
+    <form>
+      <label> Keypair:<input type="text" id="keypair" /> </label>
+      <button id="connect-wallet" formaction="#">Connect Wallet</button>
+    </form>
+    <form>
+      <label>New Game ID: <input type="text" id="game-id" /></label>
+      <label>
+        Player One Public Key:
+        <input
+          type="text"
+          required
+          placeholder="e.g. AxfbN..."
+          id="player-one-public-key"
+        />
+      </label>
+      <label>
+        Player Two Public Key:
+        <input
+          type="text"
+          required
+          placeholder="e.g. AxfbN..."
+          id="player-two-public-key"
+        />
+      </label>
+      <label>
+        Game Public Key: <input type="text" id="game-public-key" />
+      </label>
+      <fieldset>
+        <button id="start-game" formaction="#">Start Game</button>
+        <p>OR</p>
+        <button id="join-game" formaction="#">Join Game</button>
+      </fieldset>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Turn:</th>
+          <th id="turn"></th>
+        </tr>
+        <tr>
+          <th>Player:</th>
+          <th id="player-turn"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="0"></td>
+          <td id="1"></td>
+          <td id="2"></td>
+        </tr>
+        <tr>
+          <td id="3"></td>
+          <td id="4"></td>
+          <td id="5"></td>
+        </tr>
+        <tr>
+          <td id="6"></td>
+          <td id="7"></td>
+          <td id="8"></td>
+        </tr>
+      </tbody>
+    </table>
+    <section>
+      <p id="errors"></p>
+      <ul id="keypairs"></ul>
+    </section>
+    <div id="spinner" class="hidden">
+      <div class="lds-ripple">
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </body>
+  <script src="./index.js" type="module"></script>
+</html>
