@@ -121,7 +121,7 @@
     "dashedName": "build-a-client-side-app",
     "isIntegrated": true,
     "description": "In this integrated project, you will use what you previously learnt to build an app your friends can use to message one another.",
-    "isPublic": false,
+    "isPublic": true,
     "currentLesson": 1
   },
   {
