@@ -63,14 +63,13 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     ]
 }'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-const expectedProgramId = '8D2EQasXmadK7bWhRPrkryhAGYtERQzzGMJVGiisUqqh';
 try {
   const jsonOut = JSON.parse(stdout);
-  assert.exists(jsonOut.result.find(r => r.pubkey === expectedProgramId));
+  assert.exists(jsonOut.result.find(r => r.pubkey === __programId));
 } catch (e) {
   assert.fail(
     e,
-    `Try running \`solana-test-validator --bpf-program ${expectedProgramId} mess.so --reset\``
+    `Try running \`solana-test-validator --bpf-program ${__programId} mess.so --reset\``
   );
 }
 ```
@@ -78,49 +77,152 @@ try {
 There should be a keypair named `messer-1.json`.
 
 ```js
+const { access, constants } = await import('fs/promises');
+await access(join(project.dashedName, 'messer-1.json'), constants.F_OK);
 
+try {
+  const { Keypair } = await import('@solana/web3.js');
+  const keypair = Keypair.fromSecretKey(Uint8Array.from(__messer1_json));
+} catch (e) {
+  assert.fail(e, 'Try running `solana-keygen new --outfile messer-1.json`.');
+}
 ```
 
 There should be a keypair named `messer-2.json`.
 
 ```js
+const { access, constants } = await import('fs/promises');
+await access(join(project.dashedName, 'messer-2.json'), constants.F_OK);
 
+try {
+  const { Keypair } = await import('@solana/web3.js');
+  const keypair = Keypair.fromSecretKey(Uint8Array.from(__messer2_json));
+} catch (e) {
+  assert.fail(e, 'Try running `solana-keygen new --outfile messer-2.json`.');
+}
 ```
 
 The `messer-1.json` keypair should have a balance greater than 0 SOL.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/messer-1.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAbove(
+  parseInt(balance),
+  0,
+  'Try running `solana airdrop 1 ./messer-1.json`.'
+);
 ```
 
 The `messer-2.json` keypair should have a balance greater than 0 SOL.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/messer-2.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAbove(
+  parseInt(balance),
+  0,
+  'Try running `solana airdrop 1 ./messer-2.json`.'
+);
 ```
 
 The `chat` account should be initialized.
 
 ```js
-
+const accountInfo = await __connection.getAccountInfo(__chatPublicKey);
+assert.exists(accountInfo);
 ```
 
 The `messer-1.json` keypair should have sent at least 5 messages.
 
 ```js
-
+const pubkey = __messer1_keypair.publicKey;
+const chatData = await program.account.chat.fetch(pubkey);
+const messages = chatData.messages.filter(m => m.sender.equals(pubkey));
+assert.isAtLeast(messages.length, 5);
 ```
 
 The `messer-2.json` keypair should have sent at least 5 messages.
 
 ```js
-
+const pubkey = __messer2_keypair.publicKey;
+const chatData = await program.account.chat.fetch(pubkey);
+const messages = chatData.messages.filter(m => m.sender.equals(pubkey));
+assert.isAtLeast(messages.length, 5);
 ```
 
 At least 20 messages should have been sent.
 
 ```js
+const chatData = await program.account.chat.fetch(__chatPublicKey);
+assert.isAtLeast(chatData.messages.length, 20);
+```
 
+### --before-all--
+
+```js
+const { AnchorProvider, setProvider, Program } = await import(
+  '@coral-xyz/anchor'
+);
+const { PublicKey, Connection, Keypair } = await import('@solana/web3.js');
+
+setProvider(AnchorProvider.env());
+const IDL = JSON.parse(await __helpers.getFile('mess.json'));
+const PROGRAM_ID = new PublicKey(
+  '8D2EQasXmadK7bWhRPrkryhAGYtERQzzGMJVGiisUqqh'
+);
+const program = new Program(IDL, PROGRAM_ID);
+
+const connection = new Connection('http://localhost:8899', 'confirmed');
+
+const [chatPublicKey, _] = PublicKey.findProgramAddressSync(
+  [Buffer.from('global')],
+  new PublicKey('8D2EQasXmadK7bWhRPrkryhAGYtERQzzGMJVGiisUqqh')
+);
+
+try {
+  const messer1_keypair = JSON.parse(
+    await __helpers.getFile(join(project.dashedName, 'messer-1.json'))
+  );
+  const messer2_keypair = JSON.parse(
+    await __helpers.getFile(join(project.dashedName, 'messer-2.json'))
+  );
+  global.__messer1_json = messer1_keypair;
+  global.__messer2_json = messer2_keypair;
+
+  const keypair1 = Keypair.fromSecretKey(Uint8Array.from(__messer1_keypair));
+  const keypair2 = Keypair.fromSecretKey(Uint8Array.from(__messer2_keypair));
+
+  global.__messer1_keypair = keypair1;
+  global.__messer2_keypair = keypair2;
+} catch (e) {
+  logover.warn(
+    'You need to create two keypairs. Try running `solana-keygen new --outfile messer-1.json` and `solana-keygen new --outfile messer-2.json`.',
+    e
+  );
+}
+
+global.__chatPublicKey = chatPublicKey;
+global.__connection = connection;
+global.__programId = PROGRAM_ID;
+global.__program = program;
+```
+
+### --after-all--
+
+```js
+delete global.__messer1_keypair;
+delete global.__messer2_keypair;
+delete global.__chatPublicKey;
+delete global.__messer1_json;
+delete global.__messer2_json;
+delete global.__connection;
+delete global.__programId;
+delete global.__program;
 ```
 
 ## --fcc-end--
