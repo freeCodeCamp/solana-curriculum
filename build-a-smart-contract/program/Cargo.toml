@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 borsh = "0.10.3"
 borsh-derive = "0.10.3"
-solana-program = "1.16.6"
+solana-program = "1.16.7"
 
 [lib]
 name = "message"
