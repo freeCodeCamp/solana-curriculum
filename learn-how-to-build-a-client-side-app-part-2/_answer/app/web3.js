@@ -26,8 +26,7 @@ export async function connectWallet() {
   const wallet = new PhantomWalletAdapter();
   const provider = new AnchorProvider(connection, wallet, {});
   setProvider(provider);
-  const resp = await wallet.connect();
-  console.log(`Connected to: ${resp.publicKey.toString()}`);
+  await wallet.connect();
   const program = new Program(IDL, PROGRAM_ID, provider);
   window.program = program;
 }
@@ -77,7 +76,7 @@ export async function startGame() {
   await program.methods
     .setupGame(playerTwoPublicKey, gameId)
     .accounts({
-      playerOne: playerOnePublicKey,
+      playerOne: window.phantom.solana.publicKey,
       game: gamePublicKey
     })
     .rpc();
@@ -93,7 +92,7 @@ export async function handlePlay(id) {
   await program.methods
     .play(tile)
     .accounts({
-      player: program.provider.wallet.publicKey,
+      player: window.phantom.solana.publicKey,
       game: gamePublicKey
     })
     .rpc();

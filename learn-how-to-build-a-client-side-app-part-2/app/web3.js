@@ -50,7 +50,7 @@ export async function startGame() {
   await program.methods
     .setupGame(playerTwoPublicKey, gameId)
     .accounts({
-      player: keypair.publicKey,
+      playerOne: keypair.publicKey,
       game: gamePublicKey
     })
     .signers([keypair])
@@ -79,11 +79,9 @@ export async function handlePlay(id) {
   await updateBoard();
 }
 
-const a = new TextEncoder();
-
 export function deriveGamePublicKey(playerOnePublicKey, gameId, programId) {
   const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
-    [a.encode('game'), playerOnePublicKey.toBuffer(), a.encode(gameId)],
+    [Buffer.from('game'), playerOnePublicKey.toBuffer(), Buffer.from(gameId)],
     programId
   );
   return gamePublicKey;
