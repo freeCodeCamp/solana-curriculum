@@ -33,7 +33,14 @@ Instead, install the `@solana/wallet-adapter-phantom` package in `app/` to handl
 You should have `@solana/wallet-adapter-phantom` in `app/package.json`.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(join(project.dashedName, 'app/package.json'))
+);
+assert.property(
+  packageJson.dependencies,
+  '@solana/wallet-adapter-phantom',
+  'The `package.json` file should have a `@solana/wallet-adapter-phantom` dependency.'
+);
 ```
 
 ## 3
@@ -47,13 +54,36 @@ Within `web3.js`, replace the `Wallet` import with `PhantomWalletAdapter` from `
 You should not import `Wallet` from `./wallet.js`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === './wallet.js';
+});
+assert.notExists(importDeclaration, 'You should not import from `./wallet.js`');
 ```
 
 You should import `PhantomWalletAdapter` from `@solana/wallet-adapter-phantom`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/wallet-adapter-phantom';
+});
+assert.exists(
+  importDeclaration,
+  'You should import from `@solana/wallet-adapter-phantom`'
+);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(
+  importSpecifiers,
+  'PhantomWalletAdapter',
+  '`PhantomWalletAdapter` should be imported from `@solana/wallet-adapter-phantom`'
+);
 ```
 
 ## 4
@@ -67,25 +97,70 @@ Within the `connectWallet` function, delete all the keypair logic, and assign `w
 You should remove the `keypairArr` declaration from `connectWallet`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypairArr');
+assert.notExists(
+  variableDeclaration,
+  'You should remove the `keypairArr` declaration from `connectWallet`'
+);
 ```
 
 You should remove the `uint` declaration from `connectWallet`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'uint');
+assert.notExists(
+  variableDeclaration,
+  'You should remove the `uint` declaration from `connectWallet`'
+);
 ```
 
 You should remove the `keypair` declaration from `connectWallet`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypair');
+assert.notExists(
+  variableDeclaration,
+  'You should remove the `keypair` declaration from `connectWallet`'
+);
 ```
 
 You should have `const wallet = new PhantomWalletAdapter()` within `connectWallet`.
 
 ```js
+const expectedCodeString = `const wallet=new PhantomWalletAdapter()`;
+const actualCodeString = babelisedCode.generate(babelisedCode.parsedCode, {
+  compact: true
+});
+assert.include(actualCodeString, expectedCodeString);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedConnectWallet = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode
+      .getFunctionDeclarations()
+      .find(f => f.id.name === 'connectWallet')
+  )
+);
+global.babelisedCode = babelisedConnectWallet;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 5
@@ -99,25 +174,72 @@ Similarly, remove all the keypair logic within the `startGame` function.
 You should remove the `keypairStr` declaration from `startGame`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypairStr');
+assert.notExists(
+  variableDeclaration,
+  'A `keypairStr` declaration should not exist in `startGame`'
+);
 ```
 
 You should remove the `keypairArr` declaration from `startGame`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypairArr');
+assert.notExists(
+  variableDeclaration,
+  'A `keypairArr` declaration should not exist in `startGame`'
+);
 ```
 
 You should remove the `uint8Array` declaration from `startGame`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'uint8Array');
+assert.notExists(
+  variableDeclaration,
+  'A `uint8Array` declaration should not exist in `startGame`'
+);
 ```
 
 You should remove the `keypair` declaration from `startGame`.
 
 ```js
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypair');
+assert.notExists(
+  variableDeclaration,
+  'A `keypair` declaration should not exist in `startGame`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedConnectWallet = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode
+      .getFunctionDeclarations()
+      .find(f => f.id.name === 'connectWallet')
+  )
+);
+global.babelisedCode = babelisedConnectWallet;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 6
@@ -133,7 +255,21 @@ Within `startGame`, set the `playerOne` account public key to `window.phantom.so
 You should have `.accounts({playerOne:window.phantom.solana.publicKey})` within `startGame`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedStartGame = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode.getFunctionDeclarations().find(f => f.id.name === 'startGame')
+  )
+);
+const expectedCodeString = `.accounts({playerOne:window.phantom.solana.publicKey})`;
+const actualCodeString = babelisedStartGame.generate(
+  babelisedStartGame.parsedCode,
+  { compact: true }
+);
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 7
@@ -147,7 +283,21 @@ Within `startGame`, seeing as the wallet is handling the signing, remove the `ke
 You should remove `.signers([keypair])` from `startGame`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedStartGame = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode.getFunctionDeclarations().find(f => f.id.name === 'startGame')
+  )
+);
+const expectedCodeString = `.signers([keypair])`;
+const actualCodeString = babelisedStartGame.generate(
+  babelisedStartGame.parsedCode,
+  { compact: true }
+);
+assert.notInclude(actualCodeString, expectedCodeString);
 ```
 
 ## 8
@@ -161,25 +311,72 @@ Within `startGame`, remove the keypair logic from the `handlePlay` function.
 You should remove the `keypairStr` declaration from `handlePlay`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypairStr');
+assert.notExists(
+  variableDeclaration,
+  'A `keypairStr` declaration should not exist in `handlePlay`'
+);
 ```
 
 You should remove the `keypairArr` declaration from `handlePlay`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypairArr');
+assert.notExists(
+  variableDeclaration,
+  'A `keypairArr` declaration should not exist in `handlePlay`'
+);
 ```
 
 You should remove the `uint8Array` declaration from `handlePlay`.
 
 ```js
-
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'uint8Array');
+assert.notExists(
+  variableDeclaration,
+  'A `uint8Array` declaration should not exist in `handlePlay`'
+);
 ```
 
 You should remove the `keypair` declaration from `handlePlay`.
 
 ```js
+const variableDeclaration = babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.id.name === 'keypair');
+assert.notExists(
+  variableDeclaration,
+  'A `keypair` declaration should not exist in `handlePlay`'
+);
+```
 
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedConnectWallet = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode
+      .getFunctionDeclarations()
+      .find(f => f.id.name === 'connectWallet')
+  )
+);
+global.babelisedCode = babelisedConnectWallet;
+```
+
+### --after-all--
+
+```js
+delete global.babelisedCode;
 ```
 
 ## 9
@@ -193,7 +390,23 @@ Within `handlePlay`, remove the `keypair` as a `signer` to the rpc call.
 You should remove `.signers([keypair])` from `handlePlay`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedHandlePlay = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode
+      .getFunctionDeclarations()
+      .find(f => f.id.name === 'handlePlay')
+  )
+);
+const expectedCodeString = `.signers([keypair])`;
+const actualCodeString = babelisedHandlePlay.generate(
+  babelisedHandlePlay.parsedCode,
+  { compact: true }
+);
+assert.notInclude(actualCodeString, expectedCodeString);
 ```
 
 ## 10
@@ -207,7 +420,23 @@ Within `handlePlay`, set the `player` account public key to the public key of th
 You should have `.accounts({player:window.phantom.solana.publicKey})` within `handlePlay`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'app/web3.js')
+);
+const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedHandlePlay = new __helpers.Babeliser(
+  babelisedCode.generate(
+    babelisedCode
+      .getFunctionDeclarations()
+      .find(f => f.id.name === 'handlePlay')
+  )
+);
+const expectedCodeString = `.accounts({player:window.phantom.solana.publicKey})`;
+const actualCodeString = babelisedHandlePlay.generate(
+  babelisedHandlePlay.parsedCode,
+  { compact: true }
+);
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 ## 11
@@ -678,52 +907,17 @@ Congratulations on finishing this project! Feel free to play with your code.
 
 **Summary**:
 
-1. Navigate to https://phantom.app/
-2. Install the Phantom browser extension
-   ![Alt text](image.png)
-   ![Alt text](image-1.png)
-   ![Alt text](image-2.png)
-   ![Alt text](image-3.png)
-   ![Alt text](image-4.png)
-   ![Alt text](image-5.png)
-   ![Alt text](image-6.png)
-   ![Alt text](image-7.png)
-   ![Alt text](image-8.png)
-   ![Alt text](image-9.png)
-   ![Alt text](image-10.png)
-   ![Alt text](image-11.png)
-   ![Alt text](image-12.png)
-3. Start validator:
+1. Install the wallet adapter/s: `@solana/wallet-adapter-<WALLET>`
+2. Navigate to https://phantom.app/
+3. Install the Phantom browser extension
+4. Start a local validator:
 
 ```bash
 solana-test-validator --bpf-program <PROGRAM_ID> ./tic_tac_toe.so --reset
 ```
 
-4. Get public key:
-   ![Alt text](image-13.png)
-5. Airdrop
-6. Navigate to app
-7. Connect wallet
-   ![Alt text](image-14.png)
-8. Create second wallet:
-
-![Alt text](image-15.png)
-
-![Alt text](image-16.png)
-
-9. Rename wallets to Player 1 and Player 2
-
-![Alt text](image-17.png)
-
-10. Airdrop to player 2
-
-11. Connect player 2 to app
-
-![Alt text](image-18.png)
-
-12. Approve transaction
-
-![Alt text](image-19.png)
+5. Airdrop to your wallet account
+6. Connect your wallet to your app
 
 🎆
 

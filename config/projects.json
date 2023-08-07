@@ -103,7 +103,8 @@
     "description": "In this project, you will learn how to build a multi-player client-side app that interacts with your previously deployed Tic-Tac-Toe game.",
     "isPublic": true,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 62
   },
   {
     "id": 10,
@@ -111,9 +112,10 @@
     "dashedName": "learn-how-to-build-a-client-side-app-part-2",
     "isIntegrated": false,
     "description": "In this project, you will learn how to use the Phantom browser extension to connect to your local validator, connect your wallet to your dApp, and sign transactions.",
-    "isPublic": true,
-    "currentLesson": 1,
-    "runTestsOnWatch": true
+    "isPublic": false,
+    "currentLesson": 13,
+    "runTestsOnWatch": true,
+    "numberOfLessons": 35
   },
   {
     "id": 11,
@@ -122,7 +124,8 @@
     "isIntegrated": true,
     "description": "In this integrated project, you will use what you previously learnt to build an app your friends can use to message one another.",
     "isPublic": true,
-    "currentLesson": 1
+    "currentLesson": 1,
+    "numberOfLessons": 1
   },
   {
     "id": 12,
@@ -132,7 +135,8 @@
     "description": "",
     "isPublic": false,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 1
   },
   {
     "id": 13,
@@ -142,7 +146,8 @@
     "description": "",
     "isPublic": false,
     "currentLesson": 1,
-    "runTestsOnWatch": true
+    "runTestsOnWatch": true,
+    "numberOfLessons": 1
   },
   {
     "id": 14,
