@@ -37,7 +37,8 @@
       "description": "Learn the Solana toolchain, and test your new-found skills.",
       "faq-link": "#",
       "faq-text": "https://github.com/freeCodeCamp/solana-curriculum/issues"
-    }
+    },
+    "static": { "/images/phantom": "./curriculum/images/phantom" }
   },
   "config": {
     "projects.json": "./config/projects.json",
