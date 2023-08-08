@@ -477,7 +477,13 @@ assert.include(lastCommand, 'done');
 
 Click the "Download" button, and follow your browser's instructions to add the extension.
 
-![Phantom browser extension download page](image.png)
+![Phantom browser extension download page](../../images/phantom/image.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -496,7 +502,13 @@ After installing the extension, click the Phantom icon in your browser's toolbar
 
 Create a password, and click "Continue".
 
-![Phantom browser extension password creation](image-2.png)
+![Phantom browser extension password creation](../../images/phantom/image-2.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -513,7 +525,13 @@ assert.include(lastCommand, 'done');
 
 Take note of your secret recovery phrase. This is the only way to recover your wallet if you forget your password, and can be used to import your wallet into other browsers/platforms. Then, click "Continue".
 
-![Phantom browser extension secret recovery phrase](image-3.png)
+![Phantom browser extension secret recovery phrase](../../images/phantom/image-3.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -530,7 +548,13 @@ assert.include(lastCommand, 'done');
 
 Finish reading the setup information, and click the Phantom icon in your browser's toolbar to open the extension.
 
-![Phantom browser extension setup information](image-4.png)
+![Phantom browser extension setup information](../../images/phantom/image-4.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -547,7 +571,13 @@ assert.include(lastCommand, 'done');
 
 You should a UI similar to:
 
-![Phantom browser extension landing page](image-5.png)
+![Phantom browser extension landing page](../../images/phantom/image-5.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 Open the menubar by clicking the three dots in the top left corner.
 
@@ -566,7 +596,13 @@ assert.include(lastCommand, 'done');
 
 Open the settings page:
 
-![Phantom browser extension settings button](image-6.png)
+![Phantom browser extension settings button](../../images/phantom/image-6.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -583,7 +619,13 @@ assert.include(lastCommand, 'done');
 
 Click the "Developer Settings" button.
 
-![Phantom browser extension developer settings button](image-7.png)
+![Phantom browser extension developer settings button](../../images/phantom/image-7.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -600,7 +642,13 @@ assert.include(lastCommand, 'done');
 
 Enable the "Testnet Mode" in order to connect to your local validator.
 
-![Phantom browser extension testnet mode](image-8.png)
+![Phantom browser extension testnet mode](../../images/phantom/image-8.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -617,7 +665,13 @@ assert.include(lastCommand, 'done');
 
 Click the Solana network button.
 
-![Phantom browser extension solana network button](image-9.png)
+![Phantom browser extension solana network button](../../images/phantom/image-9.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -634,7 +688,13 @@ assert.include(lastCommand, 'done');
 
 Select the "Solana Localnet" option.
 
-![Phantom browser extension solana localnet option](image-10.png)
+![Phantom browser extension solana localnet option](../../images/phantom/image-10.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -651,7 +711,13 @@ assert.include(lastCommand, 'done');
 
 From the menubar, click the account to edit it.
 
-![Phantom browser extension account button](image-12.png)
+![Phantom browser extension account button](../../images/phantom/image-12.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -668,7 +734,13 @@ assert.include(lastCommand, 'done');
 
 Change the account name to `Player 1` to help you keep track of it.
 
-![Phantom browser extension account name](image-12.png)
+![Phantom browser extension account name](../../images/phantom/image-12.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -733,7 +805,13 @@ try {
 
 Within the Phantom browser extension, click on your account name to get your Solana public key:
 
-![Phantom browser extension account public key](image-13.png)
+![Phantom browser extension account public key](../../images/phantom/image-13.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -782,7 +860,13 @@ Within your browser, navigate to http://localhost:5173/. You should see the clie
 
 Connect your wallet to the app by clicking the "Connect Wallet" button.
 
-![Phantom browser extension connect wallet button](image-14.png)
+![Phantom browser extension connect wallet button](../../images/phantom/image-14.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -799,9 +883,15 @@ assert.include(lastCommand, 'done');
 
 Within the Phantom browser extension, create a second Solana account:
 
-![Phantom browser extension create account button](image-15.png)
+![Phantom browser extension create account button](../../images/phantom/image-15.png)
 
-![Phantom browser extension create account button](image-16.png)
+<style>
+  img {
+    width: 100%;
+  }
+</style>
+
+![Phantom browser extension create account button](../../images/phantom/image-16.png)
 
 ### --tests--
 
@@ -818,7 +908,13 @@ assert.include(lastCommand, 'done');
 
 Rename the second account to `Player 2`:
 
-![Phantom browser extension rename account button](image-17.png)
+![Phantom browser extension rename account button](../../images/phantom/image-17.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -869,7 +965,13 @@ Within the client app, click the start game button.
 
 The Phantom browser extension should prompt you to approve the transaction. Approve it.
 
-![Phantom browser extension approve transaction](image-19.png)
+![Phantom browser extension approve transaction](../../images/phantom/image-19.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 
@@ -886,9 +988,15 @@ assert.include(lastCommand, 'done');
 
 Once the game is started, you can play the game by opening a second browser window, and connecting to the second account.
 
-![Phantom browser extension connect wallet button](image-18.png)
+![Phantom browser extension connect wallet button](../../images/phantom/image-18.png)
 
-![Phantom browser extension approve transaction](image-19.png)
+![Phantom browser extension approve transaction](../../images/phantom/image-19.png)
+
+<style>
+  img {
+    width: 100%;
+  }
+</style>
 
 ### --tests--
 

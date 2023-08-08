@@ -4,7 +4,6 @@ ARG REPO_NAME=solana-curriculum
 ARG HOMEDIR=/workspace/$REPO_NAME
 
 WORKDIR ${HOMEDIR}
-ENV HOME=${HOMEDIR}
 
 RUN bash -c 'VERSION="18" \
     && source $HOME/.nvm/nvm.sh && nvm install $VERSION \
