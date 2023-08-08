@@ -62,7 +62,7 @@ assert.equal(actualProgramId, expectedProgramId);
 
 Build the program.
 
-### --tests
+### --tests--
 
 The program should successfully build.
 
@@ -210,7 +210,7 @@ const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(
   importSpecifiers,
   'PublicKey',
-  '`PublicKey` should be imported from `@solana/spl-token`'
+  '`PublicKey` should be imported from `@solana/web3.js`'
 );
 ```
 
@@ -236,9 +236,11 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
-  return e.declaration?.id?.name === 'connectWallet';
-});
+const exportDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    return e.declaration?.id?.name === 'connectWallet';
+  });
 assert.exists(exportDeclaration, 'You should export `connectWallet`');
 ```
 
@@ -259,9 +261,11 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
-  return e.declaration?.id?.name === 'startGame';
-});
+const exportDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    return e.declaration?.id?.name === 'startGame';
+  });
 assert.exists(exportDeclaration, 'You should export `startGame`');
 assert.isTrue(exportDeclaration.declaration.async);
 ```
@@ -283,9 +287,11 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
-  return e.declaration?.id?.name === 'handlePlay';
-});
+const exportDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    return e.declaration?.id?.name === 'handlePlay';
+  });
 assert.exists(exportDeclaration, 'You should export `handlePlay`');
 ```
 
@@ -370,9 +376,11 @@ const codeString = await __helpers.getFile(
   join(project.dashedName, 'tic-tac-toe/app/web3.js')
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
-const exportDeclaration = babelisedCode.getType("ExportNamedDeclaration").find(e => {
-  return e.declaration?.id?.name === 'deriveGamePublicKey';
-});
+const exportDeclaration = babelisedCode
+  .getType('ExportNamedDeclaration')
+  .find(e => {
+    return e.declaration?.id?.name === 'deriveGamePublicKey';
+  });
 assert.exists(exportDeclaration, 'You should export `deriveGamePublicKey`');
 ```
 
@@ -568,7 +576,7 @@ const functionDeclaration = babelisedCode
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-  const expectedString = `const wallet=new Wallet(keypair);`;
+const expectedString = `const wallet=new Wallet(keypair);`;
 assert.include(actualCodeString, expectedString);
 ```
 
@@ -776,7 +784,7 @@ const functionDeclaration = babelisedCode
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-  const expectedString = `const program=new Program(IDL,PROGRAM_ID,provider);`;
+const expectedString = `const program=new Program(IDL,PROGRAM_ID,provider);`;
 assert.include(actualCodeString, expectedString);
 ```
 
@@ -837,7 +845,7 @@ You should add `connectWallet()` below the `// TODO: Connect to wallet` comment.
 
 ```js
 const callExpression = babelisedCode
-  .getType("CallExpression")
+  .getType('CallExpression')
   .find(c => c.callee.object.name === 'connectWalletBtnEl');
 const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
@@ -857,7 +865,11 @@ const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
 });
 assert.exists(importDeclaration, 'You should import from `./web3.js`');
 const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
-assert.include(importSpecifiers, 'connectWallet', '`connectWallet` should be imported');
+assert.include(
+  importSpecifiers,
+  'connectWallet',
+  '`connectWallet` should be imported'
+);
 ```
 
 ### --before-all--
@@ -875,7 +887,6 @@ global.babelisedCode = babelisedCode;
 ```js
 delete global.babelisedCode;
 ```
-
 
 ## 25
 
@@ -1664,7 +1675,7 @@ You should have `await startGame();` below `// TODO: Create a new game`.
 
 ```js
 const callExpression = babelisedCode
-  .getType("CallExpression")
+  .getType('CallExpression')
   .find(c => c.callee?.object?.name === 'startGameBtnEl');
 const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
@@ -1715,7 +1726,7 @@ You should have `await updateBoard();` below `// TODO: Join an existing game`.
 
 ```js
 const callExpression = babelisedCode
-  .getType("CallExpression")
+  .getType('CallExpression')
   .find(c => c.callee.object?.name === 'joinGameBtnEl');
 const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
@@ -1774,20 +1785,24 @@ const codeString = await __helpers.getFile(
 );
 const babelisedCode = new __helpers.Babeliser(codeString);
 const callExpression = babelisedCode
-  .getType("CallExpression")
+  .getType('CallExpression')
   .find(
     c =>
       c.callee.object?.name === 'document' &&
       c.callee.property?.name === 'addEventListener'
   );
-const newBabelisedCode = new __helpers.Babeliser(babelisedCode.generateCode(callExpression));
-const tryStatement = newBabelisedCode.getType("TryStatement")?.[0];
+const newBabelisedCode = new __helpers.Babeliser(
+  babelisedCode.generateCode(callExpression)
+);
+const tryStatement = newBabelisedCode.getType('TryStatement')?.[0];
 const tryStatementBlock = tryStatement.block;
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
   compact: true
 });
-const expectedCodeStrings = [`if(program&&sessionStorage.getItem("gamePublicKey")){await updateBoard()`,
-`if(sessionStorage.getItem("gamePublicKey")&&program){await updateBoard()`];
+const expectedCodeStrings = [
+  `if(program&&sessionStorage.getItem("gamePublicKey")){await updateBoard()`,
+  `if(sessionStorage.getItem("gamePublicKey")&&program){await updateBoard()`
+];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
   return new Promise((resolve, reject) => {
@@ -2000,7 +2015,7 @@ You should have `await handlePlay(event.target.id);` below `// TODO: Play tile`.
 
 ```js
 const callExpression = babelisedCode
-  .getType("CallExpression")
+  .getType('CallExpression')
   .find(c => c.callee.object?.name === 'tdEl');
 const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
   s => s.type === 'TryStatement'
@@ -2090,11 +2105,7 @@ const { stdout: keys } = await __helpers.getCommandOutput(
 const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
 try {
   const jsonOut = JSON.parse(stdout);
-  assert.exists(
-    jsonOut.result.find(
-      r => r.pubkey === expectedProgramId
-    )
-  );
+  assert.exists(jsonOut.result.find(r => r.pubkey === expectedProgramId));
 } catch (e) {
   assert.fail(
     e,
