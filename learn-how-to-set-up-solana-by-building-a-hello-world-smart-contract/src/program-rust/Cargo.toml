@@ -21,7 +21,7 @@ borsh-derive = "0.10.3"
 solana-program = "1.16.7"
 
 [dev-dependencies]
-solana-sdk = "1.16.7"
+solana-sdk = "1.16.8"
 
 [lib]
 name = "helloworld"
