@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "4.4.8"
+    "vite": "4.4.9"
   },
   "dependencies": {
     "@solana/web3.js": "1.78.2",
