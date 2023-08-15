@@ -9,11 +9,11 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@babel/parser": "7.22.7",
+    "@babel/parser": "7.22.10",
     "@freecodecamp/freecodecamp-os": "1.10.0",
     "@metaplex-foundation/js": "0.19.3",
     "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.78.3",
+    "@solana/web3.js": "1.78.4",
     "babeliser": "0.6.0",
     "borsh": "0.7.0"
   }
