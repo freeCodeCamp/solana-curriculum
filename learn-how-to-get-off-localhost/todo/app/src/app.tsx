@@ -2,67 +2,47 @@ import {
   ChangeEvent,
   FormEvent,
   MouseEventHandler,
-  createContext,
-  useContext,
   useEffect,
   useRef,
   useState
 } from 'react';
-import { IDL, Todo } from '../../target/types/todo';
 import './app.css';
-import { AnchorProvider, Program, Wallet } from '@coral-xyz/anchor';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { Buffer } from 'buffer';
+import {
+  FILTER_MAP,
+  FILTER_NAMES,
+  FilterButtonT,
+  Filters,
+  FormT,
+  Task,
+  TodoT,
+  usePrevious
+} from './utils';
 
-window.Buffer = Buffer;
-
-type Task = {
-  id: number;
-  name: string;
-  completed: boolean;
-};
-
-const FILTER_MAP = {
-  All: () => true,
-  Active: (task: Task) => !task.completed,
-  Completed: (task: Task) => task.completed
-} as const;
-
-const FILTER_NAMES = Object.keys(FILTER_MAP) as Array<keyof typeof FILTER_MAP>;
-
-type Filters = keyof typeof FILTER_MAP;
-
-const PROGRAM_ID = new PublicKey(
-  '9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2'
-);
-const ProgramContext = createContext<Program<Todo> | null>(null);
-// TODO: use .env for endpoint
-const connection = new Connection('http://localhost:8899', 'confirmed');
+// TODO:1 Attach Buffer to window
+// TODO:2 Create PROGRAM_ID
+// TODO:3 Get ENDPOINT from env
+// TODO:4 Create Connection
+// TODO:5 Create wallet adapter
+// TODO:6 Create ProgramContext from IDL
 
 export function App() {
-  const [program, setProgram] = useState<Program<Todo> | null>(null);
-  const wallet = new PhantomWalletAdapter();
-  // TODO: If wallet is connected, and todos account exists, set loggedIn to true
+  // TODO:6 Initialise program state
+
   const connectWallet: MouseEventHandler<HTMLButtonElement> = async e => {
     e.preventDefault();
-    await wallet.connect();
-    console.log(wallet.publicKey);
-    if (isWalletConnected(wallet)) {
-      const provider = new AnchorProvider(connection, wallet, {});
-      const program = new Program(IDL, PROGRAM_ID, provider);
-      setProgram(program);
-    }
+    // TODO:7 Connect wallet
+    // TODO:8 Check if wallet is connected
+    // TODO:9 Create provider
+    // TODO:10 Create program
+    // TODO:11 Set program
   };
-  return (
-    <ProgramContext.Provider value={program}>
-      {program ? <Landing /> : <LogIn connectWallet={connectWallet} />}
-    </ProgramContext.Provider>
-  );
-}
 
-function isWalletConnected(wallet: any): wallet is Wallet {
-  return wallet.publicKey !== null;
+  return (
+    // TODO:13 Wrap page in program context provider
+    <>
+      {/* TODO:12 If program is set, show landing page, otherwise show login page */}
+    </>
+  );
 }
 
 function LogIn({
@@ -80,30 +60,20 @@ function LogIn({
   );
 }
 
-export function Landing() {
+function Landing() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<Filters>('All');
-  const program = useContext(ProgramContext);
+  // TODO:14 Use program context
+
+  async function loadTasksFromChain() {
+    // TODO:15 If program is connected,
+    // TODO:16 Derive tasks account public key
+    // TODO:17 Fetch the tasksAccount data
+    // TODO:18 Set tasks state
+  }
 
   useEffect(() => {
-    (async () => {
-      if (program && program.provider.publicKey) {
-        try {
-          const [tasksPublicKey, _] = await PublicKey.findProgramAddress(
-            [program.provider.publicKey.toBuffer()],
-            PROGRAM_ID
-          );
-
-          const tasks = await program?.account.tasksAccount.fetch(
-            tasksPublicKey
-          );
-          setTasks(tasks?.tasks ?? []);
-        } catch (e) {
-          // Program data account likely does not exist
-          console.warn(e);
-        }
-      }
-    })();
+    loadTasksFromChain();
   }, []);
 
   function toggleTaskCompleted(id: number) {
@@ -124,7 +94,6 @@ export function Landing() {
   function editTask(id: number, newName: string) {
     const editedTaskList = tasks.map(task => {
       if (id === task.id) {
-        //
         return { ...task, name: newName };
       }
       return task;
@@ -139,19 +108,7 @@ export function Landing() {
   }
 
   async function saveTasksToChain() {
-    // TODO: Save tasks to chain
-    if (program && program.provider.publicKey) {
-      const [tasksPublicKey, _] = await PublicKey.findProgramAddress(
-        [program.provider.publicKey.toBuffer()],
-        PROGRAM_ID
-      );
-      await program.methods
-        .saveTasks(tasks)
-        .accounts({
-          tasks: tasksPublicKey
-        })
-        .rpc();
-    }
+    // TODO:19 If program exists, derive tasks account public key, and initiate `save_tasks` instruction
   }
 
   const taskList = tasks
@@ -210,23 +167,6 @@ export function Landing() {
     </div>
   );
 }
-
-function usePrevious<T>(value: T) {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
-
-type TodoT = {
-  name: string;
-  id: number;
-  completed: boolean;
-  toggleTaskCompleted: (id: number) => void;
-  deleteTask: (id: number) => void;
-  editTask: (id: number, newName: string) => void;
-};
 
 function TodoC({
   name,
@@ -335,10 +275,6 @@ function TodoC({
   return <li className='todo'>{isEditing ? editingTemplate : viewTemplate}</li>;
 }
 
-type FormT = {
-  addTask: (name: string) => void;
-};
-
 function Form({ addTask }: FormT) {
   const [name, setName] = useState('');
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -372,12 +308,6 @@ function Form({ addTask }: FormT) {
     </form>
   );
 }
-
-type FilterButtonT = {
-  name: Filters;
-  isPressed: boolean;
-  setFilter: (name: Filters) => void;
-};
 
 function FilterButton({ name, isPressed, setFilter }: FilterButtonT) {
   return (

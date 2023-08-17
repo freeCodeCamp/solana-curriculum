@@ -10,9 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "0.28.1-beta.1",
-    "@solana/wallet-adapter-phantom": "0.9.24",
-    "@solana/web3.js": "1.78.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
