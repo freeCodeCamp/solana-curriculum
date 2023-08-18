@@ -36,11 +36,10 @@ pub mod todo {
 
         // If length of tasks is not equal to the length of replacing_tasks, then
         // reallocate the tasks account.
-        if tasks.tasks.len() != replacing_tasks.len() {
-            let new_len = 8 + TASK_SIZE * replacing_tasks.len();
+        if tasks.tasks.len() < replacing_tasks.len() {
+            let new_space = 8 + TASK_SIZE * replacing_tasks.len();
 
-            let rent = Rent::get()?;
-            let new_minimum_balance = rent.minimum_balance(new_len);
+            let new_minimum_balance = Rent::get()?.minimum_balance(new_space);
 
             let tasks_account_info = tasks.to_account_info();
 
@@ -53,7 +52,7 @@ pub mod todo {
             **tasks_account_info.try_borrow_mut_lamports()? += lamports_diff;
 
             // Allocate the new space for the tasks account.
-            tasks_account_info.realloc(new_len, true)?;
+            tasks_account_info.realloc(new_space, false)?;
         }
 
         tasks.tasks = replacing_tasks;
