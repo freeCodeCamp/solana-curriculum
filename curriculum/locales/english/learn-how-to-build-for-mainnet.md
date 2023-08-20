@@ -2104,7 +2104,7 @@ pub enum ErrorCode {
 
 ### --description--
 
-Use the `msg` attribute macro to add human-readable error messages to the `ErrorCode` enum:
+Finally for the program, use the `msg` attribute macro to add human-readable error messages to the `ErrorCode` enum:
 
 ```rust
 #[error_code]
@@ -2229,7 +2229,23 @@ pub enum ErrorCode {
 
 ### --description--
 
+With the program complete, the client app can be wired to use it.
+
+Within `app/src/app.tsx`, under the `TODO:1` comment, attach the `Buffer` to the `window`.
+
 ### --tests--
+
+You should have `window.Buffer = Buffer`.
+
+```js
+
+```
+
+You should import `Buffer` from `buffer`.
+
+```js
+
+```
 
 ### --seed--
 
@@ -2324,6 +2340,164 @@ pub enum ErrorCode {
     TaskIdNotUnique,
 }
 ```
+
+## 30
+
+### --description--
+
+Within `app/` use `yarn` to install the `@solana/web3.js` package.
+
+### --tests--
+
+You should have `@solana/web3.js` in your `package.json` dependencies.
+
+```js
+
+```
+
+## 31
+
+### --description--
+
+Under the `TODO:2` comment, declare a `PROGRAM_ID` variable, and assign it the value of the program's id as a `PublicKey`.
+
+### --tests--
+
+You should have `const PROGRAM_ID = new PublicKey("...")`.
+
+```js
+
+```
+
+You should import `PublicKey` from `@solana/web3.js`.
+
+```js
+
+```
+
+## 32
+
+### --description--
+
+Under the `TODO:3` comment, declare an `ENDPOINT` variable, and assign it the value of `import.meta.VITE_SOLANA_CONNECTION_URL` or default to `http://localhost:8899`.
+
+**Note:** `import.meta.VITE_*` is a way to access environemnt variables in a Vitejs app during build time.
+
+### --tests--
+
+You should have `const ENDPOINT = import.meta.VITE_SOLANA_CONNECTION_URL || "http://localhost:8899";`.
+
+```js
+
+```
+
+## 33
+
+### --description--
+
+Under the `TODO:4` comment, declare a `connection` variable, and assign it the value of a new `Connection` instance with the `ENDPOINT`, and choose a suitable commitment level for a production app.
+
+### --tests--
+
+You should have `const connection = new Connection(ENDPOINT, ...);`.
+
+```js
+
+```
+
+The commitment config should be `"confirmed"` or `"finalized"`.
+
+```js
+
+```
+
+You should import `Connection` from `@solana/web3.js`.
+
+```js
+
+```
+
+## 34
+
+### --description--
+
+Within `app/` use `yarn` to install the `@solana/wallet-adapter-phantom` package.
+
+### --tests--
+
+You should have `@solana/wallet-adapter-phantom` in your `package.json` dependencies.
+
+```js
+
+```
+
+## 35
+
+### --description--
+
+Under the `TODO:5` comment, declare a `wallet` variable as a new instance of the wallet adapter.
+
+### --tests--
+
+You should have `const wallet = new PhantomWalletAdapter;`.
+
+```js
+
+```
+
+You should import `PhantomWalletAdapter` from `@solana/wallet-adapter-phantom`.
+
+```js
+
+```
+
+## 36
+
+### --description--
+
+Within `app/` use `yarn` to install the `@coral-xyz/anchor` package.
+
+### --tests--
+
+You should have `@coral-xyz/anchor` in your `package.json` dependencies.
+
+```js
+
+```
+
+## 37
+
+### --description--
+
+Under the `TODO:6` comment, declare a React context variable, `ProgramContext`, for the program in order to access the program throughout the application components.
+
+```typescript
+const MyContext = createContext<Type | null>(null);
+```
+
+### --tests--
+
+You should have `const ProgramContext = createContext<Program<Todo> | null>(null);`.
+
+```js
+
+```
+
+You should import `createContext` from `react`.
+
+```js
+
+```
+
+You should import `Program` from `@coral-xyz/anchor`.
+
+```js
+
+```
+
+## 38
+
+### --description--
 
 ## 50
 
