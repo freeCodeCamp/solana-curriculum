@@ -1,4 +1,4 @@
-# Solana - Learn How to Get Off Localhost
+# Solana - Learn How to Build for Mainnet
 
 ## 1
 
@@ -2104,7 +2104,35 @@ pub enum ErrorCode {
 
 ### --description--
 
+Use the `msg` attribute macro to add human-readable error messages to the `ErrorCode` enum:
+
+```rust
+#[error_code]
+enum MyErrorEnum {
+    #[msg("My error message")]
+    MyError,
+}
+```
+
 ### --tests--
+
+The `TaskNameTooLong` variant should be annotated with a message.
+
+```js
+
+```
+
+The `TaskNameTooShort` variant should be annotated with a message.
+
+```js
+
+```
+
+The `TaskIdNotUnique` variant should be annotated with a message.
+
+```js
+
+```
 
 ### --seed--
 
@@ -2202,6 +2230,100 @@ pub enum ErrorCode {
 ### --description--
 
 ### --tests--
+
+### --seed--
+
+#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+
+```rust
+use anchor_lang::prelude::*;
+
+declare_id!("9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2");
+
+#[program]
+pub mod todo {
+    use super::*;
+
+    pub fn save_tasks(ctx: Context<SaveTasks>, replacing_tasks: Vec<Task>) -> Result<()> {
+        // Check that the task name is not too long.
+        for task in replacing_tasks.iter() {
+            if task.name.len() > 32 {
+                return Err(ErrorCode::TaskNameTooLong.into());
+            }
+        }
+
+        // Check that the task name is not too short.
+        for task in replacing_tasks.iter() {
+            if task.name.len() < 1 {
+                return Err(ErrorCode::TaskNameTooShort.into());
+            }
+        }
+
+        // Check that the task id is unique.
+        for (i, task) in replacing_tasks.iter().enumerate() {
+            for (j, other_task) in replacing_tasks.iter().enumerate() {
+                if i != j && task.id == other_task.id {
+                    return Err(ErrorCode::TaskIdNotUnique.into());
+                }
+            }
+        }
+
+        let tasks = &mut ctx.accounts.tasks;
+
+        if tasks.tasks.len() < replacing_tasks.len() {
+            let new_space = 8 + 4 + (4 + 32) + 1 * replacing_tasks.len();
+            let new_minimum_balance = Rent::get()?.minimum_balance(new_space);
+            let tasks_account_info = tasks.to_account_info();
+            let lamports_diff = new_minimum_balance.saturating_sub(tasks_account_info.lamports());
+
+            **ctx
+                .accounts
+                .user
+                .to_account_info()
+                .try_borrow_mut_lamports()? -= lamports_diff;
+            **tasks_account_info.try_borrow_mut_lamports()? += lamports_diff;
+
+            tasks_account_info.realloc(new_space, false)?;
+        }
+
+        tasks.tasks = replacing_tasks;
+
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+#[instruction(replacing_tasks: Vec<Task>)]
+pub struct SaveTasks<'info> {
+    #[account(init_if_needed, space = 8 + replacing_tasks.len() * (4 + (4 + 32) + 1), payer = user, seeds = [user.key().as_ref()], bump)]
+    pub tasks: Account<'info, TasksAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[account]
+pub struct TasksAccount {
+    pub tasks: Vec<Task>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct Task {
+    pub id: u32,
+    pub name: String,
+    pub completed: bool,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("The task name must be less than 32 characters.")]
+    TaskNameTooLong,
+    #[msg("The task name must be at least 1 character.")]
+    TaskNameTooShort,
+    #[msg("The task id must be unique.")]
+    TaskIdNotUnique,
+}
+```
 
 ## 50
 

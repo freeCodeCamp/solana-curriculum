@@ -129,11 +129,11 @@
   },
   {
     "id": 12,
-    "title": "Learn How to Get Off Localhost",
-    "dashedName": "learn-how-to-get-off-localhost",
+    "title": "Learn How to Build for Mainnet",
+    "dashedName": "learn-how-to-build-for-mainnet",
     "isIntegrated": false,
-    "description": "",
-    "isPublic": false,
+    "description": "In this project, you will learn how to build a dApp from start to finish, preparing for deployment to mainnet-beta.",
+    "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
     "numberOfLessons": 1
@@ -143,8 +143,8 @@
     "title": "Learn How to Deploy to Devnet",
     "dashedName": "learn-how-to-deploy-to-devnet",
     "isIntegrated": false,
-    "description": "",
-    "isPublic": false,
+    "description": "In this project, you will learn how to put an app on the public devnet.",
+    "isPublic": true,
     "currentLesson": 1,
     "runTestsOnWatch": true,
     "numberOfLessons": 1
@@ -154,8 +154,8 @@
     "title": "Build and Deploy Your Freeform App",
     "dashedName": "build-and-deploy-your-freeform-app",
     "isIntegrated": true,
-    "description": "",
-    "isPublic": false,
+    "description": "The final project of this course. Use what you have learnt to build and deploy your own app to the public devnet or mainnet-beta, and share your work with the world!",
+    "isPublic": true,
     "currentLesson": 1,
     "numberOfLessons": 1
   }
