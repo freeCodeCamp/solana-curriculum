@@ -26,21 +26,21 @@ import {
 // TODO:6 Create ProgramContext from IDL
 
 export function App() {
-  // TODO:6 Initialise program state
+  // TODO:7 Initialise program state
 
   const connectWallet: MouseEventHandler<HTMLButtonElement> = async e => {
     e.preventDefault();
-    // TODO:7 Connect wallet
-    // TODO:8 Check if wallet is connected
-    // TODO:9 Create provider
-    // TODO:10 Create program
-    // TODO:11 Set program
+    // TODO:8 Connect wallet
+    // TODO:9 Check if wallet is connected
+    // TODO:10 Create provider
+    // TODO:11 Create program
+    // TODO:12 Set program
   };
 
   return (
-    // TODO:13 Wrap page in program context provider
+    // TODO:14 Wrap page in program context provider
     <>
-      {/* TODO:12 If program is set, show landing page, otherwise show login page */}
+      {/* TODO:13 If program is set, show landing page, otherwise show login page */}
     </>
   );
 }
@@ -63,13 +63,13 @@ function LogIn({
 function Landing() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<Filters>('All');
-  // TODO:14 Use program context
+  // TODO:15 Use program context
 
   async function loadTasksFromChain() {
-    // TODO:15 If program is connected,
-    // TODO:16 Derive tasks account public key
-    // TODO:17 Fetch the tasksAccount data
-    // TODO:18 Set tasks state
+    // TODO:16 If program is connected,
+    // TODO:17 Derive tasks account public key
+    // TODO:18 Fetch the tasksAccount data
+    // TODO:19 Set tasks state
   }
 
   useEffect(() => {
@@ -108,7 +108,7 @@ function Landing() {
   }
 
   async function saveTasksToChain() {
-    // TODO:19 If program exists, derive tasks account public key, and initiate `save_tasks` instruction
+    // TODO:20 If program exists, derive tasks account public key, and initiate `save_tasks` instruction
   }
 
   const taskList = tasks
