@@ -2229,19 +2229,11 @@ pub enum ErrorCode {
 
 ### --description--
 
-With the program complete, the client app can be wired to use it.
-
-Within `app/src/app.tsx`, under the `TODO:1` comment, attach the `Buffer` to the `window`.
+Build the program to get the IDL for your client app.
 
 ### --tests--
 
-You should have `window.Buffer = Buffer`.
-
-```js
-
-```
-
-You should import `Buffer` from `buffer`.
+You should build the program.
 
 ```js
 
@@ -2339,6 +2331,28 @@ pub enum ErrorCode {
     #[msg("The task id must be unique.")]
     TaskIdNotUnique,
 }
+```
+
+## 30
+
+### --description--
+
+With the program complete, the client app can be wired to use it. The `app/` directory has a React app built with Vite. If you do not know React, do not worry; very little of the integration is React-specific.
+
+Within `app/src/app.tsx`, under the `TODO:1` comment, attach the `Buffer` to the `window`.
+
+### --tests--
+
+You should have `window.Buffer = Buffer`.
+
+```js
+
+```
+
+You should import `Buffer` from `buffer`.
+
+```js
+
 ```
 
 ## 30
@@ -2499,14 +2513,314 @@ You should import `Program` from `@coral-xyz/anchor`.
 
 ### --description--
 
+Under the `TODO:7` comment, declare a program state variable:
+
+```typescript
+const [program, setProgram] = useState<Type | null>(null);
+```
+
+### --tests--
+
+You should have `const [program, setProgram] = useState<Program<Todo> | null>(null);`.
+
+```js
+
+```
+
+You should import `useState` from `react`.
+
+```js
+
+```
+
+## 39
+
+### --description--
+
+Under the `TODO:8` comment, connect to the wallet.
+
+### --tests--
+
+You should have `await wallet.connect()`.
+
+```js
+
+```
+
+## 40
+
+### --description--
+
+Under the `TODO:9` comment, add an `if` statement with a condition to check if the wallet is actually connected. You can use the provided `isWalletConnected` function from `./utils.ts`.
+
+### --tests--
+
+You should have `if (isWalletConnected(wallet)) {}`.
+
+```js
+
+```
+
+You should import `isWalletConnected` from `./utils`.
+
+```js
+
+```
+
+## 41
+
+### --description--
+
+Under the `TODO:10` comment, and within the `if` statement, declare a `provider` variable as a new Anchor provider.
+
+### --tests--
+
+You should have `const provider = new AnchorProvider(connection, wallet, {})`.
+
+```js
+
+```
+
+You should import `AnchorProvider` from `@coral-xyz/anchor`.
+
+```js
+
+```
+
+## 42
+
+### --description--
+
+Under the `TODO:11` comment, and within the `if` statement, declare a `program` variable as an instance of an Anchor program.
+
+### --tests--
+
+You should have `const program = new Program(IDL, PROGRAM_ID, provider)`.
+
+```js
+
+```
+
+You should import `IDL` from `../../target/types/todo`.
+
+```js
+
+```
+
+## 43
+
+### --description--
+
+Under the `TODO:12` comment, and within the `if` statment, use the `setProgram` function to set the `program` state variable to `program`.
+
+### --tests--
+
+You should have `setProgram(program)`.
+
+```js
+
+```
+
+## 44
+
+### --description--
+
+Under the `TODO:13` comment, conditionally either render the `Landing` page or the `LogIn` page based on whether the `program` is set:
+
+```tsx
+<>{condition ? <Landing /> : <LogIn connectWallet={connectWallet} />}</>
+```
+
+### --tests--
+
+You should have `<>{program ? <Landing /> : LogIn connectWallet={connectWallet} />}</>`.
+
+```js
+
+```
+
+## 45
+
+### --description--
+
+Under the `TODO:14` comment, replace the component fragment (`<></>`) with a context provider for the program:
+
+```tsx
+<ProgramContext.Provider value={program}></ProgramContext.Provider>
+```
+
+### --tests--
+
+You should have `<ProgramContext.Provider value={program}>{program ? <Landing /> : LogIn connectWallet={connectWallet} />}</ProgramContext.Provider>`.
+
+```js
+
+```
+
+## 46
+
+### --description--
+
+The `Landing` component fetches any tasks associated with a connected account, and handles the main logic for displaying ToDos.
+
+Under the `TODO:15` comment, declare a `program` variable with the program context hook:
+
+```js
+const state = useContext(MyContext);
+```
+
+### --tests--
+
+You should have `const program = useContext(ProgramContext)`.
+
+```js
+
+```
+
+You should import `useContext` from `react`.
+
+```js
+
+```
+
+## 47
+
+### --description--
+
+Under the `TODO:16` comment, add an `if` statement with a condition to check if the program exists.
+
+### --tests--
+
+You should have `if (program) {}`.
+
+```js
+
+```
+
+## 48
+
+### --description--
+
+Under the `TODO:17` comment, and within the `if` statement, declare a `tasksPublicKey` variable with a value of the program derived address.
+
+### --tests--
+
+You should have `const [tasksPublicKey, _] = PublicKey.findProgramAddressSync([program.provider.publicKey.toBuffer()], PROGRAM_ID)`.
+
+```js
+
+```
+
+## 49
+
+### --description--
+
+Under the `TODO:18` comment, and within the `if` statement, declare a `tasks` variable with a value of the program's task account.
+
+### --tests--
+
+You should have `const tasks = await program.account.tasksAccount.fetch(tasksPublicKey)`.
+
+```js
+
+```
+
 ## 50
 
 ### --description--
 
+Under the `TODO:19` comment, and within the `if` statement, call the `setTasks` function with the tasks data.
+
+### --tests--
+
+You should have `setTasks(tasks.tasks)`.
+
+```js
+
+```
+
+## 51
+
+### --description--
+
+Under the `TODO:20` comment, ensure the program exists, derive the program address, and save the `tasks` state to the program's task account.
+
+### --tests--
+
+You should have `if (program) { ... }`.
+
+```js
+
+```
+
+You should have `const [tasksPublicKey, _] = PublicKey.findProgramAddressSync([program.provider.publicKey.toBuffer()], PROGRAM_ID)`.
+
+```js
+
+```
+
+You should have `await program.methods.saveTasks(tasks).accounts({ tasks: tasksPublicKey }).rpc()`.
+
+```js
+
+```
+
+## 52
+
+### --description--
+
+Your client app is finished!
+
+Before testing, set the environment variables. Within `todo/` create a `.env` file, and add `VITE_SOLANA_CONNECTION_URL=http://localhost:8899`.
+
+### --tests--
+
+You should create a `todo/.env` file.
+
+```js
+
+```
+
+You should set the `VITE_SOLANA_CONNECTION_URL` variable to `http://localhost:8899`.
+
+```js
+
+```
+
+## 53
+
+### --description--
+
+Start a local Solana cluster with the program deployed.
+
+Then, start the client app with `yarn dev` in the `app/` directory.
+
+### --tests--
+
+You should start a local Solana cluster.
+
+```js
+
+```
+
+You should deploy the program to the local cluster.
+
+```js
+
+```
+
+You should start the client app server.
+
+```js
+
+```
+
+## 54
+
+### --description--
+
+Open the client app in your browser, and connect your Phantom wallet, and play with your app making a few transactions.
+
 **Summary**
 
 ## --fcc-end--
-
-```
-
-```
