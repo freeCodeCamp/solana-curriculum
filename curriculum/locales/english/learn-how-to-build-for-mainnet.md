@@ -2821,6 +2821,12 @@ You should start the client app server.
 
 Open the client app in your browser, and connect your Phantom wallet, and play with your app making a few transactions.
 
-**Summary**
+### --tests--
+
+You should perform a few transactions using the client interface.
+
+```js
+
+```
 
 ## --fcc-end--

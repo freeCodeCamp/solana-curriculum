@@ -10,6 +10,8 @@ You have learnt a lot about the Solana ecosystem, and how to build on it. Now, i
 
 You can use whatever tools you want to build your app, and you are encouraged to explore the library ecosystem to find the best tools for the job.
 
+- You can use <https://beta.solpg.io/> to develop most of your dApp in your browser.
+
 ### Concepts Covered
 
 - Accounts
@@ -28,7 +30,6 @@ You can use whatever tools you want to build your app, and you are encouraged to
 
 ### Tools Covered
 
-- You can use <https://beta.solpg.io/> to develop most of your dApp in your browser.
 - Solana CLI
 - `@solana/web3.js`
 - `@solana/spl-token`
