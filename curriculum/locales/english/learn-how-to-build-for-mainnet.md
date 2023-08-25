@@ -123,25 +123,46 @@ Within the `SaveTasks` struct, add a public `tasks` account with a type of `Acco
 The `SaveTasks` struct should have a `pub tasks` field.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /pub\s+tasks/);
 ```
 
 The `tasks` field should be annotated with `#[account()]`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /#\[\s*account\(/);
 ```
 
 The `tasks` field should have a type of `Account<'info, TasksAccount>`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(
+  saveTasks,
+  /pub\s+tasks\s*:\s*Account\s*<\s*'info\s*,\s*TasksAccount\s*>/
+);
 ```
 
 The `SaveTasks` struct should be generic over a lifetime of `'info`.
 
 ```js
+assert.match(__librs, /struct\s+SaveTasks\s*<\s*'info\s*>/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -179,13 +200,34 @@ Anchor provides an `init_if_needed` argument for this purpose. Pass it as an arg
 The `tasks` field should be annotated with `#[account(init_if_needed)]`.
 
 ```js
-
+const saveTasks = __librs.match(
+  /struct\s+SaveTasks\s*<\s*'info\s*>\s*{([^}]*)}/s
+)?.[1];
+assert.match(saveTasks, /#\[\s*account\s*\(\s*init_if_needed\s*\)\s*\]/);
 ```
 
 The `anchor-lang` dependency should have a `features` array with a value of `["init-if-needed"]`.
 
 ```js
+const cargoToml = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/Cargo.toml`
+);
+assert.match(cargoToml, /features\s*=\s*\[\s*"init-if-needed"\s*\]/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -224,19 +266,40 @@ Define a public `TasksAccount` struct with a `tasks` field of type `Vec<Task>`. 
 The `TasksAccount` struct should be annotated with `#[account]`.
 
 ```js
-
+assert.match(__librs, /#\[\s*account\s*\]\s*pub\s+struct\s+TasksAccount/);
 ```
 
 The `TasksAccount` struct should have a `tasks` field.
 
 ```js
-
+const tasksAccount = __librs.match(
+  /pub\s+struct\s+TasksAccount[^{]*{([^}]*)}/s
+)?.[1];
+assert.match(tasksAccount, /pub\s+tasks/);
 ```
 
 The `tasks` field should have a type of `Vec<Task>`.
 
 ```js
+const tasksAccount = __librs.match(
+  /pub\s+struct\s+TasksAccount[^{]*{([^}]*)}/s
+)?.[1];
+assert.match(tasksAccount, /pub\s+tasks\s*:\s*Vec\s*<\s*Task\s*>/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -299,37 +362,57 @@ Define a public `Task` struct with an `id` file of type `u32`, a `name` field of
 The `Task` struct should have an `id` field.
 
 ```js
-
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+id/);
 ```
 
 The `id` field should have a type of `u32`.
 
 ```js
-
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+id\s*:\s*u32/);
 ```
 
 The `Task` struct should have a `name` field.
 
 ```js
-
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+name/);
 ```
 
 The `name` field should have a type of `String`.
 
 ```js
-
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+name\s*:\s*String/);
 ```
 
 The `Task` struct should have a `completed` field.
 
 ```js
-
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+completed/);
 ```
 
 The `completed` field should have a type of `bool`.
 
 ```js
+const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -373,7 +456,25 @@ Derive the necessary traits for the `Task` struct.
 The `Task` struct should be annotated with `#[derive(AnchorSerialize, AnchorDeserialize, Clone)]`.
 
 ```js
+assert.match(
+  __librs,
+  /#\[\s*derive\s*\(\s*AnchorSerialize\s*,\s*AnchorDeserialize\s*,\s*Clone\s*\)\s*\]\s*pub\s+struct\s+Task/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -425,13 +526,34 @@ Add the expected argument.
 The `save_tasks` instruction handle should have a `replacing_tasks` argument.
 
 ```js
-
+assert.match(
+  __libr.rs,
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks/s
+);
 ```
 
 The `replacing_tasks` argument should have a type of `Vec<Task>`.
 
 ```js
+assert.match(
+  __libr.rs,
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)/s
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -482,25 +604,46 @@ Create a public `ErrorCode` enum with the following variants: `TaskNameTooLong`,
 The `ErrorCode` enum should have a `TaskNameTooLong` variant.
 
 ```js
-
+const errorCode = __librs.match(/pub\s+enum\s+ErrorCode\s*{([^}]*)}/s)?.[1];
+assert.match(errorCode, /TaskNameTooLong/);
 ```
 
 The `ErrorCode` enum should have a `TaskNameTooShort` variant.
 
 ```js
-
+const errorCode = __librs.match(/pub\s+enum\s+ErrorCode\s*{([^}]*)}/s)?.[1];
+assert.match(errorCode, /TaskNameTooShort/);
 ```
 
 The `ErrorCode` enum should have a `TaskIdNotUnique` variant.
 
 ```js
-
+const errorCode = __librs.match(/pub\s+enum\s+ErrorCode\s*{([^}]*)}/s)?.[1];
+assert.match(errorCode, /TaskIdNotUnique/);
 ```
 
 The `ErrorCode` enum should be annotated with `#[error_code]`.
 
 ```js
+assert.match(
+  __librs,
+  /#\[\s*error_code\s*\]\s*pub\s+enum\s+ErrorCode\s*{([^}]*)}/s
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -551,7 +694,28 @@ Within the `save_tasks` instruction handle, return an error if any of the task n
 The `save_tasks` instruction handle should return `Err(ErrorCode::TaskNameTooLong.into())` if any of the task names are greater than 32 characters.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /Err\s*\(\s*ErrorCode::TaskNameTooLong\s*\)\s*\.\s*into\s*\(\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -609,7 +773,28 @@ Within the `save_tasks` instruction handle, return an error if any of the task n
 The `save_tasks` instruction handle should return `Err(ErrorCode::TaskNameTooShort.into())` if any of the task names are less than 1 character.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /Err\s*\(\s*ErrorCode::TaskNameTooShort\s*\)\s*\.\s*into\s*\(\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -673,7 +858,28 @@ Within the `save_tasks` instruction handle, return an error if any of the task i
 The `save_tasks` instruction handle should return `Err(ErrorCode::TaskIdNotUnique.into())` if any of the task ids are not unique.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /Err\s*\(\s*ErrorCode::TaskIdNotUnique\s*\)\s*\.\s*into\s*\(\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -749,19 +955,42 @@ When initializing the `TasksAccount` account, set the `space` argument to:
 The `SaveTasks` struct `tasks` field should be annotated with `#[account(space = ...)]`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /\s*space\s*=\s*\]/);
 ```
 
 The `space` argument should be set to `8 + replacing_tasks.len() * (4 + (4 + 32) + 1)`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(
+  saveTasks,
+  /\s*space\s*=\s*8\s*\+\s*replacing_tasks\.len\s*\(\s*\)\s*\*\s*\(\s*4\s*\+\s*\(\s*4\s*\+\s*32\s*\)\s*\+\s*1\s*\)/
+);
 ```
 
 The `SaveTasks` struct should be annotated with `#[instruction(replacing_tasks: Vec<Task>)]`.
 
 ```js
+assert.match(
+  __librs,
+  /#\[instruction\s*\(\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*\]/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -842,25 +1071,44 @@ Set the payer of the `TasksAccount` account to `user`, and declare a public `use
 The `SaveTasks` struct should have a `pub user` field.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /pub\s+user/);
 ```
 
 The `user` field should have a type of `Signer<'info>`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /pub\s+user\s*:\s*Signer\s*<\s*'\s*info\s*>\s*,/);
 ```
 
 The `user` field should be annotated with `#[account(mut)]`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /#[^#]*account\s*\(\s*mut\s*\)/);
 ```
 
 The `tasks` field should be annotated with `#[account(payer = user)]`.
 
 ```js
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /payer\s*=\s*user/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -942,13 +1190,33 @@ Seeing as each ToDo will be related to a specific user, set the seeds of the `Ta
 The `tasks` field should be annotated with `#[account(seeds = [user.key().as_ref()])]`.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(
+  saveTasks,
+  /seeds\s*=\s*\[\s*user\.key\s*\(\s*\)\s*\.\s*as_ref\s*\(\s*\)\s*\]/
+);
 ```
 
 The `tasks` field should be annotated with `#[account(bump)]`.
 
 ```js
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /bump/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1032,13 +1300,33 @@ Include the necessary program to initialize a data account owned by your program
 The `SaveTasks` struct should have a `pub system_program` field.
 
 ```js
-
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(saveTasks, /pub\s+system_program/);
 ```
 
 The `system_program` field should have a type of `Program<'info, System>`.
 
 ```js
+const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
+assert.match(
+  saveTasks,
+  /pub\s+system_program\s*:\s*Program\s*<\s*'\s*info\s*,\s*System\s*>\s*,/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1124,13 +1412,37 @@ Within the `save_tasks` instruction handle, add an `if` statement to check if th
 The `save_tasks` instruction handle should have `if tasks.tasks.len() != replacing_tasks.len() {}`.
 
 ```js
-
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /if\s+tasks\.tasks\.len\s*\(\s*\)\s*!=\s*replacing_tasks\.len\s*\(\s*\)\s*{}/
+);
 ```
 
 You should declare a `tasks` variable with value `ctx.accounts.tasks`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(saveTasks, /let\s+tasks\s*=\s*ctx\.accounts\.tasks\s*;/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1215,7 +1527,28 @@ Within the `if` statement, declare a `new_space` variable with the new **total**
 The `new_space` variable should be declared with a value of `8 + replacing_tasks.len() * (4 + (4 + 32) + 1)`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /let\s+new_space\s*=\s*8\s*\+\s*replacing_tasks\.len\s*\(\s*\)\s*\*\s*\(\s*4\s*\+\s*\(\s*4\s*\+\s*32\s*\)\s*\+\s*1\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1310,7 +1643,28 @@ Use the `new_space` to calculate the new rent exemption, and assign it to a `new
 The `new_minimum_balance` variable should be declared with a value of `Rent::get()?.minimum_balance(new_space)`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /let\s+new_minimum_balance\s*=\s*Rent\s*::\s*get\s*\(\s*\)\s*\?\s*\.\s*minimum_balance\s*\(\s*new_space\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1407,7 +1761,28 @@ Declare a `tasks_account_info` variable, and assign it the `tasks` account info.
 The `tasks_account_info` variable should be declared with a value of `tasks.to_account_info()`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /let\s+tasks_account_info\s*=\s*tasks\s*\.to_account_info\s*\(\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1501,7 +1876,28 @@ Use `saturating_sub` to subtract `tasks_account_info.lamports()` from `new_minim
 The `lamports_diff` variable should be declared with a value of `new_minimum_balance.saturating_sub(tasks_account_info.lamports())`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /let\s+lamports_diff\s*=\s*new_minimum_balance\s*\.\s*saturating_sub\s*\(\s*tasks_account_info\s*\.\s*lamports\s*\(\s*\)\s*\)/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1600,7 +1996,28 @@ Subtract the `lamports_diff` from the `user` account.
 You should have `**ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? -= lamports_diff;`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /\*\*ctx\.accounts\.user\.to_account_info\s*\(\s*\)\s*\.\s*try_borrow_mut_lamports\s*\(\s*\)\s*\?\s*-=\s*lamports_diff\s*;/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1694,7 +2111,28 @@ Now, add the `lamports_diff` to the `tasks` account.
 You should have `**tasks_account_info.try_borrow_mut_lamports()? += lamports_diff;`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /\*\*tasks_account_info\s*\.\s*try_borrow_mut_lamports\s*\(\s*\)\s*\?\s*\+=\s*lamports_diff\s*;/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1802,7 +2240,28 @@ Call `realloc` on the `tasks_account_info` with the `new_space` and `false`.
 You should have `tasks_account_info.realloc(new_space, false)?;`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /tasks_account_info\s*\.\s*realloc\s*\(\s*new_space\s*,\s*false\s*\)\s*\?/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -1903,7 +2362,25 @@ After the `if` statement, set the `tasks` account's `tasks` data to `replacing_t
 You should have `tasks.tasks = replacing_tasks;`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(saveTasks, /tasks\s*\.\s*tasks\s*=\s*replacing_tasks\s*;/);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -2006,7 +2483,28 @@ Lastly within the `save_tasks` instruction handle, adjust the `if` statement con
 The `if` statement conditional should be `if tasks.tasks.len() < replacing_tasks.len() {`.
 
 ```js
+const saveTasks = __librs.match(
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+)?.[1];
+assert.match(
+  saveTasks,
+  /if\s+tasks\s*\.\s*tasks\s*\.\s*len\s*\(\s*\)\s*<\s*replacing_tasks\s*\.\s*len\s*\(\s*\)\s*{/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -2119,19 +2617,52 @@ enum MyErrorEnum {
 The `TaskNameTooLong` variant should be annotated with a message.
 
 ```js
-
+const errorCode = __librs.match(
+  /#\[error_code\]\s*pub\s+enum\s+ErrorCode\s*{([\s\S]*?)}/
+)?.[1];
+assert.match(
+  errorCode,
+  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskNameTooLong\s*,/
+);
 ```
 
 The `TaskNameTooShort` variant should be annotated with a message.
 
 ```js
-
+const errorCode = __librs.match(
+  /#\[error_code\]\s*pub\s+enum\s+ErrorCode\s*{([\s\S]*?)}/
+)?.[1];
+assert.match(
+  errorCode,
+  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskNameTooShort\s*,/
+);
 ```
 
 The `TaskIdNotUnique` variant should be annotated with a message.
 
 ```js
+const errorCode = __librs.match(
+  /#\[error_code\]\s*pub\s+enum\s+ErrorCode\s*{([\s\S]*?)}/
+)?.[1];
+assert.match(
+  errorCode,
+  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskIdNotUnique\s*,/
+);
+```
 
+### --before-all--
+
+```js
+const __librs = await __helpers.getFile(
+  `${project.dashedName}/todo/programs/todo/src/lib.rs`
+);
+global.__librs = __librs;
+```
+
+### --after-all--
+
+```js
+delete global.__librs;
 ```
 
 ### --seed--
@@ -2236,7 +2767,12 @@ Build the program to get the IDL for your client app.
 You should build the program.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+// See if `target/types/todo.ts` exists
+await access(
+  join(project.dashedName, 'todo/target/types/todo.ts'),
+  constants.F_OK
+);
 ```
 
 ### --seed--
@@ -2346,16 +2882,40 @@ Within `app/src/app.tsx`, under the `TODO:1` comment, attach the `Buffer` to the
 You should have `window.Buffer = Buffer`.
 
 ```js
-
+const expectedCodeString = 'window.Buffer = Buffer;';
+const actualCodestring = __babelisedCode.generate(__babelisedCode.parsedCode, {
+  compact: true
+});
+assert.include(actualCodestring, expectedCodeString);
 ```
 
 You should import `Buffer` from `buffer`.
 
 ```js
-
+const importDeclaration = __babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === 'buffer';
+});
+assert.exists(importDeclaration, 'You should import from `buffer`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'Buffer');
 ```
 
-## 30
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'todo/app/src/app.tsx')
+);
+global.__babelisedCode = new __helpers.Babeliser(codeString);
+```
+
+### --after-all--
+
+```js
+delete global.__babelisedCode;
+```
+
+## 31
 
 ### --description--
 
@@ -2366,10 +2926,17 @@ Within `app/` use `yarn` to install the `@solana/web3.js` package.
 You should have `@solana/web3.js` in your `package.json` dependencies.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(join(project.dashedName, 'todo/app/package.json'))
+);
+assert.property(
+  packageJson.dependencies,
+  '@solana/web3.js',
+  'The `package.json` file should have a `@solana/web3.js` dependency.'
+);
 ```
 
-## 31
+## 32
 
 ### --description--
 
@@ -2380,16 +2947,44 @@ Under the `TODO:2` comment, declare a `PROGRAM_ID` variable, and assign it the v
 You should have `const PROGRAM_ID = new PublicKey("...")`.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
+);
+const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
+const actualProgramId = __babelisedCode.parsedCode.match(
+  /PublicKey\(("|'|`)([^'"`]+)\1\)/
+)?.[2];
+assert.equal(actualProgramId, expectedProgramId);
 ```
 
 You should import `PublicKey` from `@solana/web3.js`.
 
 ```js
-
+const importDeclaration = __babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'PublicKey');
 ```
 
-## 32
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'todo/app/src/app.tsx')
+);
+global.__babelisedCode = new __helpers.Babeliser(codeString);
+```
+
+### --after-all--
+
+```js
+delete global.__babelisedCode;
+```
+
+## 33
 
 ### --description--
 
@@ -2402,10 +2997,16 @@ Under the `TODO:3` comment, declare an `ENDPOINT` variable, and assign it the va
 You should have `const ENDPOINT = import.meta.VITE_SOLANA_CONNECTION_URL || "http://localhost:8899";`.
 
 ```js
-
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'todo/app/src/app.tsx')
+);
+assert.match(
+  codeString,
+  /const\s+ENDPOINT\s*=\s*import\.meta\.VITE_SOLANA_CONNECTION_URL\s*\|\|/
+);
 ```
 
-## 33
+## 34
 
 ### --description--
 
@@ -2416,22 +3017,66 @@ Under the `TODO:4` comment, declare a `connection` variable, and assign it the v
 You should have `const connection = new Connection(ENDPOINT, ...);`.
 
 ```js
-
+const variableDeclaration = __babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'connection';
+  });
+assert.exists(
+  variableDeclaration,
+  'A variable named `connection` should exist'
+);
+const newExpression = variableDeclaration.declarations?.[0]?.init;
+const callee = newExpression?.callee;
+assert.equal(callee?.name, 'Connection');
+const arguments = newExpression?.arguments;
+assert.equal(arguments?.[0]?.name, 'ENDPOINT');
 ```
 
 The commitment config should be `"confirmed"` or `"finalized"`.
 
 ```js
-
+const variableDeclaration = __babelisedCode
+  .getVariableDeclarations()
+  .find(v => {
+    return v.declarations?.[0]?.id?.name === 'connection';
+  });
+assert.exists(
+  variableDeclaration,
+  'A variable named `connection` should exist'
+);
+const newExpression = variableDeclaration.declarations?.[0]?.init;
+const arguments = newExpression?.arguments;
+assert.include(['confirmed', 'finalized'], arguments?.[1]?.value);
 ```
 
 You should import `Connection` from `@solana/web3.js`.
 
 ```js
-
+const importDeclaration = __babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '@solana/web3.js';
+});
+assert.exists(importDeclaration, 'You should import from `@solana/web3.js`');
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'Connection');
 ```
 
-## 34
+### --before-all--
+
+```js
+const codeString = await __helpers.getFile(
+  join(project.dashedName, 'todo/app/src/app.tsx')
+);
+global.__babelisedCode = new __helpers.Babeliser(codeString);
+```
+
+### --after-all--
+
+```js
+delete global.__babelisedCode;
+```
+
+## 35
 
 ### --description--
 
@@ -2442,10 +3087,17 @@ Within `app/` use `yarn` to install the `@solana/wallet-adapter-phantom` package
 You should have `@solana/wallet-adapter-phantom` in your `package.json` dependencies.
 
 ```js
-
+const packageJson = JSON.parse(
+  await __helpers.getFile(join(project.dashedName, 'todo/app/package.json'))
+);
+assert.property(
+  packageJson.dependencies,
+  '@solana/wallet-adapter-phantom',
+  'The `package.json` file should have a `@solana/wallet-adapter-phantom` dependency.'
+);
 ```
 
-## 35
+## 36
 
 ### --description--
 
@@ -2465,7 +3117,7 @@ You should import `PhantomWalletAdapter` from `@solana/wallet-adapter-phantom`.
 
 ```
 
-## 36
+## 37
 
 ### --description--
 
@@ -2479,7 +3131,7 @@ You should have `@coral-xyz/anchor` in your `package.json` dependencies.
 
 ```
 
-## 37
+## 38
 
 ### --description--
 
@@ -2509,7 +3161,7 @@ You should import `Program` from `@coral-xyz/anchor`.
 
 ```
 
-## 38
+## 39
 
 ### --description--
 
@@ -2533,7 +3185,7 @@ You should import `useState` from `react`.
 
 ```
 
-## 39
+## 40
 
 ### --description--
 
@@ -2547,7 +3199,7 @@ You should have `await wallet.connect()`.
 
 ```
 
-## 40
+## 41
 
 ### --description--
 
@@ -2567,7 +3219,7 @@ You should import `isWalletConnected` from `./utils`.
 
 ```
 
-## 41
+## 42
 
 ### --description--
 
@@ -2587,7 +3239,7 @@ You should import `AnchorProvider` from `@coral-xyz/anchor`.
 
 ```
 
-## 42
+## 43
 
 ### --description--
 
@@ -2607,7 +3259,7 @@ You should import `IDL` from `../../target/types/todo`.
 
 ```
 
-## 43
+## 44
 
 ### --description--
 
@@ -2621,7 +3273,7 @@ You should have `setProgram(program)`.
 
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -2639,7 +3291,7 @@ You should have `<>{program ? <Landing /> : LogIn connectWallet={connectWallet} 
 
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -2657,7 +3309,7 @@ You should have `<ProgramContext.Provider value={program}>{program ? <Landing />
 
 ```
 
-## 46
+## 47
 
 ### --description--
 
@@ -2683,7 +3335,7 @@ You should import `useContext` from `react`.
 
 ```
 
-## 47
+## 48
 
 ### --description--
 
@@ -2697,7 +3349,7 @@ You should have `if (program) {}`.
 
 ```
 
-## 48
+## 49
 
 ### --description--
 
@@ -2711,7 +3363,7 @@ You should have `const [tasksPublicKey, _] = PublicKey.findProgramAddressSync([p
 
 ```
 
-## 49
+## 50
 
 ### --description--
 
@@ -2725,7 +3377,7 @@ You should have `const tasks = await program.account.tasksAccount.fetch(tasksPub
 
 ```
 
-## 50
+## 51
 
 ### --description--
 
@@ -2739,7 +3391,7 @@ You should have `setTasks(tasks.tasks)`.
 
 ```
 
-## 51
+## 52
 
 ### --description--
 
@@ -2765,7 +3417,7 @@ You should have `await program.methods.saveTasks(tasks).accounts({ tasks: tasksP
 
 ```
 
-## 52
+## 53
 
 ### --description--
 
@@ -2787,7 +3439,7 @@ You should set the `VITE_SOLANA_CONNECTION_URL` variable to `http://localhost:88
 
 ```
 
-## 53
+## 54
 
 ### --description--
 
@@ -2815,7 +3467,7 @@ You should start the client app server.
 
 ```
 
-## 54
+## 55
 
 ### --description--
 

@@ -77,7 +77,7 @@ You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in
 
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -95,7 +95,7 @@ You should run `solana-keygen new --outfile wallet.json --derivation-path` in th
 
 ```
 
-## 3
+## 4
 
 ### --description--
 
@@ -109,7 +109,7 @@ You should run `solana config set --url devnet`.
 
 ```
 
-## 4
+## 5
 
 ### --description--
 
@@ -127,7 +127,7 @@ You should run `solana airdrop 2 --keypair wallet.json` in the `learn-how-to-dep
 
 ```
 
-## 4
+## 6
 
 ### --description--
 
@@ -143,7 +143,7 @@ You should have `cluster = "devnet"` in the `learn-how-to-deploy-to-devnet/todo/
 
 ```
 
-## 5
+## 7
 
 ### --description--
 
@@ -157,7 +157,7 @@ You should have `wallet = "./wallet.json"` in the `learn-how-to-deploy-to-devnet
 
 ```
 
-## 6
+## 8
 
 ### --description--
 
@@ -177,7 +177,7 @@ You should have a `todo = "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` key in
 
 ```
 
-## 7
+## 9
 
 ### --description--
 
@@ -191,7 +191,7 @@ You should run `anchor deploy` in the `learn-how-to-deploy-to-devnet/todo/` dire
 
 ```
 
-## 8
+## 10
 
 ### --description--
 
@@ -207,7 +207,7 @@ You should run `solana airdrop 2 --keypair wallet.json` in `learn-how-to-deploy-
 
 ```
 
-## 9
+## 11
 
 ### --description--
 
@@ -232,7 +232,7 @@ Your `wallet.json` account should have `3.95` SOL.
 
 ```
 
-## 10
+## 12
 
 ### --description--
 
@@ -248,7 +248,7 @@ You should run `anchor deploy` in the `learn-how-to-deploy-to-devnet/todo/` dire
 
 ```
 
-## 11
+## 13
 
 ### --description--
 
@@ -262,7 +262,7 @@ You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in
 
 ```
 
-## 12
+## 14
 
 ### --description--
 
@@ -278,7 +278,7 @@ You should run `yarn dev` in the `learn-how-to-deploy-to-devnet/todo/app/` direc
 
 ```
 
-## 13
+## 15
 
 ### --description--
 
@@ -299,7 +299,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'done');
 ```
 
-## 14
+## 16
 
 ### --description--
 
@@ -314,7 +314,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'done');
 ```
 
-## 15
+## 17
 
 ### --description--
 
