@@ -20,37 +20,90 @@ First, start by ensuring it still works locally:
 You should run `yarn` in the `learn-how-to-deploy-to-devnet/todo/` directory to install all dependencies.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+await access(join(project.dashedName, 'todo/node_modules'), constants.F_OK);
 ```
 
 You should run `anchor build` in the `learn-how-to-deploy-to-devnet/todo/` directory to build the program.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+await access(join(project.dashedName, 'todo/target'), constants.F_OK);
 ```
 
 You should have a local cluster running at `http://localhost:8899`.
 
 ```js
-
+const command = `curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getHealth"}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.deepInclude(jsonOut, { result: 'ok' });
+} catch (e) {
+  assert.fail(e, 'Try running `solana-test-validator` in a separate terminal');
+}
 ```
 
 You should deploy the program to the local cluster.
 
 ```js
-
+const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '
+  {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "BPFLoader2111111111111111111111111111111111", {
+        "encoding": "base64",
+        "dataSlice": {
+          "length": 0,
+          "offset": 0
+        }
+      }
+    ]
+}'`;
+const { stdout, stderr } = await __helpers.getCommandOutput(command);
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
+);
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+try {
+  const jsonOut = JSON.parse(stdout);
+  assert.exists(jsonOut.result.find(r => r.pubkey === expectedProgramId));
+} catch (e) {
+  assert.fail(
+    e,
+    `Try running \`solana-test-validator --bpf-program ${expectedProgramId} ./target/deploy/todo.so --reset\``
+  );
+}
 ```
 
 You should run `yarn dev` in the `learn-how-to-deploy-to-devnet/todo/app/` directory to start the client server.
 
 ```js
-
+const response = await fetch('http://localhost:5173');
+assert.equal(response.status, 200, 'The server should be running.');
 ```
 
 You should perform some transactions using the client app.
 
 ```js
+const { Connection, PublicKey } = await import('@solana/web3.js');
+const connection = new Connection('http://localhost:8899', 'confirmed');
 
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
+);
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+const pubkey = new PublicKey(expectedProgramId);
+const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+assert.isAtLeast(
+  transactions,
+  2,
+  'Try using the client interface and your wallet to make a few transactions'
+);
 ```
 
 ## 2
@@ -74,7 +127,11 @@ Verify the program you deployed to the local cluster matches its source code.
 You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"'
+);
 ```
 
 ## 3
@@ -92,7 +149,8 @@ Save this wallet to `learn-how-to-deploy-to-devnet/todo/wallet.json`.
 You should run `solana-keygen new --outfile wallet.json --derivation-path` in the `learn-how-to-deploy-to-devnet/todo/` directory to create a wallet.
 
 ```js
-
+const { access, constants } = await import('fs/promises');
+await access(join(project.dashedName, 'todo/wallet.json'), constants.F_OK);
 ```
 
 ## 4
@@ -106,7 +164,8 @@ Now, to work on the Devnet, change your Solana config to use the Devnet URL.
 You should run `solana config set --url devnet`.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, 'solana config set --url devnet');
 ```
 
 ## 5
@@ -121,10 +180,18 @@ Airdrop 2 SOL to your public key.
 
 ### --tests--
 
-You should run `solana airdrop 2 --keypair wallet.json` in the `learn-how-to-deploy-to-devnet/todo/` directory to airdrop 1 SOL to your public key.
+You should run `solana airdrop 2 --keypair wallet.json` in the `learn-how-to-deploy-to-devnet/todo/` directory to airdrop 2 SOL to your public key.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/todo/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(
+  parseInt(balance),
+  2,
+  'Try running `solana airdrop 2 --keypair wallet.json` within `todo/`'
+);
 ```
 
 ## 6
@@ -140,7 +207,10 @@ First, adjust the `Anchor.toml` file so the `provider.cluster` points to Devnet.
 You should have `cluster = "devnet"` in the `learn-how-to-deploy-to-devnet/todo/Anchor.toml` file.
 
 ```js
-
+const codeString = await __helpers.readFile(
+  join(project.dashedName, 'todo/Anchor.toml')
+);
+assert.match(codeString, /cluster\s*=\s*"devnet"/);
 ```
 
 ## 7
@@ -154,7 +224,10 @@ Adjust the wallet path in the `Anchor.toml` file to point to the wallet you crea
 You should have `wallet = "./wallet.json"` in the `learn-how-to-deploy-to-devnet/todo/Anchor.toml` file.
 
 ```js
-
+const codeString = await __helpers.readFile(
+  join(project.dashedName, 'todo/Anchor.toml')
+);
+assert.match(codeString, /wallet\s*=\s*"\.\/wallet\.json"/);
 ```
 
 ## 8
@@ -168,13 +241,22 @@ Add a `[programs.devnet]` section to the `Anchor.toml` file, and add a `todo` ke
 You should have a `[programs.devnet]` section in the `learn-how-to-deploy-to-devnet/todo/Anchor.toml` file.
 
 ```js
-
+const codeString = await __helpers.readFile(
+  join(project.dashedName, 'todo/Anchor.toml')
+);
+assert.match(codeString, /\[programs\.devnet\]/);
 ```
 
 You should have a `todo = "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` key in the `[programs.devnet]` section.
 
 ```js
-
+const codeString = await __helpers.readFile(
+  join(project.dashedName, 'todo/Anchor.toml')
+);
+assert.match(
+  codeString,
+  /\[programs\.devnet\]\s*todo\s*=\s*"9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"/
+);
 ```
 
 ## 9
@@ -188,7 +270,9 @@ Use the Anchor CLI to deploy the program to Devnet. _This should fail_.
 You should run `anchor deploy` in the `learn-how-to-deploy-to-devnet/todo/` directory and see an error.
 
 ```js
-
+// TODO
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'insufficient funds for fee');
 ```
 
 ## 10
@@ -204,7 +288,9 @@ Airdrop 2 SOL to your `wallet.json` account. _This should fail_.
 You should run `solana airdrop 2 --keypair wallet.json` in `learn-how-to-deploy-to-devnet/todo/`.
 
 ```js
-
+// TODO
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, '');
 ```
 
 ## 11
@@ -229,7 +315,11 @@ todo/ $ solana transfer 1.95 wallet.json
 Your `wallet.json` account should have `3.95` SOL.
 
 ```js
-
+const { stdout } = await __helpers.getCommandOutput(
+  `solana balance ${project.dashedName}/todo/wallet.json`
+);
+const balance = stdout.trim()?.match(/\d+/)?.[0];
+assert.isAtLeast(parseInt(balance), 3.95);
 ```
 
 ## 12
@@ -245,7 +335,9 @@ _This usually takes a few minutes to complete._
 You should run `anchor deploy` in the `learn-how-to-deploy-to-devnet/todo/` directory.
 
 ```js
-
+// TODO
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, 'Deploying program to chain');
 ```
 
 ## 13
@@ -259,7 +351,11 @@ Verify the program matches the source code.
 You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
 
 ```js
-
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  'anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"'
+);
 ```
 
 ## 14
@@ -275,7 +371,8 @@ Then start the app client server.
 You should run `yarn dev` in the `learn-how-to-deploy-to-devnet/todo/app/` directory.
 
 ```js
-
+const response = await fetch('http://localhost:5173');
+assert.equal(response.status, 200, 'The client server should be running.');
 ```
 
 ## 15
