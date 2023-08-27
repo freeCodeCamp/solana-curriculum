@@ -8,11 +8,11 @@ You have been started off with an Anchor full-stack boilerplate.
 
 In this project, you will develop and prepare a program for deployment on the Solana blockchain.
 
-Start by changing into the `learn-how-to-get-off-localhost/todo/` directory.
+Start by changing into the `learn-how-to-build-for-mainnet/todo/` directory.
 
 ### --tests--
 
-You should be in the `learn-how-to-get-off-localhost/todo/` directory.
+You should be in the `learn-how-to-build-for-mainnet/todo/` directory.
 
 ```js
 const cwd = await __helpers.getLastCWD();
@@ -40,7 +40,7 @@ assert.notMatch(librs, /pub fn initialize/);
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -90,7 +90,7 @@ assert.notMatch(librs, /Context<Initialize>/);
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -167,7 +167,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -232,7 +232,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -304,7 +304,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -327,7 +327,7 @@ pub struct SaveTasks<'info> {
 }
 ```
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/Cargo.toml"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/Cargo.toml"--
 
 ```toml
 [package]
@@ -417,7 +417,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -479,7 +479,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -558,7 +558,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -648,7 +648,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -720,7 +720,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -799,7 +799,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -884,7 +884,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -995,7 +995,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1113,7 +1113,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1221,7 +1221,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1331,7 +1331,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1447,7 +1447,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1553,7 +1553,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1669,7 +1669,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1787,7 +1787,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -1902,7 +1902,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2022,7 +2022,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2137,7 +2137,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2266,7 +2266,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2385,7 +2385,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2509,7 +2509,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2667,7 +2667,7 @@ delete global.__librs;
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
@@ -2777,7 +2777,7 @@ await access(
 
 ### --seed--
 
-#### --"learn-how-to-get-off-localhost/todo/programs/todo/src/lib.rs"--
+#### --"learn-how-to-build-for-mainnet/todo/programs/todo/src/lib.rs"--
 
 ```rust
 use anchor_lang::prelude::*;
