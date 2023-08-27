@@ -269,7 +269,7 @@ The `TasksAccount` struct should be annotated with `#[account]`.
 assert.match(__librs, /#\[\s*account\s*\]\s*pub\s+struct\s+TasksAccount/);
 ```
 
-The `TasksAccount` struct should have a `tasks` field.
+The `TasksAccount` struct should have a public `tasks` field.
 
 ```js
 const tasksAccount = __librs.match(
@@ -359,45 +359,46 @@ Define a public `Task` struct with an `id` file of type `u32`, a `name` field of
 
 ### --tests--
 
-The `Task` struct should have an `id` field.
+The `Task` struct should have a public `id` field.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
 assert.match(task, /pub\s+id/);
 ```
 
 The `id` field should have a type of `u32`.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
 assert.match(task, /pub\s+id\s*:\s*u32/);
 ```
 
-The `Task` struct should have a `name` field.
+The `Task` struct should have a public `name` field.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
 assert.match(task, /pub\s+name/);
 ```
 
 The `name` field should have a type of `String`.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
 assert.match(task, /pub\s+name\s*:\s*String/);
 ```
 
-The `Task` struct should have a `completed` field.
+The `Task` struct should have a public `completed` field.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
 assert.match(task, /pub\s+completed/);
 ```
 
 The `completed` field should have a type of `bool`.
 
 ```js
-const task = __librs.match(/pub\s+struct\s+Task[^{]*{([^}]*)}/s)?.[1];
+const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
+assert.match(task, /pub\s+completed\s*:\s*bool/)
 ```
 
 ### --before-all--
@@ -527,7 +528,7 @@ The `save_tasks` instruction handle should have a `replacing_tasks` argument.
 
 ```js
 assert.match(
-  __libr.rs,
+  __librs,
   /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks/s
 );
 ```
@@ -536,7 +537,7 @@ The `replacing_tasks` argument should have a type of `Vec<Task>`.
 
 ```js
 assert.match(
-  __libr.rs,
+  __librs,
   /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)/s
 );
 ```
@@ -695,11 +696,11 @@ The `save_tasks` instruction handle should return `Err(ErrorCode::TaskNameTooLon
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
-  /Err\s*\(\s*ErrorCode::TaskNameTooLong\s*\)\s*\.\s*into\s*\(\s*\)/
+  /Err\s*\(\s*ErrorCode::TaskNameTooLong\s*\.\s*into\s*\(\s*\)/
 );
 ```
 
@@ -774,11 +775,11 @@ The `save_tasks` instruction handle should return `Err(ErrorCode::TaskNameTooSho
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
-  /Err\s*\(\s*ErrorCode::TaskNameTooShort\s*\)\s*\.\s*into\s*\(\s*\)/
+  /Err\s*\(\s*ErrorCode::TaskNameTooShort\s*\.\s*into\s*\(\s*\)/
 );
 ```
 
@@ -859,11 +860,11 @@ The `save_tasks` instruction handle should return `Err(ErrorCode::TaskIdNotUniqu
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
-  /Err\s*\(\s*ErrorCode::TaskIdNotUnique\s*\)\s*\.\s*into\s*\(\s*\)/
+  /Err\s*\(\s*ErrorCode::TaskIdNotUnique\s*\.\s*into\s*\(\s*\)/
 );
 ```
 
@@ -946,8 +947,8 @@ pub enum ErrorCode {
 
 When initializing the `TasksAccount` account, set the `space` argument to:
 
-```markdown
-<DISCRIMINANT_SIZE> + replacing_tasks.len() \* <TASK_SIZE>
+```text
+<DISCRIMINANT_SIZE> + replacing_tasks.len() * <TASK_SIZE>
 ```
 
 ### --tests--
@@ -956,7 +957,7 @@ The `SaveTasks` struct `tasks` field should be annotated with `#[account(space =
 
 ```js
 const saveTasks = __librs.match(/struct\s+SaveTasks[^{]*{([^}]*)}/s)?.[1];
-assert.match(saveTasks, /\s*space\s*=\s*\]/);
+assert.match(saveTasks, /\s*space\s*=/);
 ```
 
 The `space` argument should be set to `8 + replacing_tasks.len() * (4 + (4 + 32) + 1)`.
@@ -1413,7 +1414,7 @@ The `save_tasks` instruction handle should have `if tasks.tasks.len() != replaci
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -1425,9 +1426,10 @@ You should declare a `tasks` variable with value `ctx.accounts.tasks`.
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
-assert.match(saveTasks, /let\s+tasks\s*=\s*ctx\.accounts\.tasks\s*;/);
+assert.match(saveTasks, /let\s+tasks\s*=/);
+assert.match(saveTasks, /ctx\.accounts\.tasks\s*;/);
 ```
 
 ### --before-all--
@@ -1528,7 +1530,7 @@ The `new_space` variable should be declared with a value of `8 + replacing_tasks
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -1644,7 +1646,7 @@ The `new_minimum_balance` variable should be declared with a value of `Rent::get
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -1762,7 +1764,7 @@ The `tasks_account_info` variable should be declared with a value of `tasks.to_a
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -1877,7 +1879,7 @@ The `lamports_diff` variable should be declared with a value of `new_minimum_bal
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -1997,11 +1999,11 @@ You should have `**ctx.accounts.user.to_account_info().try_borrow_mut_lamports()
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
-  /\*\*ctx\.accounts\.user\.to_account_info\s*\(\s*\)\s*\.\s*try_borrow_mut_lamports\s*\(\s*\)\s*\?\s*-=\s*lamports_diff\s*;/
+  /\*\*ctx\s*\.accounts\s*\.user\s*\.to_account_info\s*\(\s*\)\s*\.\s*try_borrow_mut_lamports\s*\(\s*\)\s*\?\s*-=\s*lamports_diff\s*;/
 );
 ```
 
@@ -2112,7 +2114,7 @@ You should have `**tasks_account_info.try_borrow_mut_lamports()? += lamports_dif
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -2241,7 +2243,7 @@ You should have `tasks_account_info.realloc(new_space, false)?;`.
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -2363,7 +2365,7 @@ You should have `tasks.tasks = replacing_tasks;`.
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(saveTasks, /tasks\s*\.\s*tasks\s*=\s*replacing_tasks\s*;/);
 ```
@@ -2484,7 +2486,7 @@ The `if` statement conditional should be `if tasks.tasks.len() < replacing_tasks
 
 ```js
 const saveTasks = __librs.match(
-  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*()\s*>\s*{(.*?)Ok\(\(\)\)/s
+  /pub\s+fn\s+save_tasks\s*\(\s*ctx:\s*Context<\s*SaveTasks\s*>,\s*replacing_tasks\s*:\s*Vec\s*<\s*Task\s*>\s*\)\s*->\s*Result\s*<\s*\(\)\s*>\s*{(.*?)Ok\(\(\)\)/s
 )?.[1];
 assert.match(
   saveTasks,
@@ -2622,7 +2624,7 @@ const errorCode = __librs.match(
 )?.[1];
 assert.match(
   errorCode,
-  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskNameTooLong\s*,/
+  /#\s*\[\s*msg\s*\(\s*"[\w\s.]{1,}"\)\]\s*TaskNameTooLong\s*,/
 );
 ```
 
@@ -2634,7 +2636,7 @@ const errorCode = __librs.match(
 )?.[1];
 assert.match(
   errorCode,
-  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskNameTooShort\s*,/
+  /#\s*\[\s*msg\s*\(\s*"[\w\s.]{1,}"\)\]\s*TaskNameTooShort\s*,/
 );
 ```
 
@@ -2646,7 +2648,7 @@ const errorCode = __librs.match(
 )?.[1];
 assert.match(
   errorCode,
-  /#[\s\n]*msg\s*\(\s*"[\w\s]{1,}"\)\s*\n\s*TaskIdNotUnique\s*,/
+  /#\s*\[\s*msg\s*\(\s*"[\w\s.]{1,}"\)\]\s*TaskIdNotUnique\s*,/
 );
 ```
 
@@ -2883,7 +2885,7 @@ You should have `window.Buffer = Buffer`.
 
 ```js
 const expectedCodeString = 'window.Buffer = Buffer;';
-const actualCodestring = __babelisedCode.generate(__babelisedCode.parsedCode, {
+const actualCodestring = __babelisedCode.generateCode(__babelisedCode.parsedCode, {
   compact: true
 });
 assert.include(actualCodestring, expectedCodeString);
@@ -2906,7 +2908,7 @@ assert.include(importSpecifiers, 'Buffer');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString);
+global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 ```
 
 ### --after-all--
@@ -2975,7 +2977,7 @@ assert.include(importSpecifiers, 'PublicKey');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString);
+global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 ```
 
 ### --after-all--
@@ -3067,7 +3069,7 @@ assert.include(importSpecifiers, 'Connection');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString);
+global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 ```
 
 ### --after-all--
@@ -3139,7 +3141,7 @@ assert.include(importSpecifiers, 'PhantomWalletAdapter');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString);
+global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 ```
 
 ### --after-all--
@@ -3231,7 +3233,7 @@ assert.include(importSpecifiers, 'Program');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString);
+global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 ```
 
 ### --after-all--
@@ -3307,7 +3309,7 @@ You should import `isWalletConnected` from `./utils`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === './utils';
 });
@@ -3342,7 +3344,7 @@ You should import `AnchorProvider` from `@coral-xyz/anchor`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === '@coral-xyz/anchor';
 });
@@ -3380,7 +3382,7 @@ You should import `IDL` from `../../target/types/todo`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === '../../target/types/todo';
 });
@@ -3489,7 +3491,7 @@ You should import `useContext` from `react`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString);
+const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === 'react';
 });
