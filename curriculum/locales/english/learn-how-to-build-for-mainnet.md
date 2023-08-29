@@ -398,7 +398,7 @@ The `completed` field should have a type of `bool`.
 
 ```js
 const task = __librs.match(/pub\s+struct\s+Task\s*{([^}]*)}/s)?.[1];
-assert.match(task, /pub\s+completed\s*:\s*bool/)
+assert.match(task, /pub\s+completed\s*:\s*bool/);
 ```
 
 ### --before-all--
@@ -2884,11 +2884,14 @@ Within `app/src/app.tsx`, under the `TODO:1` comment, attach the `Buffer` to the
 You should have `window.Buffer = Buffer`.
 
 ```js
-const expectedCodeString = 'window.Buffer = Buffer;';
-const actualCodestring = __babelisedCode.generateCode(__babelisedCode.parsedCode, {
-  compact: true
-});
-assert.include(actualCodestring, expectedCodeString);
+const expectedCodeString = 'window.Buffer=Buffer;';
+const actualCodeString = __babelisedCode.generateCode(
+  __babelisedCode.parsedCode,
+  {
+    compact: true
+  }
+);
+assert.include(actualCodeString, expectedCodeString);
 ```
 
 You should import `Buffer` from `buffer`.
@@ -2908,7 +2911,9 @@ assert.include(importSpecifiers, 'Buffer');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+global.__babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 ```
 
 ### --after-all--
@@ -2954,9 +2959,11 @@ const { stdout } = await __helpers.getCommandOutput(
   `${project.dashedName}/todo`
 );
 const expectedProgramId = stdout.match(/[^\s]{44}/)?.[0];
-const actualProgramId = __babelisedCode.parsedCode.match(
-  /PublicKey\(("|'|`)([^'"`]+)\1\)/
-)?.[2];
+const variableDeclaration = __babelisedCode
+  .getVariableDeclarations()
+  .find(v => v.declarations?.[0]?.id?.name === 'PROGRAM_ID');
+const actualProgramId =
+  variableDeclaration.declarations?.[0]?.init?.arguments?.[0]?.value;
 assert.equal(actualProgramId, expectedProgramId);
 ```
 
@@ -2977,7 +2984,9 @@ assert.include(importSpecifiers, 'PublicKey');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+global.__babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 ```
 
 ### --after-all--
@@ -3031,8 +3040,8 @@ assert.exists(
 const newExpression = variableDeclaration.declarations?.[0]?.init;
 const callee = newExpression?.callee;
 assert.equal(callee?.name, 'Connection');
-const arguments = newExpression?.arguments;
-assert.equal(arguments?.[0]?.name, 'ENDPOINT');
+const args = newExpression?.arguments;
+assert.equal(args?.[0]?.name, 'ENDPOINT');
 ```
 
 The commitment config should be `"confirmed"` or `"finalized"`.
@@ -3048,8 +3057,8 @@ assert.exists(
   'A variable named `connection` should exist'
 );
 const newExpression = variableDeclaration.declarations?.[0]?.init;
-const arguments = newExpression?.arguments;
-assert.include(['confirmed', 'finalized'], arguments?.[1]?.value);
+const args = newExpression?.arguments;
+assert.include(['confirmed', 'finalized'], args?.[1]?.value);
 ```
 
 You should import `Connection` from `@solana/web3.js`.
@@ -3069,7 +3078,9 @@ assert.include(importSpecifiers, 'Connection');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+global.__babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 ```
 
 ### --after-all--
@@ -3141,7 +3152,9 @@ assert.include(importSpecifiers, 'PhantomWalletAdapter');
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+global.__babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 ```
 
 ### --after-all--
@@ -3196,10 +3209,9 @@ assert.exists(
   'A variable named `ProgramContext` should exist'
 );
 const callExpression = variableDeclaration.declarations?.[0]?.init;
-const { callee, arguments, typeParameters } = callExpression;
+const { callee, arguments: args, typeParameters } = callExpression;
 assert.equal(callee?.name, 'createContext');
-const arguements = callExpression?.arguments;
-assert.equal(arguements?.[0]?.value, null);
+assert.equal(args?.[0]?.value, null);
 ```
 
 You should import `createContext` from `react`.
@@ -3227,13 +3239,29 @@ const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
 assert.include(importSpecifiers, 'Program');
 ```
 
+You should import `Todo` from `../../target/types/todo`.
+
+```js
+const importDeclaration = __babelisedCode.getImportDeclarations().find(i => {
+  return i.source.value === '../../target/types/todo';
+});
+assert.exists(
+  importDeclaration,
+  'There should be an import from `../../target/types/todo`'
+);
+const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
+assert.include(importSpecifiers, 'Todo');
+```
+
 ### --before-all--
 
 ```js
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-global.__babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+global.__babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 ```
 
 ### --after-all--
@@ -3309,7 +3337,9 @@ You should import `isWalletConnected` from `./utils`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === './utils';
 });
@@ -3344,7 +3374,9 @@ You should import `AnchorProvider` from `@coral-xyz/anchor`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === '@coral-xyz/anchor';
 });
@@ -3382,7 +3414,9 @@ You should import `IDL` from `../../target/types/todo`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === '../../target/types/todo';
 });
@@ -3429,10 +3463,24 @@ You should have `<>{program ? <Landing /> : LogIn connectWallet={connectWallet} 
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-assert.match(
-  codeString,
-  /<>\s*\{\s*program\s*\?\s*<\s*Landing\s*\/\s*>\s*:\s*<\s*LogIn\s*connectWallet\s*=\s*\{\s*connectWallet\s*\}\s*\/\s*>\s*\}\s*<\/>/
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
+const functionDeclaration = babelisedCode.getFunctionDeclarations().find(f => {
+  return f.id?.name === 'App';
+});
+
+const returnStatement = functionDeclaration.body.body?.find(
+  b => b.type === 'ReturnStatement'
 );
+const expressionContainer = returnStatement.argument?.children?.find(c => {
+  return c.expression?.test?.name === 'program';
+});
+
+const { test, consequent, alternate } = expressionContainer.expression;
+assert.equal(test.name, 'program');
+assert.equal(consequent.openingElement.name?.name, 'Landing');
+assert.equal(alternate.openingElement.name?.name, 'LogIn');
 ```
 
 ## 46
@@ -3455,8 +3503,9 @@ const codeString = await __helpers.getFile(
 );
 assert.match(
   codeString,
-  /<\s*ProgramContext\s*\.\s*Provider\s*value\s*=\s*\{\s*program\s*\}\s*>\s*\{\s*program\s*\?\s*<\s*Landing\s*\/\s*>\s*:\s*<\s*LogIn\s*connectWallet\s*=\s*\{\s*connectWallet\s*\}\s*\/\s*>\s*\}\s*<\/\s*ProgramContext\s*\.\s*Provider\s*>/
+  /<\s*ProgramContext\s*\.\s*Provider\s*value\s*=\s*\{\s*program\s*\}\s*>/
 );
+assert.match(codeString, /<\/\s*ProgramContext\s*\.\s*Provider\s*>/);
 ```
 
 ## 47
@@ -3491,7 +3540,9 @@ You should import `useContext` from `react`.
 const codeString = await __helpers.getFile(
   join(project.dashedName, 'todo/app/src/app.tsx')
 );
-const babelisedCode = new __helpers.Babeliser(codeString, {plugins:['typescript','jsx']});
+const babelisedCode = new __helpers.Babeliser(codeString, {
+  plugins: ['typescript', 'jsx']
+});
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
   return i.source.value === 'react';
 });
@@ -3669,13 +3720,18 @@ try {
 You should deploy the program to the local cluster.
 
 ```js
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
+);
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
 const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '
   {
     "jsonrpc": "2.0",
     "id": 1,
-    "method": "getProgramAccounts",
+    "method": "getAccountInfo",
     "params": [
-      "BPFLoader2111111111111111111111111111111111", {
+      "${expectedProgramId}", {
         "encoding": "base64",
         "dataSlice": {
           "length": 0,
@@ -3685,14 +3741,9 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     ]
 }'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-const { stdout: keys } = await __helpers.getCommandOutput(
-  'anchor keys list',
-  `${project.dashedName}/todo`
-);
-const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
 try {
   const jsonOut = JSON.parse(stdout);
-  assert.exists(jsonOut.result.find(r => r.pubkey === expectedProgramId));
+  assert.equal(jsonOut.result?.value?.executable, true);
 } catch (e) {
   assert.fail(
     e,
@@ -3720,7 +3771,7 @@ You should perform a few transactions using the client interface.
 
 ```js
 const { Connection, PublicKey } = await import('@solana/web3.js');
-const connection = new Connection('http://localhost:8899', 'confirmed');
+const connection = new Connection('http://127.0.0.1:8899', 'confirmed');
 
 const { stdout: keys } = await __helpers.getCommandOutput(
   'anchor keys list',

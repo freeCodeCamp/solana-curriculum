@@ -90,7 +90,7 @@ You should perform some transactions using the client app.
 
 ```js
 const { Connection, PublicKey } = await import('@solana/web3.js');
-const connection = new Connection('http://localhost:8899', 'confirmed');
+const connection = new Connection('http://127.0.0.1:8899', 'confirmed');
 
 const { stdout: keys } = await __helpers.getCommandOutput(
   'anchor keys list',
