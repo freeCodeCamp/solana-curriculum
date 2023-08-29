@@ -47,13 +47,18 @@ try {
 You should deploy the program to the local cluster.
 
 ```js
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
+);
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
 const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" -d '
   {
     "jsonrpc": "2.0",
     "id": 1,
-    "method": "getProgramAccounts",
+    "method": "getAccountInfo",
     "params": [
-      "BPFLoader2111111111111111111111111111111111", {
+      "${expectedProgramId}", {
         "encoding": "base64",
         "dataSlice": {
           "length": 0,
@@ -63,14 +68,10 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     ]
 }'`;
 const { stdout, stderr } = await __helpers.getCommandOutput(command);
-const { stdout: keys } = await __helpers.getCommandOutput(
-  'anchor keys list',
-  `${project.dashedName}/todo`
-);
-const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+
 try {
   const jsonOut = JSON.parse(stdout);
-  assert.exists(jsonOut.result.find(r => r.pubkey === expectedProgramId));
+  assert.equal(jsonOut.result?.value?.executable, true);
 } catch (e) {
   assert.fail(
     e,
@@ -124,14 +125,16 @@ Verify the program you deployed to the local cluster matches its source code.
 
 ### --tests--
 
-You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
+You should run `anchor verify <PROGRAM_ID>` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.include(
-  lastCommand,
-  'anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"'
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
 );
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+assert.include(lastCommand, `anchor verify "${expectedProgramId}"`);
 ```
 
 ## 3
@@ -247,16 +250,21 @@ const codeString = await __helpers.readFile(
 assert.match(codeString, /\[programs\.devnet\]/);
 ```
 
-You should have a `todo = "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` key in the `[programs.devnet]` section.
+You should have a `todo = "<PROGRAM_ID>"` key in the `[programs.devnet]` section.
 
 ```js
 const codeString = await __helpers.readFile(
   join(project.dashedName, 'todo/Anchor.toml')
 );
-assert.match(
-  codeString,
-  /\[programs\.devnet\]\s*todo\s*=\s*"9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"/
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
 );
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+const actualProgramId = codeString.match(
+  /\[programs\.devnet\]\s*todo\s*=\s*"([^"]{44})"/
+)?.[1];
+assert.equal(expectedProgramId, actualProgramId);
 ```
 
 ## 9
@@ -348,14 +356,16 @@ Verify the program matches the source code.
 
 ### --tests--
 
-You should run `anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
+You should run `anchor verify "<PROGRAM_ID>"` in the `learn-how-to-deploy-to-devnet/todo/programs/todo` directory to verify the program.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
-assert.include(
-  lastCommand,
-  'anchor verify "9a43FDYE3S98dfN1rPAeavJT6MzBUEuF3bdX94zihQG2"'
+const { stdout: keys } = await __helpers.getCommandOutput(
+  'anchor keys list',
+  `${project.dashedName}/todo`
 );
+const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
+assert.include(lastCommand, `anchor verify "${expectedProgramId}"`);
 ```
 
 ## 14
