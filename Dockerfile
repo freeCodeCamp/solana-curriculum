@@ -37,9 +37,10 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-# Anchor
-RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force && avm install 0.28.0 && avm use 0.28.0
+RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
+RUN cd solana-release/
+ENV PATH="$PWD/bin:${PATH}"
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global
@@ -47,8 +48,7 @@ WORKDIR ${HOMEDIR}
 RUN mkdir ~/.npm-global
 RUN npm config set prefix '~/.npm-global'
 
-# Yarn
-RUN npm install -g yarn
+RUN npm install -g yarn @coral-xyz/anchor-cli@0.28.0
 
 # Configure course-specific environment
 COPY . .
