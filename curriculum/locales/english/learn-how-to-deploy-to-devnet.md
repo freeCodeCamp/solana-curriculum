@@ -11,7 +11,7 @@ First, start by ensuring it still works locally:
 1. Install all dependencies
 2. Build the program
 3. Start a local Solana cluster
-   3.1 Deploy the program to the local cluster
+   - Deploy the program to the local cluster
 4. Start the client server
 5. Test the program
 
