@@ -37,10 +37,11 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
-RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
-RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
-RUN cd solana-release/
-ENV PATH="$PWD/bin:${PATH}"
+RUN sh -c "$(curl -sSfL https://release.solana.com/v1.16.11/install)"
+# RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+# RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
+# RUN cd solana-release/
+# ENV PATH="$PWD/bin:${PATH}"
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global
