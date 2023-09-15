@@ -1,6 +1,6 @@
 {
   "path": ".",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "scripts": {
     "develop-course": "NODE_ENV=development node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js",
     "run-course": "NODE_ENV=production node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js",
@@ -38,7 +38,10 @@
       "faq-link": "#",
       "faq-text": "https://github.com/freeCodeCamp/solana-curriculum/issues"
     },
-    "static": { "/images/phantom": "./curriculum/images/phantom" }
+    "static": {
+      "/images/phantom": "./curriculum/images/phantom",
+      "/images/devnet": "./curriculum/images/devnet"
+    }
   },
   "config": {
     "projects.json": "./config/projects.json",
