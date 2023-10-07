@@ -12,7 +12,7 @@
     "vite": "4.4.11"
   },
   "dependencies": {
-    "@solana/web3.js": "1.78.5",
+    "@solana/web3.js": "1.87.0",
     "@coral-xyz/anchor": "0.28.1-beta.1"
   }
 }
