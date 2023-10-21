@@ -9,7 +9,7 @@
     "deploy": "solana program deploy dist/program/helloworld.so"
   },
   "dependencies": {
-    "@solana/web3.js": "1.87.1",
+    "@solana/web3.js": "1.87.2",
     "borsh": "0.7.0"
   },
   "engines": {
