@@ -11,7 +11,7 @@
   "dependencies": {
     "@metaplex-foundation/js": "0.18.3",
     "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.87.1",
+    "@solana/web3.js": "1.87.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
