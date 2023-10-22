@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@solana/web3.js": "1.87.2",
-    "@coral-xyz/anchor": "0.28.1-beta.1"
+    "@coral-xyz/anchor": "0.29.0"
   }
 }
