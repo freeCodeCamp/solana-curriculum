@@ -11,7 +11,7 @@
   "dependencies": {
     "@babel/parser": "7.23.0",
     "@freecodecamp/freecodecamp-os": "1.10.0",
-    "@metaplex-foundation/js": "0.19.3",
+    "@metaplex-foundation/js": "0.20.1",
     "@solana/spl-token": "0.3.7",
     "@solana/web3.js": "1.87.2",
     "babeliser": "0.6.0",
