@@ -1,6 +1,6 @@
 {
   "files.exclude": {
-    ".devcontainer": false,
+    ".devcontainer.json": false,
     ".editorconfig": false,
     ".git": false,
     ".github": false,
@@ -45,10 +45,7 @@
     "bash": {
       "path": "bash",
       "icon": "terminal-bash",
-      "args": [
-        "--init-file",
-        "./bash/sourcerer.sh"
-      ]
+      "args": ["--init-file", "./bash/sourcerer.sh"]
     }
   },
   "terminal.integrated.defaultProfile.linux": "bash",
