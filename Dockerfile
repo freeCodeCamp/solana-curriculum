@@ -28,7 +28,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
 RUN sudo apt-get install -y curl git bash-completion man-db htop nano
 
 # Install Node LTS
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 RUN sudo apt-get install -y nodejs
 
 # Rust
@@ -37,7 +37,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.16.11/install)"
+RUN sh -c "$(curl -sSfL https://release.solana.com/v1.17.18/install)"
 # RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
 # RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
 # RUN cd solana-release/
@@ -49,7 +49,7 @@ WORKDIR ${HOMEDIR}
 RUN mkdir ~/.npm-global
 RUN npm config set prefix '~/.npm-global'
 
-RUN npm install -g yarn @coral-xyz/anchor-cli@0.28.0
+RUN npm install -g yarn @coral-xyz/anchor-cli@0.30.0
 
 # Configure course-specific environment
 COPY . .

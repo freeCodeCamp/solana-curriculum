@@ -9,12 +9,12 @@
   "author": "Shaun Hamilton",
   "type": "module",
   "dependencies": {
-    "@babel/parser": "7.23.0",
+    "@babel/parser": "7.24.5",
     "@freecodecamp/freecodecamp-os": "1.10.0",
-    "@metaplex-foundation/js": "0.19.3",
-    "@solana/spl-token": "0.3.7",
-    "@solana/web3.js": "1.87.7",
+    "@metaplex-foundation/js": "0.20.1",
+    "@solana/spl-token": "0.4.6",
+    "@solana/web3.js": "1.91.8",
     "babeliser": "0.6.0",
-    "borsh": "0.7.0"
+    "borsh": "2.0.0"
   }
 }
