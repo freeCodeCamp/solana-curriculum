@@ -34,57 +34,13 @@ You will be using the Solana CLI to:
 - Log useful information
 - Deploy your on-chain program
 
-Install the Solana CLI with:
+The Solana CLI can be installed with:
 
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.14.7/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.17.18/install)"
 ```
 
-### --tests--
-
-You should run the above bash command to install the Solana CLI.
-
-```js
-const lastCommand = await __helpers.getLastCommand();
-
-assert.match(
-  lastCommand,
-  /sh -c "\$\(curl -sSfL https:\/\/release\.solana\.com\/v1\.14\.7\/install\)"/
-);
-```
-
-## 3
-
-### --description--
-
-You will likely need to adjust the environment variable for your `PATH`, in order for you to use the `solana` alias.
-
-If prompted in the terminal, update your `PATH` environment variable to include the Solana programs.
-
-**Note:** You need to manually click the _Run Tests_ button.
-
-### --tests--
-
-You should copy the given PATH command into your terminal.
-
-```js
-const terminalOut = await __helpers.getTerminalOutput();
-const mat = terminalOut.match(/PATH=".*"/);
-if (mat) {
-  const lastCommand = await __helpers.getLastCommand();
-  assert.match(lastCommand, mat);
-}
-```
-
-## 4
-
-### --description--
-
-Confirm the Solana CLI is installed with:
-
-```bash
-solana --version
-```
+Solana is already installed in this environment. So, run `solana --version` to confirm it is installed.
 
 ### --tests--
 
@@ -96,7 +52,14 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana --version/);
 ```
 
-## 5
+The version should be printed to the console.
+
+```js
+const terminalOut = await __helpers.getTerminalOutput();
+assert.include(terminalOut, "1.17.18");
+```
+
+## 3
 
 ### --description--
 
@@ -117,7 +80,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana --help/);
 ```
 
-## 6
+## 4
 
 ### --description--
 
@@ -136,7 +99,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana config get/);
 ```
 
-## 7
+## 5
 
 ### --description--
 
@@ -163,7 +126,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana config set --url localhost/);
 ```
 
-## 8
+## 6
 
 ### --description--
 
@@ -178,7 +141,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana config get/);
 ```
 
-## 9
+## 7
 
 ### --description--
 
@@ -199,7 +162,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /cat ~\/\.config\/solana\/cli\/config.yml/);
 ```
 
-## 10
+## 8
 
 ### --description--
 
@@ -220,7 +183,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana-keygen new/);
 ```
 
-## 11
+## 9
 
 ### --description--
 
@@ -241,7 +204,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /cat ~\/\.config\/solana\/id\.json/);
 ```
 
-## 12
+## 10
 
 ### --description--
 
@@ -260,7 +223,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.match(lastCommand, /solana address/);
 ```
 
-## 13
+## 11
 
 ### --description--
 
@@ -293,7 +256,7 @@ try {
 }
 ```
 
-## 14
+## 12
 
 ### --description--
 
@@ -337,7 +300,7 @@ const terminalOut = await __helpers.getTerminalOutput();
 assert.match(terminalOut, /"result":/);
 ```
 
-## 15
+## 13
 
 ### --description--
 
@@ -375,7 +338,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, `solana balance ${accountAddress}`);
 ```
 
-## 16
+## 14
 
 ### --description--
 
@@ -425,7 +388,7 @@ const balance = stdout.trim()?.match(/\d+/)[0];
 assert.isAtLeast(Number(balance), 500000001);
 ```
 
-## 17
+## 15
 
 ### --description--
 
@@ -457,7 +420,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, `solana balance ${accountAddress}`);
 ```
 
-## 18
+## 16
 
 ### --description--
 
@@ -476,7 +439,7 @@ const file = await __helpers.getFile(
 assert.include(file, 'use solana_program;');
 ```
 
-## 19
+## 17
 
 ### --description--
 
@@ -496,7 +459,7 @@ const file = await __helpers.getFile(
 assert.match(file, /pub\s+fn\s+process_instruction\s*\(/s);
 ```
 
-## 20
+## 18
 
 ### --description--
 
@@ -541,7 +504,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /entrypoint!\(\s*process_instruction\s*\)/s);
 ```
 
-## 21
+## 19
 
 ### --description--
 
@@ -586,7 +549,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /msg!\(\s*"Hello World"\s*\)/s);
 ```
 
-## 22
+## 20
 
 ### --description--
 
@@ -609,7 +572,7 @@ assert.match(
 );
 ```
 
-## 23
+## 21
 
 ### --description--
 
@@ -656,7 +619,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /program_id\s*:\s*&Pubkey/s);
 ```
 
-## 24
+## 22
 
 ### --description--
 
@@ -703,7 +666,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /accounts\s*:\s*&\[\s*AccountInfo\s*\]/s);
 ```
 
-## 25
+## 23
 
 ### --description--
 
@@ -731,7 +694,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /instruction_data\s*:\s*&\[\s*u8\s*\]/s);
 ```
 
-## 26
+## 24
 
 ### --description--
 
@@ -776,7 +739,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /Ok\s*\(\s*\(\s*\)\s*\)/s);
 ```
 
-## 27
+## 25
 
 ### --description--
 
@@ -799,7 +762,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 28
+## 26
 
 ### --description--
 
@@ -826,7 +789,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 29
+## 27
 
 ### --description--
 
@@ -871,7 +834,7 @@ assert.match(
 );
 ```
 
-## 30
+## 28
 
 ### --description--
 
@@ -905,7 +868,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program show');
 ```
 
-## 31
+## 29
 
 ### --description--
 
@@ -924,7 +887,7 @@ const temp = await __helpers.getTemp();
 assert.include(temp, 'Streaming transaction logs');
 ```
 
-## 32
+## 30
 
 ### --description--
 
@@ -969,7 +932,7 @@ assert.match(
 );
 ```
 
-## 33
+## 31
 
 ### --description--
 
@@ -993,7 +956,7 @@ assert.match(
 );
 ```
 
-## 34
+## 32
 
 ### --description--
 
@@ -1030,7 +993,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /\}\s*else\s*\{\s*msg!\s*\(/s);
 ```
 
-## 35
+## 33
 
 ### --description--
 
@@ -1055,7 +1018,7 @@ const someMatch = variants.some(r => file.match(r));
 assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
-## 36
+## 34
 
 ### --description--
 
@@ -1084,7 +1047,7 @@ assert.match(
 );
 ```
 
-## 37
+## 35
 
 ### --description--
 
@@ -1106,7 +1069,7 @@ assert.match(
 );
 ```
 
-## 38
+## 36
 
 ### --description--
 
@@ -1126,7 +1089,7 @@ assert.match(
 );
 ```
 
-## 39
+## 37
 
 ### --description--
 
@@ -1146,7 +1109,7 @@ assert.match(
 );
 ```
 
-## 40
+## 38
 
 ### --description--
 
@@ -1168,7 +1131,7 @@ assert.match(
 );
 ```
 
-## 41
+## 39
 
 ### --description--
 
@@ -1188,7 +1151,7 @@ assert.match(
 );
 ```
 
-## 42
+## 40
 
 ### --description--
 
@@ -1230,7 +1193,7 @@ const someMatch = variants.some(r => file.match(r));
 assert.isTrue(someMatch, `Your code should match one of ${variants}`);
 ```
 
-## 43
+## 41
 
 ### --description--
 
@@ -1265,7 +1228,7 @@ assert.match(
 );
 ```
 
-## 44
+## 42
 
 ### --description--
 
@@ -1282,7 +1245,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /greeting_account\.counter\s*\+=\s*1\s*;/s);
 ```
 
-## 45
+## 43
 
 ### --description--
 
@@ -1311,7 +1274,7 @@ assert.match(
 );
 ```
 
-## 46
+## 44
 
 ### --description--
 
@@ -1335,7 +1298,7 @@ assert.match(
 );
 ```
 
-## 47
+## 45
 
 ### --description--
 
@@ -1352,7 +1315,7 @@ const file = await __helpers.getFile(filePath);
 assert.match(file, /msg!\(/);
 ```
 
-## 48
+## 46
 
 ### --description--
 
@@ -1375,7 +1338,7 @@ const cwd = wds.split('\n').filter(Boolean).pop();
 assert.match(cwd, /src\/program-rust\/?$/);
 ```
 
-## 49
+## 47
 
 ### --description--
 
@@ -1414,7 +1377,7 @@ assert.match(
 );
 ```
 
-## 50
+## 48
 
 ### --description--
 
@@ -1433,7 +1396,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program show');
 ```
 
-## 51
+## 49
 
 ### --description--
 
@@ -1465,7 +1428,7 @@ assert.match(
 );
 ```
 
-## 52
+## 50
 
 ### --description--
 
@@ -1492,7 +1455,7 @@ const lastCommand = await __helpers.getLastCommand();
 assert.include(lastCommand, 'solana program deploy');
 ```
 
-## 53
+## 51
 
 ### --description--
 
@@ -1535,7 +1498,7 @@ assert.match(
 );
 ```
 
-## 54
+## 52
 
 ### --description--
 
@@ -1582,7 +1545,7 @@ assert.match(
 );
 ```
 
-## 55
+## 53
 
 ### --description--
 
@@ -1620,7 +1583,7 @@ try {
 }
 ```
 
-## 56
+## 54
 
 ### --description--
 
@@ -1661,7 +1624,7 @@ assert.match(
 );
 ```
 
-## 57
+## 55
 
 ### --description--
 
@@ -1695,7 +1658,7 @@ try {
 }
 ```
 
-## 58
+## 56
 
 ### --description--
 
