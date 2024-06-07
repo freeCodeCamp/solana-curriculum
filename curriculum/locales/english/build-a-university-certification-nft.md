@@ -75,7 +75,7 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     "id": 1,
     "method": "getProgramAccounts",
     "params": [
-      "BPFLoader2111111111111111111111111111111111", {
+      "BPFLoaderUpgradeab1e11111111111111111111111", {
         "encoding": "base64",
         "dataSlice": {
           "length": 0,
