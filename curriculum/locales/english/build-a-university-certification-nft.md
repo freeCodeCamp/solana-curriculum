@@ -368,7 +368,7 @@ try {
 }
 ```
 
-The `index.js` file should export a `getMintAcconuts` function.
+The `index.js` file should export a `getMintAccounts` function.
 
 ```js
 const { getMintAccounts } = await __helpers.importSansCache(
@@ -405,7 +405,7 @@ The `getMintAccounts` function should return all mint accounts owned by the `pay
 
 ```js
 try {
-  const { getMintAcconuts, createMintAccount } =
+  const { getMintAccounts, createMintAccount } =
     await __helpers.importSansCache('./' + join(__projectDir, 'index.js'));
   const { Keypair, Connection } = await import('@solana/web3.js');
   const { createMint } = await import('@solana/spl-token');
