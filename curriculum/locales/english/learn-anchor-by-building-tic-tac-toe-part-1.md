@@ -1659,7 +1659,7 @@ const playFunction = __librs.match(
 const requireCondition = playFunction?.match(
   /require!\s*\(([^\)]*?)\)\s*;\s*match\s*tile\s*{/
 )?.[1];
-assert.match(requireCondition, /TickTacToeError\s*::\s*GameAlreadyOver/);
+assert.match(requireCondition, /TicTacToeError\s*::\s*GameAlreadyOver/);
 ```
 
 The `TicTacToeError` enum should have the variant `GameAlreadyOver`.
