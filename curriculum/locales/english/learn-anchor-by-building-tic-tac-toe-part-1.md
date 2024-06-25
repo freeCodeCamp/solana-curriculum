@@ -1401,7 +1401,7 @@ assert.match(__cargo_toml, /num-derive/);
 
 ```js
 const __cargo_toml = await __helpers.getFile(
-  `${project.dashedName}/tic-tac-toe/Cargo.toml`
+  `${project.dashedName}/tic-tac-toe/programs/tic-tac-toe/Cargo.toml`
 );
 global.__cargo_toml = __cargo_toml?.replaceAll(/[ \t]{2,}/g, ' ');
 ```
