@@ -1552,7 +1552,7 @@ Destructure a `gamePublicKey` variable from deriving the program address.
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const [gamePublicKey] = await PublicKey.findProgramAddress([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)], program.programId);`.
+`tests/tic-tac-toe.ts` should have `const [gamePublicKey] = PublicKey.findProgramAddressSync([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)], program.programId);`.
 
 ```js
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
@@ -1573,8 +1573,8 @@ const actualCodeString = babelisedCode.generateCode(awaitExpression, {
   compact: true
 });
 const expectedCodeStrings = [
-  `await PublicKey.findProgramAddress([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`,
-  `await PublicKey.findProgramAddress([Buffer.from('game'),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`
+  `PublicKey.findProgramAddressSync([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`,
+  `PublicKey.findProgramAddressSync([Buffer.from('game'),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
@@ -3131,8 +3131,8 @@ const actualCodeString = babelisedCode.generateCode(awaitExpression, {
   compact: true
 });
 const expectedCodeStrings = [
-  `await PublicKey.findProgramAddress([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`,
-  `await PublicKey.findProgramAddress([Buffer.from('game'),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`
+  `PublicKey.findProgramAddressSync([Buffer.from("game"),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`,
+  `PublicKey.findProgramAddressSync([Buffer.from('game'),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
