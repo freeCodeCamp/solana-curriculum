@@ -3555,8 +3555,8 @@ const actualCodeString = babelisedCode.generateCode(blockStatement, {
   compact: true
 });
 const expectedCodeStrings = [
-  `await play(program,gamePublicKey,playerOne,{row:1,column:0},2,{active:{}},[[{x:{}},null,null],[null,null,null],[null,null,null]])`,
-  `await play(program,gamePublicKey,playerOne,{column:0,row:1},2,{active:{}},[[{x:{}},null,null],[null,null,null],[null,null,null]])`
+  `await play(program,gamePublicKey,playerOne,{row:0,column:0},2,{active:{}},[[{x:{}},null,null],[null,null,null],[null,null,null]])`,
+  `await play(program,gamePublicKey,playerOne,{column:0,row:0},2,{active:{}},[[{x:{}},null,null],[null,null,null],[null,null,null]])`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
