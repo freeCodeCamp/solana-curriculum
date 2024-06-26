@@ -2396,7 +2396,7 @@ async function play(
   extectedGameState:
     | { active: {} }
     | { won: { winner: PublicKey } }
-    | { tied: {} },
+    | { tie: {} },
   expectedBoard: Array<Array<{ x: {} } | { o: {} } | null>>
 ): Promise<void>;
 ```
@@ -2438,7 +2438,7 @@ delete global.babelisedCode;
 
 Cut the `play` call from the `it` block, and paste it into the `play` function, as well as the `fetch` call and subsequent assertions.
 
-Change the arugments to use the `play` function parameters, and rename `gameData2` to `gameData`.
+Change the arguments to use the `play` function parameters, and rename `gameData2` to `gameData`.
 
 ### --tests--
 
