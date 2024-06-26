@@ -1083,7 +1083,7 @@ Assert the `game` account has a `players` property equal to an array of the publ
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
   return c.callee?.name === 'it';
 });
-const blockStatement = callExpression?.arguments?.[0]?.body;
+const blockStatement = callExpression?.arguments?.[1]?.body;
 const ind = blockStatement?.body?.findIndex(v => {
   return v?.declarations?.[0]?.id?.name === 'gameData';
 });
@@ -1129,7 +1129,7 @@ try {
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
   return c.callee?.name === 'it';
 });
-const blockStatement = callExpression?.arguments?.[0]?.body;
+const blockStatement = callExpression?.arguments?.[1]?.body;
 const ind = blockStatement?.body?.findIndex(v => {
   return v?.declarations?.[0]?.id?.name === 'gameData';
 });
@@ -1201,7 +1201,7 @@ Assert the `game` account has a `state` property equal to `active: {}`.
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
   return c.callee?.name === 'it';
 });
-const blockStatement = callExpression?.arguments?.[0]?.body;
+const blockStatement = callExpression?.arguments?.[1]?.body;
 const ind = blockStatement?.body?.findIndex(v => {
   return v?.declarations?.[0]?.id?.name === 'gameData';
 });
