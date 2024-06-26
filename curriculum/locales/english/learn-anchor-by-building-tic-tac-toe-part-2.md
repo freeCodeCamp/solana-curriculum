@@ -404,7 +404,7 @@ Destructure a variable `gamePublicKey` from `PublicKey.findProgramAddressSync`, 
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `const [gamePublicKey, _] = PublicKey.findProgramAddressSync([Buffer.from('game'), payer.publicKey.toBuffer(), Buffer.from(gameId)], program.programId);`.
+`tests/tic-tac-toe.ts` should have `const [gamePublicKey, _] = PublicKey.findProgramAddressSync([Buffer.from('game'), playerOne.publicKey.toBuffer(), Buffer.from(gameId)], program.programId);`.
 
 ```js
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
@@ -414,7 +414,7 @@ const blockStatement = callExpression?.arguments?.[1]?.body;
 const actualCodeString = babelisedCode.generateCode(blockStatement, {
   compact: true
 });
-const expectedCodeString = `const[gamePublicKey,_]=PublicKey.findProgramAddressSync([Buffer.from('game'),payer.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`;
+const expectedCodeString = `const[gamePublicKey,_]=PublicKey.findProgramAddressSync([Buffer.from('game'),playerOne.publicKey.toBuffer(),Buffer.from(gameId)],program.programId)`;
 assert.deepInclude(actualCodeString, expectedCodeString);
 ```
 
