@@ -3772,7 +3772,7 @@ Within the `catch` block, assert the caught error has an `error.errorCode.code` 
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.code === "NotPlayersTurn"`.
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.error.errorCode.code === "NotPlayersTurn"`.
 
 ```js
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
