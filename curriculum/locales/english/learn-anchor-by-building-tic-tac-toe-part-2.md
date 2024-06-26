@@ -968,7 +968,7 @@ Declare a variable `gameData` and assign it the `game` account's data.
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
   return c.callee?.name === 'it';
 });
-const blockStatement = callExpression?.arguments?.[0]?.body;
+const blockStatement = callExpression?.arguments?.[1]?.body;
 const variableDeclaration = blockStatement?.body?.find(v => {
   return v?.declarations?.[0]?.id?.name === 'gameData';
 });
