@@ -878,9 +878,9 @@ const callExpression = babelisedCode.getType('CallExpression').find(c => {
 });
 const blockStatement = callExpression?.arguments?.[1]?.body;
 const variableDeclaration = blockStatement?.body?.find(v => {
-  return v?.declarations?.[0]?.id?.name === 'tx';
+  return v?.declarations?.[0]?.id?.name === 'ix';
 });
-assert.exists(variableDeclaration, 'A variable named `tx` should exist');
+assert.exists(variableDeclaration, 'A variable named `ix` should exist');
 const actualCodeString = babelisedCode.generateCode(variableDeclaration, {
   compact: true
 });
