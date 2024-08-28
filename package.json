@@ -12,7 +12,7 @@
     "@babel/parser": "7.24.5",
     "@freecodecamp/freecodecamp-os": "1.10.0",
     "@metaplex-foundation/js": "0.20.1",
-    "@solana/spl-token": "0.4.6",
+    "@solana/spl-token": "0.4.8",
     "@solana/web3.js": "1.91.8",
     "babeliser": "0.6.0",
     "borsh": "2.0.0"

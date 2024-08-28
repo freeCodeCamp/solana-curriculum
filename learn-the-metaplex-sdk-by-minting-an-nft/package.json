@@ -2,7 +2,7 @@
   "name": "learn-the-metaplex-sdk-by-minting-an-nft",
   "type": "module",
   "dependencies": {
-    "@solana/spl-token": "0.3.7",
+    "@solana/spl-token": "0.4.8",
     "@solana/web3.js": "1.87.7"
   },
   "scripts": {
