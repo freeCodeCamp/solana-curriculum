@@ -102,7 +102,7 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 - Assert a player has a `score` value of `100`
 - Assert a player has a `hasPayed` value of `false`
 
-4. There should be an `it` block named `"
+4. There should be an `it` block named `"throws an error when the user has not payed"`.
 
 - Assert the `PlayerNotFound` error variant is returned when the `user` account has not payed
 
