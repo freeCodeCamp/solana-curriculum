@@ -39,7 +39,6 @@ export async function startGame() {
   const gamePublicKey = deriveGamePublicKey(
     playerOnePublicKey,
     gameId,
-    PROGRAM_ID
   );
   sessionStorage.setItem('gamePublicKey', gamePublicKey.toString());
 
@@ -79,10 +78,10 @@ export async function handlePlay(id) {
   await updateBoard();
 }
 
-export function deriveGamePublicKey(playerOnePublicKey, gameId, programId) {
+export function deriveGamePublicKey(playerOnePublicKey, gameId) {
   const [gamePublicKey, _] = PublicKey.findProgramAddressSync(
     [Buffer.from('game'), playerOnePublicKey.toBuffer(), Buffer.from(gameId)],
-    programId
+    PROGRAM_ID
   );
   return gamePublicKey;
 }
