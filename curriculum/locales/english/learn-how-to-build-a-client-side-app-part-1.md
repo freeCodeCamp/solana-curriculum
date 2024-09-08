@@ -584,7 +584,7 @@ You should import `Wallet` from `./wallet.js`.
 
 ```js
 const importDeclaration = babelisedCode.getImportDeclarations().find(i => {
-  return i.source.value === '@solana/web3.js';
+  return i.source.value === './wallet.js';
 });
 assert.exists(importDeclaration, 'You should import from `./wallet.js`');
 const importSpecifiers = importDeclaration.specifiers.map(s => s.imported.name);
@@ -937,11 +937,11 @@ await Promise.any(promises);
 
 ### --description--
 
-Within the `startGame` function, declare a `playerOnePublicKey` variable set to the `"playerOnePublicKey"` session storage item.
+Within the `startGame` function, declare a `playerOnePublicKey` variable set to the PublicKey instance with the `"playerOnePublicKey"` session storage item passed as an argument.
 
 ### --tests--
 
-You should have `const playerOnePublicKey = sessionStorage.getItem("playerOnePublicKey");` within the `startGame` function.
+You should have `const playerOnePublicKey = new PublicKey(sessionStorage.getItem("playerOnePublicKey"));` within the `startGame` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -960,8 +960,8 @@ const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
 const expectedCodeStrings = [
-  `const playerOnePublicKey=sessionStorage.getItem("playerOnePublicKey")`,
-  `const playerOnePublicKey=sessionStorage.getItem('playerOnePublicKey')`
+  `const playerOnePublicKey=new PublicKey(sessionStorage.getItem("playerOnePublicKey"))`,
+  `const playerOnePublicKey=new PublicKey(sessionStorage.getItem('playerOnePublicKey'))`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
@@ -982,11 +982,11 @@ await Promise.any(promises);
 
 ### --description--
 
-Within the `startGame` function, declare a `playerTwoPublicKey` variable set to the `"playerTwoPublicKey"` session storage item.
+Within the `startGame` function, declare a `playerTwoPublicKey` variable set to the PublicKey instance with the `"playerTwoPublicKey"` session storage item passed as an argument.
 
 ### --tests--
 
-You should have `const playerTwoPublicKey = sessionStorage.getItem("playerTwoPublicKey");` within the `startGame` function.
+You should have `const playerTwoPublicKey = new PublicKey(sessionStorage.getItem("playerTwoPublicKey"));` within the `startGame` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1005,8 +1005,8 @@ const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
 const expectedCodeStrings = [
-  `const playerTwoPublicKey=sessionStorage.getItem("playerTwoPublicKey")`,
-  `const playerTwoPublicKey=sessionStorage.getItem('playerTwoPublicKey')`
+  `const playerTwoPublicKey=new PublicKey(sessionStorage.getItem("playerTwoPublicKey"))`,
+  `const playerTwoPublicKey=new PublicKey(sessionStorage.getItem('playerTwoPublicKey'))`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
@@ -1027,11 +1027,11 @@ await Promise.any(promises);
 
 ### --description--
 
-Within the `startGame` function, declare a `gamePublicKey` variable set to the result of calling the `deriveGamePublicKey` function with the `playerOnePublicKey`, `gameId`, and `PROGRAM_ID` variables.
+Within the `startGame` function, declare a `gamePublicKey` variable set to the result of calling the `deriveGamePublicKey` function with the `playerOnePublicKey` and `gameId` variables.
 
 ### --tests--
 
-You should have `const gamePublicKey = deriveGamePublicKey(playerOnePublicKey, gameId, PROGRAM_ID);` within the `startGame` function.
+You should have `const gamePublicKey = await deriveGamePublicKey(playerOnePublicKey, gameId);` within the `startGame` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1050,8 +1050,8 @@ const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
 const expectedCodeStrings = [
-  `const gamePublicKey=deriveGamePublicKey(playerOnePublicKey,gameId,PROGRAM_ID)`,
-  `const gamePublicKey=deriveGamePublicKey(playerOnePublicKey,gameId,PROGRAM_ID)`
+  `const gamePublicKey=await deriveGamePublicKey(playerOnePublicKey,gameId)`,
+  `const gamePublicKey=await deriveGamePublicKey(playerOnePublicKey,gameId)`
 ];
 
 const promises = expectedCodeStrings.map((expectedCodeString, index) => {
@@ -1271,7 +1271,7 @@ Within the `startGame` function, call the `setupGame` instruction attaching the 
 
 ### --tests--
 
-You should have `await program.methods.setupGame(playerTwoPublicKey,gameId).accounts({player:keypair.publicKey,game:gamePublicKey}).signers([keypair]).rpc()` within the `startGame` function.
+You should have `await program.methods.setupGame(playerTwoPublicKey, gameId).accounts({ player:keypair.publicKey, game:gamePublicKey }).signers([keypair]).rpc()` within the `startGame` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1370,7 +1370,7 @@ _Remember all the seeds defined for the `tic-tac-toe` program_
 
 ### --tests--
 
-You should have `return PublicKey.findProgramAddressSync([Buffer.from("game"),playerOnePublicKey.toBuffer(),Buffer.from(gameId)], PROGRAM_ID)[0];` within the `deriveGamePublicKey` function.
+You should have `return PublicKey.findProgramAddressSync([Buffer.from("game"), playerOnePublicKey.toBuffer(), Buffer.from(gameId)], PROGRAM_ID)[0];` within the `deriveGamePublicKey` function.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -1436,8 +1436,22 @@ assert.exists(
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-const expectedCodeString = `const gamePublicKey=new PublicKey(sessionStorage.getItem("gamePublicKey"))`;
-assert.include(actualCodeString, expectedCodeString);
+const expectedCodeStrings = [
+  `const gamePublicKey=new PublicKey(sessionStorage.getItem("gamePublicKey"))`,
+  `const gamePublicKey=new PublicKey(sessionStorage.getItem('gamePublicKey'))`
+];
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 41
@@ -1734,7 +1748,7 @@ const tryStatementBlock = callExpression.arguments[1]?.body?.body?.find(
 const actualCodeString = babelisedCode.generateCode(tryStatementBlock, {
   compact: true
 });
-const expectedCodeString = `updateBoard()`;
+const expectedCodeString = `await updateBoard()`;
 assert.include(actualCodeString, expectedCodeString);
 ```
 
@@ -1912,8 +1926,23 @@ assert.exists(
 const actualCodeString = babelisedCode.generateCode(functionDeclaration, {
   compact: true
 });
-const expectedCodeString = `const keypair=Keypair.fromSecretKey(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))))`;
-assert.include(actualCodeString, expectedCodeString);
+const expectedCodeStrings = [
+  `const keypair=Keypair.fromSecretKey(new Uint8Array(JSON.parse(sessionStorage.getItem("keypair"))))`,
+  `const keypair=Keypair.fromSecretKey(new Uint8Array(JSON.parse(sessionStorage.getItem('keypair'))))`
+];
+
+const promises = expectedCodeStrings.map((expectedCodeString, index) => {
+  return new Promise((resolve, reject) => {
+    try {
+      assert.include(actualCodeString, expectedCodeString);
+      resolve(index + 1);
+    } catch (e) {
+      reject(e);
+    }
+  });
+});
+
+await Promise.any(promises);
 ```
 
 ## 54
@@ -2088,7 +2117,7 @@ const command = `curl http://127.0.0.1:8899 -X POST -H "Content-Type: applicatio
     "id": 1,
     "method": "getProgramAccounts",
     "params": [
-      "BPFLoader2111111111111111111111111111111111", {
+      "BPFLoaderUpgradeab1e11111111111111111111111", {
         "encoding": "base64",
         "dataSlice": {
           "length": 0,
@@ -2183,9 +2212,9 @@ const { stdout } = await __helpers.getCommandOutput(
   `solana address -k ${project.dashedName}/tic-tac-toe/player-one.json`
 );
 const pubkey = new PublicKey(stdout.trim());
-const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+const transactions = await connection.getSignaturesForAddress(pubkey);
 // 2 is used because the first transaction is likely an airdrop
-assert.isAtLeast(transactions, 2, 'Try playing a game with player one');
+assert.isAtLeast(transactions.length, 2, 'Try playing a game with player one');
 ```
 
 The `player-two.json` account should make at least one transaction.
@@ -2198,9 +2227,9 @@ const { stdout } = await __helpers.getCommandOutput(
   `solana address -k ${project.dashedName}/tic-tac-toe/player-two.json`
 );
 const pubkey = new PublicKey(stdout.trim());
-const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+const transactions = await connection.getSignaturesForAddress(pubkey);
 // 2 is used because the first transaction is likely an airdrop
-assert.isAtLeast(transactions, 2, 'Try playing a game with player one');
+assert.isAtLeast(transactions.length, 2, 'Try playing a game with player one');
 ```
 
 ## 61
