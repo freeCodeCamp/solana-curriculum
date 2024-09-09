@@ -2478,7 +2478,7 @@ pub enum ErrorCode {
 
 ### --description--
 
-Lastly within the `save_tasks` instruction handle, adjust the `if` statement conditional to only realloc if the replacing tasks space is less than the currently allocated space.
+Lastly within the `save_tasks` instruction handle, adjust the `if` statement conditional to only realloc if the currently allocated space is less than the replacing tasks space.
 
 ### --tests--
 
@@ -2999,13 +2999,13 @@ delete global.__babelisedCode;
 
 ### --description--
 
-Under the `TODO:3` comment, declare an `ENDPOINT` variable, and assign it the value of `import.meta.VITE_SOLANA_CONNECTION_URL` or default to `http://localhost:8899`.
+Under the `TODO:3` comment, declare an `ENDPOINT` variable, and assign it the value of `import.meta.env.VITE_SOLANA_CONNECTION_URL` or default to `http://localhost:8899`.
 
 **Note:** `import.meta.VITE_*` is a way to access environemnt variables in a Vitejs app during build time.
 
 ### --tests--
 
-You should have `const ENDPOINT = import.meta.VITE_SOLANA_CONNECTION_URL || "http://localhost:8899";`.
+You should have `const ENDPOINT = import.meta.env.VITE_SOLANA_CONNECTION_URL || "http://localhost:8899";`.
 
 ```js
 const codeString = await __helpers.getFile(
@@ -3013,7 +3013,7 @@ const codeString = await __helpers.getFile(
 );
 assert.match(
   codeString,
-  /const\s+ENDPOINT\s*=\s*import\.meta\.VITE_SOLANA_CONNECTION_URL\s*\|\|/
+  /const\s+ENDPOINT\s*=\s*import\.meta\.env\.VITE_SOLANA_CONNECTION_URL\s*\|\|/
 );
 ```
 
@@ -3779,9 +3779,9 @@ const { stdout: keys } = await __helpers.getCommandOutput(
 );
 const expectedProgramId = keys.match(/[^\s]{44}/)?.[0];
 const pubkey = new PublicKey(expectedProgramId);
-const transactions = await connection.getConfirmedSignaturesForAddress2(pubkey);
+const transactions = await connection.getSignaturesForAddress(pubkey);
 assert.isAtLeast(
-  transactions,
+  transactions.length,
   2,
   'Try using the client interface and your wallet to make a few transactions'
 );
