@@ -25,7 +25,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
   /etc/sudoers
 
 # Install packages for projects
-RUN sudo apt-get install -y curl git bash-completion man-db htop nano
+RUN sudo apt-get install -y curl git bash-completion man-db htop nano wget
 
 # Install Node LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -37,11 +37,11 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/workspace/.cargo/bin:${PATH}"
 
 # Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.17.18/install)"
-# RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
-# RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
-# RUN cd solana-release/
-# ENV PATH="$PWD/bin:${PATH}"
+# RUN sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+RUN wget https://github.com/solana-labs/solana/releases/download/v1.16.9/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+RUN tar jxf solana-release-x86_64-unknown-linux-gnu.tar.bz2
+RUN cd solana-release/
+ENV PATH="$PWD/bin:${PATH}"
 
 # /usr/lib/node_modules is owned by root, so this creates a folder ${USERNAME} 
 # can use for npm install --global
