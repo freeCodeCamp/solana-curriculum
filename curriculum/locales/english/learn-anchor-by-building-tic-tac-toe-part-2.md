@@ -3034,7 +3034,7 @@ try {
 
 ### --description--
 
-Within the `describe` callback, create a new `it` call with a title of `"handles ties"`, and an asynchroneous callback.
+Within the `describe` callback, create a new `it` call with a title of `"handles ties"`, and an asynchronous callback.
 
 ### --tests--
 
