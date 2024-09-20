@@ -3826,7 +3826,7 @@ try {
 }
 ```
 
-`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.errorCode.number === 6003`.
+`tests/tic-tac-toe.ts` should have a `catch` block that asserts `e.error.errorCode.number === 6003`.
 
 ```js
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
