@@ -3541,7 +3541,7 @@ Within the `"handles invalid plays"` callback, use the `play` function to have p
 
 ### --tests--
 
-`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:1,column:0}, 2, {active:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);`.
+`tests/tic-tac-toe.ts` should have `await play(program, gamePublicKey, playerOne, {row:0,column:0}, 2, {active:{}}, [[{x:{}},null,null],[null,null,null],[null,null,null]]);`.
 
 ```js
 const callExpression = babelisedCode.getType('CallExpression').find(c => {
