@@ -2051,7 +2051,7 @@ const callExpression = babelisedCode.getType('CallExpression').find(c => {
     c.callee?.name === 'it' && c.arguments?.[0]?.value === 'has player one win'
   );
 });
-const awaitExpression = callExpression?.arguments?.[1]?.body?.body?.[0];
+const awaitExpression = callExpression?.arguments?.[1]?.body;
 const actualCodeString = babelisedCode.generateCode(awaitExpression, {
   compact: true
 });
