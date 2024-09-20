@@ -2411,7 +2411,7 @@ async function play(
   player: Keypair,
   tile: { row: number; column: number },
   expectedTurn: number,
-  extectedGameState:
+  expectedGameState:
     | { active: {} }
     | { won: { winner: PublicKey } }
     | { tied: {} },
