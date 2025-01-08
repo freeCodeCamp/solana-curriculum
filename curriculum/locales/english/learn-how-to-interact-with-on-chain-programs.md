@@ -459,7 +459,7 @@ delete global.babelisedCode;
 #### --cmd--
 
 ```bash
-npm install @solana/web3.js
+npm install @solana/web3.js@1
 ```
 
 ## 12
