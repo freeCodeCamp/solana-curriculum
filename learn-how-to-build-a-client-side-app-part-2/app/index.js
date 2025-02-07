@@ -3,7 +3,6 @@ import player_one_keypair from '../player-one.json';
 import player_two_keypair from '../player-two.json';
 import { displayError, removeLoader, showLoader } from './utils';
 import {
-  PROGRAM_ID,
   connectWallet,
   deriveGamePublicKey,
   handlePlay,
@@ -21,6 +20,7 @@ const playerTwoPublicKeyEl = document.getElementById('player-two-public-key');
 const connectWalletBtnEl = document.getElementById('connect-wallet');
 const keypairEl = document.getElementById('keypair');
 const keypairsEl = document.getElementById('keypairs');
+const gamePublicKeyEl = document.getElementById('game-public-key');
 
 connectWalletBtnEl.addEventListener('click', ev => {
   ev.preventDefault();
@@ -143,23 +143,30 @@ function startWithPossibleValues() {
   });
 }
 
-playerOnePublicKeyEl.addEventListener('change', e => {
+async function setGamePublicKey() {
+  if (PublicKey.isOnCurve(playerOnePublicKeyEl.value)) {
+    const gamePublicKey = await deriveGamePublicKey(
+      new PublicKey(playerOnePublicKeyEl.value),
+      gameIdEl.value,
+    );
+    sessionStorage.setItem('gamePublicKey', gamePublicKey.toBase58());
+    gamePublicKeyEl.value = gamePublicKey.toBase58();
+  }
+}
+
+playerOnePublicKeyEl.addEventListener('input', async e => {
   const playerOnePublicKey = e.target.value;
   sessionStorage.setItem('playerOnePublicKey', playerOnePublicKey);
+  await setGamePublicKey();
 });
 
-playerTwoPublicKeyEl.addEventListener('change', e => {
+playerTwoPublicKeyEl.addEventListener('input', e => {
   const playerTwoPublicKey = e.target.value;
   sessionStorage.setItem('playerTwoPublicKey', playerTwoPublicKey);
 });
 
-gameIdEl.addEventListener('change', e => {
+gameIdEl.addEventListener('input', async e => {
   const gameId = e.target.value;
   sessionStorage.setItem('gameId', gameId);
-  const gamePublicKey = deriveGamePublicKey(
-    new PublicKey(playerOnePublicKeyEl.value),
-    gameId,
-    PROGRAM_ID
-  );
-  sessionStorage.setItem('gamePublicKey', gamePublicKey.toBase58());
+  await setGamePublicKey();
 });
