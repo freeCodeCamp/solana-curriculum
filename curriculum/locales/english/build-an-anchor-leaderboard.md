@@ -70,7 +70,8 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 4. The player matching the user account public key should be updated with:
    - `score` set to the `u64` argument
    - `has_payed` set to `false`
-5. If no player matching the user account public key exists and has payed, an Anchor error variant of `PlayerNotFound` should be returned.
+5. If no player matching the user account public key exists, an Anchor error variant of `PlayerNotFound` should be returned.
+6. If player matching the user account public key exists but has not paid, an Anchor error variant of `PlayerHasNotPaid` should be returned.
 
 **`AddPlayerToLeaderboard`**
 
@@ -102,9 +103,13 @@ You will be working entirely within the `build-an-anchor-leaderboard/rock-destro
 - Assert a player has a `score` value of `100`
 - Assert a player has a `hasPayed` value of `false`
 
-4. There should be an `it` block named `"
+4. There should be an `it` block named `"throws an error when the user does not exist"`.
 
-- Assert the `PlayerNotFound` error variant is returned when the `user` account has not payed
+- Assert the `PlayerNotFound` error variant is returned when the `user` account is not on the leaderboard
+
+5. There should be an `it` block named `"throws an error when the user has not payed"`.
+
+- Assert the `PlayerHasNotPaid` error variant is returned when the `user` account has not payed
 
 #### Types
 
@@ -392,6 +397,19 @@ const callExpressions = babelisedCode
   })
   .map(c => c.arguments?.[1]?.value);
 assert.include(callExpressions, 'adds a player to the leaderboard');
+```
+
+There should be an `it` block named `"throws an error when the user does not exist"`.
+
+```js
+const callExpressions = babelisedCode
+  .getType('CallExpression')
+  .filter(c => {
+    return;
+    c.callee?.name === 'it';
+  })
+  .map(c => c.arguments?.[1]?.value);
+assert.include(callExpressions, 'throws an error when the user does not exist');
 ```
 
 There should be an `it` block named `"throws an error when the user has not payed"`.
